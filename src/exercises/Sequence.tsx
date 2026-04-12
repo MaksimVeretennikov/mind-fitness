@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { saveResult } from '../lib/auth';
 
 const WORD_LIST = [
   'яблоко', 'дерево', 'облако', 'солнце', 'ветер',
@@ -44,6 +45,7 @@ export default function Sequence() {
   const [inputVal, setInputVal] = useState('');
   const [score, setScore] = useState(0);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const savedRef = useRef(false);
 
   const startGame = useCallback(() => {
     const seq = generateSequence(settings);
@@ -53,6 +55,7 @@ export default function Sequence() {
     setInputVal('');
     setScore(0);
     setPhase('showing');
+    savedRef.current = false;
   }, [settings]);
 
   // Sequence display logic
@@ -89,8 +92,17 @@ export default function Sequence() {
     setInputVal('');
     if (newAnswers.length === sequence.length) {
       const correct = newAnswers.filter((a, i) => a.toString() === sequence[i].toString()).length;
+      const pct = Math.round((correct / sequence.length) * 100);
       setScore(correct);
       setPhase('result');
+      if (!savedRef.current) {
+        savedRef.current = true;
+        saveResult('sequence', pct, {
+          correct,
+          total: sequence.length,
+          mode: settings.mode,
+        });
+      }
     }
   };
 

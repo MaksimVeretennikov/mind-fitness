@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { saveResult } from '../lib/auth';
 
 const BALL_R = 28;
 const INITIAL_SPEED = 1.8;
@@ -59,6 +60,7 @@ export default function Reaction() {
   const scoreRef = useRef(0);
   const speedRef = useRef(INITIAL_SPEED);
   const phaseRef = useRef<Phase>('idle');
+  const savedRef = useRef(false);
   const areaSizeRef = useRef(areaSize);
   areaSizeRef.current = areaSize;
 
@@ -95,7 +97,26 @@ export default function Reaction() {
     setFlashMiss(false);
     phaseRef.current = 'playing';
     setPhase('playing');
+    savedRef.current = false;
   }, []);
+
+  // Save result when game ends
+  useEffect(() => {
+    if (phase === 'result' && !savedRef.current) {
+      savedRef.current = true;
+      const reactionScore = Math.min(100, score * 5);
+      const avgMs = reactionTimes.length > 0
+        ? Math.round(reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length)
+        : 0;
+      const bestMs = reactionTimes.length > 0 ? Math.min(...reactionTimes) : 0;
+      saveResult('reaction', reactionScore, {
+        catches: score,
+        avgReactionMs: avgMs,
+        bestReactionMs: bestMs,
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
 
   // Spawn first ball once phase becomes 'playing'
   useEffect(() => {

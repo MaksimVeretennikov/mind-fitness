@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { saveResult } from '../lib/auth';
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -26,6 +27,7 @@ export default function Schulte() {
   const [elapsed, setElapsed] = useState(0);
   const [finished, setFinished] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const savedRef = useRef(false);
 
   const startNew = useCallback(() => {
     setGame(newGame());
@@ -34,7 +36,17 @@ export default function Schulte() {
     setStarted(false);
     setElapsed(0);
     setFinished(false);
+    savedRef.current = false;
   }, []);
+
+  // Save result on finish
+  useEffect(() => {
+    if (finished && !savedRef.current) {
+      savedRef.current = true;
+      saveResult('schulte', 100, { elapsed, count: sorted.length });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [finished]);
 
   useEffect(() => {
     if (started && !finished) {

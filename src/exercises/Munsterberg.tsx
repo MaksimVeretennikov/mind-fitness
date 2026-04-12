@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { saveResult } from '../lib/auth';
 
 const WORDS = [
   'кот', 'дом', 'лес', 'мир', 'сон', 'год', 'нос', 'рот', 'лоб', 'зуб',
@@ -68,6 +69,7 @@ export default function Munsterberg() {
   const [flashResult, setFlashResult] = useState<'correct' | 'wrong' | null>(null);
   const [timeLeft, setTimeLeft] = useState(120);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const savedRef = useRef(false);
 
   const startGame = useCallback((s: Settings) => {
     setData(generateText(WORDS, s.wordCount));
@@ -77,6 +79,7 @@ export default function Munsterberg() {
     setTimeLeft(s.timeLimit);
     setPhase('playing');
     setGameKey(k => k + 1);
+    savedRef.current = false;
   }, []);
 
   useEffect(() => {
@@ -121,6 +124,21 @@ export default function Munsterberg() {
   };
 
   const totalWords = positions.size;
+
+  // Save result when time runs out
+  useEffect(() => {
+    if (phase === 'result' && !savedRef.current) {
+      savedRef.current = true;
+      const score = totalWords > 0 ? Math.round((found.size / totalWords) * 100) : 0;
+      saveResult('munsterberg', score, {
+        found: found.size,
+        total: totalWords,
+        timeLimit: settings.timeLimit,
+        wordCount: settings.wordCount,
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
   const mm = Math.floor(timeLeft / 60).toString().padStart(2, '0');
   const ss = (timeLeft % 60).toString().padStart(2, '0');
 

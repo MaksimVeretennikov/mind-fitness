@@ -9,6 +9,10 @@ import Sequence from './exercises/Sequence';
 import Pairs from './exercises/Pairs';
 import Balls from './exercises/Balls';
 import Reaction from './exercises/Reaction';
+import { AuthProvider } from './contexts/AuthContext';
+import UserBadge from './components/UserBadge';
+import AuthModal from './components/AuthModal';
+import HistoryPanel from './components/HistoryPanel';
 
 function ExerciseComponent({ id }: { id: ExerciseId }) {
   switch (id) {
@@ -25,13 +29,19 @@ function ExerciseComponent({ id }: { id: ExerciseId }) {
 export default function App() {
   const [current, setCurrent] = useState<ExerciseId | null>(null);
 
-  if (current) {
-    return (
-      <ExerciseShell id={current} onBack={() => setCurrent(null)}>
-        <ExerciseComponent id={current} />
-      </ExerciseShell>
-    );
-  }
+  return (
+    <AuthProvider>
+      <UserBadge />
+      <AuthModal />
+      <HistoryPanel />
 
-  return <HomeScreen onSelect={setCurrent} />;
+      {current ? (
+        <ExerciseShell id={current} onBack={() => setCurrent(null)}>
+          <ExerciseComponent id={current} />
+        </ExerciseShell>
+      ) : (
+        <HomeScreen onSelect={setCurrent} />
+      )}
+    </AuthProvider>
+  );
 }

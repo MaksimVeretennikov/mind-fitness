@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { saveResult } from '../lib/auth';
 
 const WORD_BANK = [
   'КОТ', 'ДОМ', 'ЛЕС', 'МИР', 'СОН',
@@ -89,6 +90,7 @@ export default function Philwords() {
   const [win, setWin] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [started, setStarted] = useState(false);
+  const savedRef = useRef(false);
 
   const startNew = useCallback(() => {
     setGame(generateGame());
@@ -100,7 +102,17 @@ export default function Philwords() {
     setElapsed(0);
     setWin(false);
     setStarted(false);
+    savedRef.current = false;
   }, []);
+
+  // Save result on win
+  useEffect(() => {
+    if (win && !savedRef.current) {
+      savedRef.current = true;
+      saveResult('philwords', 100, { elapsed, wordCount: placed.length });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [win]);
 
   useEffect(() => {
     if (!started || win) return;

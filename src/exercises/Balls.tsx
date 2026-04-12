@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { saveResult } from '../lib/auth';
 
 const BALL_RADIUS = 32;
 const HIDDEN_COLOR = '#6366f1';
@@ -59,6 +60,7 @@ export default function Balls() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingBallCount = useRef(ballCount);
+  const savedRef = useRef(false);
 
   // When pendingStart becomes true, the play area has just rendered — now we can measure and place balls
   useEffect(() => {
@@ -100,7 +102,22 @@ export default function Balls() {
     pendingBallCount.current = ballCount;
     setPhase('memorize'); // render play area first
     setPendingStart(true); // useEffect above will fire after render
+    savedRef.current = false;
   }, [ballCount]);
+
+  // Save result on completion
+  useEffect(() => {
+    if (phase === 'result' && !savedRef.current) {
+      savedRef.current = true;
+      const score = Math.max(0, 100 - errors * 10);
+      saveResult('balls', score, {
+        elapsed,
+        errors,
+        ballCount: pendingBallCount.current,
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
 
   // Play timer
   useEffect(() => {

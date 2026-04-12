@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { saveResult } from '../lib/auth';
 
 const SYMBOLS_4x4 = ['🌟', '🎯', '🎨', '🚀', '🌈', '🎸', '🦋', '🔮'];
 const SYMBOLS_6x6 = ['🌟', '🎯', '🎨', '🚀', '🌈', '🎸', '🦋', '🔮', '🎭', '🌊', '🦁', '🎺', '🌺', '🎲', '🍀', '🎠', '🦄', '🌙'];
@@ -32,6 +33,7 @@ export default function Pairs() {
   const [memorizeLeft, setMemorizeLeft] = useState(memorizeTime);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const blockRef = useRef(false);
+  const savedRef = useRef(false);
 
   const startGame = useCallback((size: GridSize, memTime: number) => {
     const newCards = buildCards(size);
@@ -44,7 +46,24 @@ export default function Pairs() {
     setMemorizeLeft(memTime);
     setPhase('memorize');
     blockRef.current = false;
+    savedRef.current = false;
   }, []);
+
+  // Save result when all pairs found
+  useEffect(() => {
+    if (phase === 'result' && !savedRef.current) {
+      savedRef.current = true;
+      const pairs = cards.length / 2;
+      const efficiency = Math.max(0, Math.round(100 - Math.max(0, attempts - pairs) * 3));
+      saveResult('pairs', efficiency, {
+        elapsed,
+        attempts,
+        pairs,
+        gridSize,
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
 
   useEffect(() => {
     if (phase !== 'memorize') return;
