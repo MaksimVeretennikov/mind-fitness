@@ -1,0 +1,60 @@
+import type { Exercise } from './types';
+
+export const EXERCISES: Exercise[] = [
+  {
+    id: 'munsterberg',
+    title: 'Тест Мюнстерберга',
+    description: 'Найдите спрятанные слова в строке случайных букв. Тренирует концентрацию и избирательность внимания.',
+    icon: '🔍',
+    color: 'text-violet-600',
+    gradient: 'from-violet-400 to-purple-500',
+  },
+  {
+    id: 'philwords',
+    title: 'Филворды',
+    description: 'Найдите все слова в сетке букв: горизонтально, вертикально, по диагонали. Тренирует внимание и словарный запас.',
+    icon: '📝',
+    color: 'text-blue-600',
+    gradient: 'from-blue-400 to-cyan-500',
+  },
+  {
+    id: 'schulte',
+    title: 'Таблица Шульте',
+    description: 'Кликайте числа по порядку от 1 до 25. Тренирует скорость восприятия и переключение внимания.',
+    icon: '🔢',
+    color: 'text-indigo-600',
+    gradient: 'from-indigo-400 to-blue-500',
+  },
+  {
+    id: 'sequence',
+    title: 'Последовательности',
+    description: 'Запомните последовательность чисел или слов и воспроизведите её. Тренирует кратковременную память.',
+    icon: '🧠',
+    color: 'text-pink-600',
+    gradient: 'from-pink-400 to-rose-500',
+  },
+  {
+    id: 'pairs',
+    title: 'Игра на пары',
+    description: 'Запомните расположение карточек и найдите все совпадающие пары. Тренирует зрительную память.',
+    icon: '🃏',
+    color: 'text-emerald-600',
+    gradient: 'from-emerald-400 to-teal-500',
+  },
+  {
+    id: 'balls',
+    title: 'Шарики с номерами',
+    description: 'Запомните номера шариков и нажимайте их по порядку после того, как цифры спрячутся. Тренирует память и внимание.',
+    icon: '🎯',
+    color: 'text-orange-600',
+    gradient: 'from-orange-400 to-amber-500',
+  },
+  {
+    id: 'reaction',
+    title: 'Реакция на шарик',
+    description: 'Кликайте по шарику до того, как он улетит за край. Тренирует скорость реакции и концентрацию.',
+    icon: '⚡',
+    color: 'text-red-600',
+    gradient: 'from-red-400 to-pink-500',
+  },
+];
