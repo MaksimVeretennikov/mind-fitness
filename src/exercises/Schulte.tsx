@@ -94,7 +94,9 @@ export default function Schulte() {
         <span className="text-gray-500 text-sm">{nextRank}/{sorted.length} чисел</span>
         <div className="flex items-center gap-3">
           {wrongClicks > 0 && (
-            <span className="text-red-500 text-sm font-semibold">{wrongClicks} ош.</span>
+            <span className="text-red-500 text-sm font-semibold">
+              {wrongClicks} {wrongClicks % 10 === 1 && wrongClicks % 100 !== 11 ? 'ошибка' : [2,3,4].includes(wrongClicks % 10) && ![12,13,14].includes(wrongClicks % 100) ? 'ошибки' : 'ошибок'}
+            </span>
           )}
           <button onClick={startNew} className="px-4 py-2 rounded-xl text-sm font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition-all active:scale-95">
             Новая игра
