@@ -22,6 +22,13 @@ export default function HomeScreen({ onSelect }: Props) {
           </p>
         </div>
 
+        {/* Cognitive section header */}
+        <div className="mb-7">
+          <h2 className="text-2xl font-bold text-gray-800 mb-1">Когнитивные тренажёры</h2>
+          <p className="text-gray-400 text-sm">Развитие памяти и внимательности</p>
+          <div className="mt-3 h-px bg-gradient-to-r from-violet-200 via-indigo-100 to-transparent" />
+        </div>
+
         {/* Exercise Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {EXERCISES.map((ex, i) => (
@@ -57,14 +64,11 @@ export default function HomeScreen({ onSelect }: Props) {
 
         {/* Russian Language Section */}
         <div className="mt-14">
-          {/* Section separator */}
-          <div className="flex items-center gap-4 mb-8">
-            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-indigo-200 to-transparent" />
-            <div className="flex flex-col items-center gap-1">
-              <h2 className="text-xl font-bold text-gray-700">Русский язык</h2>
-              <p className="text-gray-400 text-sm text-center">Подготовка к экзаменам и развитие грамотности</p>
-            </div>
-            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-indigo-200 to-transparent" />
+          {/* Russian section header */}
+          <div className="mb-7">
+            <h2 className="text-2xl font-bold text-gray-800 mb-1">Русский язык</h2>
+            <p className="text-gray-400 text-sm">Подготовка к экзаменам и развитие грамотности</p>
+            <div className="mt-3 h-px bg-gradient-to-r from-indigo-200 via-blue-100 to-transparent" />
           </div>
 
           {/* Russian exercises grid */}
