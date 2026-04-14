@@ -5,7 +5,8 @@ export type ExerciseId =
   | 'sequence'
   | 'pairs'
   | 'balls'
-  | 'reaction';
+  | 'reaction'
+  | 'adverbs';
 
 export interface Exercise {
   id: ExerciseId;

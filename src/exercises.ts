@@ -1,5 +1,16 @@
 import type { Exercise } from './types';
 
+export const RUSSIAN_EXERCISES: Exercise[] = [
+  {
+    id: 'adverbs',
+    title: 'Правописание наречий',
+    description: 'Выберите правильное написание: слитно или раздельно. Тренирует грамотность и готовит к ЕГЭ по русскому языку.',
+    icon: '📝',
+    color: 'text-indigo-700',
+    gradient: 'from-indigo-500 to-blue-600',
+  },
+];
+
 export const EXERCISES: Exercise[] = [
   {
     id: 'munsterberg',

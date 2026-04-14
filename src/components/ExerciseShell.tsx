@@ -1,4 +1,6 @@
-import { EXERCISES } from '../exercises';
+import { EXERCISES, RUSSIAN_EXERCISES } from '../exercises';
+
+const ALL_EXERCISES = [...EXERCISES, ...RUSSIAN_EXERCISES];
 import type { ExerciseId } from '../types';
 
 interface Props {
@@ -8,7 +10,7 @@ interface Props {
 }
 
 export default function ExerciseShell({ id, onBack, children }: Props) {
-  const ex = EXERCISES.find((e) => e.id === id)!;
+  const ex = ALL_EXERCISES.find((e) => e.id === id)!;
 
   return (
     <div className="min-h-screen animate-fade-in">

@@ -9,12 +9,13 @@ import Sequence from './exercises/Sequence';
 import Pairs from './exercises/Pairs';
 import Balls from './exercises/Balls';
 import Reaction from './exercises/Reaction';
+import Adverbs from './exercises/Adverbs';
 import { AuthProvider } from './contexts/AuthContext';
 import UserBadge from './components/UserBadge';
 import AuthModal from './components/AuthModal';
 import HistoryPanel from './components/HistoryPanel';
 
-function ExerciseComponent({ id }: { id: ExerciseId }) {
+function ExerciseComponent({ id, onBack }: { id: ExerciseId; onBack: () => void }) {
   switch (id) {
     case 'munsterberg': return <Munsterberg />;
     case 'philwords': return <Philwords />;
@@ -23,6 +24,7 @@ function ExerciseComponent({ id }: { id: ExerciseId }) {
     case 'pairs': return <Pairs />;
     case 'balls': return <Balls />;
     case 'reaction': return <Reaction />;
+    case 'adverbs': return <Adverbs onBack={onBack} />;
   }
 }
 
@@ -37,7 +39,7 @@ export default function App() {
 
       {current ? (
         <ExerciseShell id={current} onBack={() => setCurrent(null)}>
-          <ExerciseComponent id={current} />
+          <ExerciseComponent id={current} onBack={() => setCurrent(null)} />
         </ExerciseShell>
       ) : (
         <HomeScreen onSelect={setCurrent} />

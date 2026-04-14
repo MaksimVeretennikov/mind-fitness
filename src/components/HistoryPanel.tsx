@@ -18,6 +18,7 @@ const EXERCISE_NAMES: Record<string, string> = {
   pairs: 'Игра на пары',
   balls: 'Шарики с номерами',
   reaction: 'Реакция на шарик',
+  adverbs: 'Наречия',
 };
 
 const EXERCISE_ICONS: Record<string, string> = {
@@ -28,6 +29,7 @@ const EXERCISE_ICONS: Record<string, string> = {
   pairs: '🃏',
   balls: '🎯',
   reaction: '⚡',
+  adverbs: '📝',
 };
 
 function fmtTime(s: number): string {
@@ -119,6 +121,15 @@ function getDisplay(result: ExerciseResult): ExerciseDisplay {
         primary: `${catches} поймал`,
         secondary: avgMs > 0 ? `реакция ${(avgMs / 1000).toFixed(2)}с` : undefined,
         quality: catches >= 15 ? 'good' : catches >= 7 ? 'ok' : 'bad',
+      };
+    }
+    case 'adverbs': {
+      const correct = n('correct'), total = n('total', 1);
+      const pct = total > 0 ? correct / total : 0;
+      return {
+        primary: `${correct} / ${total}`,
+        secondary: 'верно',
+        quality: pct >= 0.8 ? 'good' : pct >= 0.5 ? 'ok' : 'bad',
       };
     }
     default:
@@ -227,7 +238,7 @@ export default function HistoryPanel() {
               </div>
               <div className="history-stat-divider" />
               <div className="history-stat">
-                <span className="history-stat-value">{uniqueExercises}<span style={{fontSize:'0.8rem', fontWeight:500}}>/7</span></span>
+                <span className="history-stat-value">{uniqueExercises}<span style={{fontSize:'0.8rem', fontWeight:500}}>/8</span></span>
                 <span className="history-stat-label">Упражнений</span>
               </div>
               <div className="history-stat-divider" />
