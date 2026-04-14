@@ -128,7 +128,6 @@ function getDisplay(result: ExerciseResult): ExerciseDisplay {
       const pct = total > 0 ? correct / total : 0;
       return {
         primary: `${correct} / ${total}`,
-        secondary: 'верно',
         quality: pct >= 0.8 ? 'good' : pct >= 0.5 ? 'ok' : 'bad',
       };
     }
