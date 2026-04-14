@@ -77,10 +77,11 @@ function getDisplay(result: ExerciseResult): ExerciseDisplay {
     }
     case 'schulte': {
       const elapsed = n('elapsed');
+      const errors = n('errors');
       return {
         primary: fmtTime(elapsed),
-        secondary: `${n('count', 25)} чисел`,
-        quality: elapsed <= 60 ? 'good' : elapsed <= 120 ? 'ok' : 'bad',
+        secondary: errors === 0 ? '✓ без ошибок' : `${errors} ${pluralErrors(errors)}`,
+        quality: errors === 0 ? 'good' : errors <= 3 ? 'ok' : 'bad',
       };
     }
     case 'sequence': {

@@ -23,6 +23,7 @@ export default function Schulte() {
   const { left, sorted, right } = game;
   const [nextRank, setNextRank] = useState(0);
   const [wrongIdx, setWrongIdx] = useState<number | null>(null);
+  const [wrongClicks, setWrongClicks] = useState(0);
   const [started, setStarted] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [finished, setFinished] = useState(false);
@@ -33,6 +34,7 @@ export default function Schulte() {
     setGame(newGame());
     setNextRank(0);
     setWrongIdx(null);
+    setWrongClicks(0);
     setStarted(false);
     setElapsed(0);
     setFinished(false);
@@ -43,7 +45,7 @@ export default function Schulte() {
   useEffect(() => {
     if (finished && !savedRef.current) {
       savedRef.current = true;
-      saveResult('schulte', 100, { elapsed, count: sorted.length });
+      saveResult('schulte', 100, { elapsed, count: sorted.length, errors: wrongClicks });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [finished]);
@@ -74,8 +76,8 @@ export default function Schulte() {
         if (timerRef.current) clearInterval(timerRef.current);
       }
     } else {
-      // Flash wrong — but don't change the number's appearance permanently
       setWrongIdx(gridIdx);
+      setWrongClicks(c => c + 1);
       setTimeout(() => setWrongIdx(null), 400);
     }
   };
@@ -90,9 +92,14 @@ export default function Schulte() {
       <div className="flex items-center justify-between mb-6 glass rounded-2xl px-5 py-3 shadow-sm">
         <div className="font-mono text-xl font-bold text-gray-700">{formatTime(elapsed)}</div>
         <span className="text-gray-500 text-sm">{nextRank}/{sorted.length} чисел</span>
-        <button onClick={startNew} className="px-4 py-2 rounded-xl text-sm font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition-all active:scale-95">
-          Новая игра
-        </button>
+        <div className="flex items-center gap-3">
+          {wrongClicks > 0 && (
+            <span className="text-red-500 text-sm font-semibold">{wrongClicks} ош.</span>
+          )}
+          <button onClick={startNew} className="px-4 py-2 rounded-xl text-sm font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition-all active:scale-95">
+            Новая игра
+          </button>
+        </div>
       </div>
 
       {!started && (
@@ -150,8 +157,18 @@ export default function Schulte() {
           <div className="glass rounded-3xl p-10 text-center shadow-2xl animate-scale-in max-w-sm mx-4">
             <div className="text-6xl mb-4">🏆</div>
             <h2 className="text-2xl font-bold text-gray-800 mb-2">Завершено!</h2>
-            <p className="text-gray-500 mb-1">Время выполнения</p>
-            <p className="text-4xl font-bold text-indigo-600 mb-6">{formatTime(elapsed)}</p>
+            <div className="flex justify-between gap-6 mb-6">
+              <div className="text-center">
+                <p className="text-gray-500 text-sm mb-1">Время</p>
+                <p className="text-3xl font-bold text-indigo-600">{formatTime(elapsed)}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-gray-500 text-sm mb-1">Ошибки</p>
+                <p className={`text-3xl font-bold ${wrongClicks === 0 ? 'text-green-500' : 'text-red-500'}`}>
+                  {wrongClicks}
+                </p>
+              </div>
+            </div>
             <button onClick={startNew} className="px-8 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-blue-500 text-white font-semibold shadow-md hover:opacity-90 transition-all active:scale-95">
               Новая игра
             </button>

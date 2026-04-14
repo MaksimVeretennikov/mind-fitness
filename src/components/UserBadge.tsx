@@ -32,7 +32,9 @@ export default function UserBadge() {
     );
   }
 
-  const displayName = (user.user_metadata?.full_name as string | undefined) || '';
+  const displayName = (user.user_metadata?.full_name as string | undefined)
+    || (user.user_metadata?.name as string | undefined)
+    || '';
   const initial = displayName ? displayName[0].toUpperCase() : (user.email ? user.email[0].toUpperCase() : '?');
 
   return (

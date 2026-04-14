@@ -64,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: username?.trim() || null } },
+      options: { data: { full_name: username?.trim() || null, name: username?.trim() || null } },
     });
     if (error) return translateError(error.message);
     setShowAuthModal(false);
