@@ -11,15 +11,12 @@ export default function HomeScreen({ onSelect }: Props) {
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 shadow-lg mb-4 animate-float">
-            <span className="text-3xl">🧘</span>
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 shadow-lg mb-5 animate-float">
+            <span className="text-4xl">🧘</span>
           </div>
-          <h1 className="text-4xl font-bold text-gray-800 mb-3">
+          <h1 className="text-5xl font-bold text-gray-800 tracking-tight">
             Mind Fitness
           </h1>
-          <p className="text-gray-500 text-lg max-w-xl mx-auto leading-relaxed">
-            Тренажёры для развития когнитивных навыков: памяти, внимания, скорости реакции
-          </p>
         </div>
 
         {/* Cognitive section header */}
