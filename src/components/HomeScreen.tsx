@@ -27,7 +27,7 @@ export default function HomeScreen({ onSelect }: Props) {
           {EXERCISES.map((ex, i) => (
             <div
               key={ex.id}
-              className="glass rounded-2xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
+              className="glass rounded-2xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group flex flex-col"
               style={{ animationDelay: `${i * 60}ms` }}
               onClick={() => onSelect(ex.id)}
             >
@@ -41,12 +41,12 @@ export default function HomeScreen({ onSelect }: Props) {
               <h2 className="text-lg font-semibold text-gray-800 mb-2">
                 {ex.title}
               </h2>
-              <p className="text-gray-500 text-sm leading-relaxed mb-5">
+              <p className="text-gray-500 text-sm leading-relaxed mb-5 flex-1">
                 {ex.description}
               </p>
 
               <button
-                className={`w-full py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r ${ex.gradient} shadow-sm hover:shadow-md hover:opacity-90 transition-all duration-200 active:scale-95`}
+                className={`w-full py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r ${ex.gradient} shadow-sm hover:shadow-md hover:opacity-90 transition-all duration-200 active:scale-95 mt-auto`}
                 onClick={(e) => { e.stopPropagation(); onSelect(ex.id); }}
               >
                 Начать

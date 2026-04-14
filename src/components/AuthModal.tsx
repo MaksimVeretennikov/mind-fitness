@@ -8,17 +8,18 @@ export default function AuthModal() {
   const [view, setView] = useState<View>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [forgotSent, setForgotSent] = useState(false);
 
-  // Reset form when modal opens/closes
   useEffect(() => {
     if (!showAuthModal) {
       setTimeout(() => {
         setView('signin');
         setEmail('');
         setPassword('');
+        setUsername('');
         setError(null);
         setLoading(false);
         setForgotSent(false);
@@ -34,6 +35,7 @@ export default function AuthModal() {
 
     if (!email.trim()) { setError('Введите email'); return; }
     if (view !== 'forgot' && password.length < 6) { setError('Пароль должен быть не менее 6 символов'); return; }
+    if (view === 'signup' && !username.trim()) { setError('Введите имя'); return; }
 
     setLoading(true);
 
@@ -47,7 +49,7 @@ export default function AuthModal() {
 
     const err = view === 'signin'
       ? await signIn(email.trim(), password)
-      : await signUp(email.trim(), password);
+      : await signUp(email.trim(), password, username.trim());
 
     setLoading(false);
     if (err) setError(err);
@@ -61,20 +63,9 @@ export default function AuthModal() {
       onClick={(e) => { if (e.target === e.currentTarget) setShowAuthModal(false); }}
     >
       <div className="auth-card animate-auth-slide-up">
-        {/* Close button */}
-        <button
-          onClick={() => setShowAuthModal(false)}
-          className="auth-close"
-          aria-label="Закрыть"
-        >
-          ×
-        </button>
+        <button onClick={() => setShowAuthModal(false)} className="auth-close" aria-label="Закрыть">×</button>
 
-        {/* Logo */}
-        <div className="auth-logo">
-          <span>🧠</span>
-        </div>
-
+        <div className="auth-logo"><span>🧠</span></div>
         <h2 className="auth-title">{title}</h2>
 
         {view === 'forgot' && forgotSent ? (
@@ -87,6 +78,22 @@ export default function AuthModal() {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="auth-form" noValidate>
+
+            {view === 'signup' && (
+              <div className="auth-field">
+                <label className="auth-label">Имя</label>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={e => setUsername(e.target.value)}
+                  placeholder="Как вас зовут?"
+                  className="auth-input"
+                  autoComplete="name"
+                  autoFocus
+                />
+              </div>
+            )}
+
             <div className="auth-field">
               <label className="auth-label">Email</label>
               <input
@@ -96,7 +103,7 @@ export default function AuthModal() {
                 placeholder="you@example.com"
                 className="auth-input"
                 autoComplete="email"
-                autoFocus
+                autoFocus={view !== 'signup'}
               />
             </div>
 
@@ -115,44 +122,32 @@ export default function AuthModal() {
             )}
 
             {error && (
-              <div className="auth-error">
-                <span>⚠️</span> {error}
-              </div>
+              <div className="auth-error"><span>⚠️</span> {error}</div>
             )}
 
             <button type="submit" disabled={loading} className="auth-submit">
-              {loading ? (
-                <span className="auth-spinner" />
-              ) : (
-                title
-              )}
+              {loading ? <span className="auth-spinner" /> : title}
             </button>
 
             {view === 'signin' && (
-              <button
-                type="button"
-                className="auth-link auth-link-center"
-                onClick={() => { setView('forgot'); setError(null); }}
-              >
+              <button type="button" className="auth-link auth-link-center"
+                onClick={() => { setView('forgot'); setError(null); }}>
                 Забыли пароль?
               </button>
             )}
           </form>
         )}
 
-        {/* Toggle sign-in / sign-up */}
         {view !== 'forgot' && (
           <div className="auth-toggle">
             {view === 'signin' ? (
-              <>
-                Нет аккаунта?{' '}
+              <>Нет аккаунта?{' '}
                 <button className="auth-link" onClick={() => { setView('signup'); setError(null); }}>
                   Зарегистрироваться
                 </button>
               </>
             ) : (
-              <>
-                Уже есть аккаунт?{' '}
+              <>Уже есть аккаунт?{' '}
                 <button className="auth-link" onClick={() => { setView('signin'); setError(null); }}>
                   Войти
                 </button>

@@ -190,14 +190,25 @@
   -webkit-backdrop-filter: blur(16px);
 }
 
+.user-badge-name {
+  padding: 12px 16px 2px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #374151;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .user-badge-email {
-  padding: 12px 16px 8px;
+  padding: 0 16px 8px;
   font-size: 0.75rem;
   color: #9ca3af;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.user-badge-name + .user-badge-email { padding-top: 0; }
+.user-badge-email:first-child { padding-top: 12px; }
 
 .user-badge-divider {
   height: 1px;
@@ -543,45 +554,59 @@
 .history-card {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 10px;
   padding: 12px 14px;
   background: rgba(255,255,255,0.8);
   border: 1px solid rgba(0,0,0,0.06);
-  border-radius: 12px;
+  border-radius: 14px;
   margin-bottom: 8px;
-  transition: box-shadow 0.12s;
+  transition: box-shadow 0.12s, transform 0.12s;
 }
-.history-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
+.history-card:hover { box-shadow: 0 3px 12px rgba(0,0,0,0.08); transform: translateY(-1px); }
 
-.history-card-left {
+.history-card-icon { font-size: 1.35rem; flex-shrink: 0; line-height: 1; }
+
+.history-card-body {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
+  flex: 1;
   min-width: 0;
 }
 .history-card-name {
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 600;
   color: #1f2937;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.history-card-time {
-  font-size: 0.75rem;
-  color: #9ca3af;
-}
+.history-card-time { font-size: 0.73rem; color: #9ca3af; }
 
-.history-badge {
+/* Exercise-specific metric pill */
+.history-metric {
   flex-shrink: 0;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 700;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
 }
-.badge-green  { background: #dcfce7; color: #16a34a; }
-.badge-yellow { background: #fef9c3; color: #ca8a04; }
-.badge-red    { background: #fee2e2; color: #dc2626; }
+.history-metric-primary {
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.history-metric-secondary {
+  font-size: 0.7rem;
+  color: #9ca3af;
+  padding-right: 2px;
+  white-space: nowrap;
+}
+.metric-good .history-metric-primary { background: #dcfce7; color: #15803d; }
+.metric-ok   .history-metric-primary { background: #fef9c3; color: #a16207; }
+.metric-bad  .history-metric-primary { background: #fee2e2; color: #b91c1c; }
 
 /* ─── Mobile adjustments ─────────────────────────────────────────────────── */
 @media (max-width: 375px) {

@@ -17,7 +17,7 @@ interface AuthContextValue {
   showHistoryPanel: boolean;
   setShowHistoryPanel: (v: boolean) => void;
   signIn: (email: string, password: string) => Promise<string | null>;
-  signUp: (email: string, password: string) => Promise<string | null>;
+  signUp: (email: string, password: string, username?: string) => Promise<string | null>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<string | null>;
 }
@@ -60,8 +60,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return null;
   }, []);
 
-  const signUp = useCallback(async (email: string, password: string): Promise<string | null> => {
-    const { error } = await supabase.auth.signUp({ email, password });
+  const signUp = useCallback(async (email: string, password: string, username?: string): Promise<string | null> => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { full_name: username?.trim() || null } },
+    });
     if (error) return translateError(error.message);
     setShowAuthModal(false);
     return null;

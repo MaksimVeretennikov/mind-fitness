@@ -32,7 +32,8 @@ export default function UserBadge() {
     );
   }
 
-  const initial = user.email ? user.email[0].toUpperCase() : '?';
+  const displayName = (user.user_metadata?.full_name as string | undefined) || '';
+  const initial = displayName ? displayName[0].toUpperCase() : (user.email ? user.email[0].toUpperCase() : '?');
 
   return (
     <div className="user-badge-root" ref={dropdownRef}>
@@ -46,6 +47,7 @@ export default function UserBadge() {
 
       {open && (
         <div className="user-badge-dropdown animate-fade-drop">
+          {displayName && <div className="user-badge-name">{displayName}</div>}
           <div className="user-badge-email">{user.email}</div>
           <div className="user-badge-divider" />
           <button
