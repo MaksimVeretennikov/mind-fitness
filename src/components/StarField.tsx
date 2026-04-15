@@ -21,7 +21,7 @@ const STARS: Star[] = Array.from({ length: 80 }, (_, i) => ({
 
 export default function StarField({ visible }: { visible: boolean }) {
   const shootingRef = useRef<HTMLDivElement>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+  const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
     if (!visible) return;
