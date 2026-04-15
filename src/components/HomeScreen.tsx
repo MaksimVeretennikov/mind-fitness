@@ -11,18 +11,23 @@ export default function HomeScreen({ onSelect }: Props) {
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 shadow-lg mb-5 animate-float">
-            <span className="text-4xl">🧘</span>
+          <div className="glass rounded-3xl px-10 py-8 inline-block">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 shadow-lg mb-5 animate-float">
+              <span className="text-4xl">🧘</span>
+            </div>
+            <h1 className="text-5xl font-bold text-gray-800 tracking-tight">
+              Mind Fitness
+            </h1>
+            <p className="text-sm font-light text-gray-500 italic mt-2 opacity-80 tracking-wide">
+              by Inna Maltseva
+            </p>
           </div>
-          <h1 className="text-5xl font-bold text-gray-800 tracking-tight">
-            Mind Fitness
-          </h1>
         </div>
 
         {/* Cognitive section header */}
         <div className="mb-7">
           <h2 className="text-2xl font-bold text-gray-800 mb-1">Когнитивные тренажёры</h2>
-          <p className="text-gray-400 text-sm">Развитие памяти и внимательности</p>
+          <p className="text-gray-500 text-sm font-medium section-subtitle">Развитие памяти и внимательности</p>
           <div className="mt-3 h-px bg-gradient-to-r from-violet-200 via-indigo-100 to-transparent" />
         </div>
 
@@ -64,7 +69,7 @@ export default function HomeScreen({ onSelect }: Props) {
           {/* Russian section header */}
           <div className="mb-7">
             <h2 className="text-2xl font-bold text-gray-800 mb-1">Русский язык</h2>
-            <p className="text-gray-400 text-sm">Подготовка к экзаменам и развитие грамотности</p>
+            <p className="text-gray-500 text-sm font-medium section-subtitle">Подготовка к экзаменам и развитие грамотности</p>
             <div className="mt-3 h-px bg-gradient-to-r from-indigo-200 via-blue-100 to-transparent" />
           </div>
 
@@ -102,7 +107,7 @@ export default function HomeScreen({ onSelect }: Props) {
           </div>
         </div>
 
-        <p className="text-center text-gray-400 text-xs mt-10">
+        <p className="text-center text-gray-500 text-xs font-medium mt-10">
           Нажмите на упражнение или кнопку «Начать», чтобы приступить
         </p>
       </div>

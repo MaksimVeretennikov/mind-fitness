@@ -14,6 +14,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import UserBadge from './components/UserBadge';
 import AuthModal from './components/AuthModal';
 import HistoryPanel from './components/HistoryPanel';
+import DynamicBackground from './components/DynamicBackground';
 
 function ExerciseComponent({ id, onBack }: { id: ExerciseId; onBack: () => void }) {
   switch (id) {
@@ -33,6 +34,7 @@ export default function App() {
 
   return (
     <AuthProvider>
+      <DynamicBackground />
       <UserBadge />
       <AuthModal />
       <HistoryPanel />
@@ -44,6 +46,11 @@ export default function App() {
       ) : (
         <HomeScreen onSelect={setCurrent} />
       )}
+
+      <footer className="app-footer">
+        <div>Created by Maksim Veretennikov</div>
+        <div>Copyright &copy; 2026. All rights reserved.</div>
+      </footer>
     </AuthProvider>
   );
 }
