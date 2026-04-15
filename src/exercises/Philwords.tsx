@@ -13,9 +13,9 @@ const WORD_BANK = [
 type Difficulty = 'small' | 'medium' | 'large';
 
 const DIFFICULTIES: Record<Difficulty, { label: string; desc: string; wordCount: number; size: number }> = {
-  small:  { label: 'Маленькое', desc: '8 слов · 10×10',  wordCount: 8,  size: 10 },
-  medium: { label: 'Среднее',   desc: '14 слов · 14×14', wordCount: 14, size: 14 },
-  large:  { label: 'Большое',   desc: '20 слов · 18×18', wordCount: 20, size: 18 },
+  small:  { label: 'Маленькая', desc: '5 слов · 8×8',   wordCount: 5,  size: 8  },
+  medium: { label: 'Средняя',   desc: '10 слов · 12×12', wordCount: 10, size: 12 },
+  large:  { label: 'Большая',   desc: '15 слов · 16×16', wordCount: 15, size: 16 },
 };
 
 type Grid = string[][];

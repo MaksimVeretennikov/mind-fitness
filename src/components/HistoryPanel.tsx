@@ -75,8 +75,8 @@ function getDisplay(result: ExerciseResult): ExerciseDisplay {
       const diffStr = str('difficulty');
       const diffLabel = diffStr === 'small' ? 'маленькое' : diffStr === 'large' ? 'большое' : diffStr === 'medium' ? 'среднее' : null;
       // quality thresholds scale with word count
-      const goodThresh = wordCount <= 8 ? 60 : wordCount <= 14 ? 90 : 150;
-      const okThresh = wordCount <= 8 ? 120 : wordCount <= 14 ? 200 : 320;
+      const goodThresh = wordCount <= 5 ? 45 : wordCount <= 10 ? 75 : 120;
+      const okThresh = wordCount <= 5 ? 90 : wordCount <= 10 ? 160 : 270;
       return {
         primary: fmtTime(elapsed),
         secondary: diffLabel ? `${wordCount} слов · ${diffLabel}` : `${wordCount} слов`,
