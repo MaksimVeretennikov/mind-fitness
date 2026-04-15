@@ -1,6 +1,12 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { saveResult } from '../lib/auth';
 
+function pluralErrors(n: number): string {
+  if (n % 10 === 1 && n % 100 !== 11) return 'ошибка';
+  if ([2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100)) return 'ошибки';
+  return 'ошибок';
+}
+
 const SYMBOLS_4x4 = ['🌟', '🎯', '🎨', '🚀', '🌈', '🎸', '🦋', '🔮'];
 const SYMBOLS_6x6 = ['🌟', '🎯', '🎨', '🚀', '🌈', '🎸', '🦋', '🔮', '🎭', '🌊', '🦁', '🎺', '🌺', '🎲', '🍀', '🎠', '🦄', '🌙'];
 
@@ -168,8 +174,15 @@ export default function Pairs() {
             <span className="font-bold text-gray-800">{formatTime(elapsed)}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-500">Попыток:</span>
-            <span className="font-bold text-emerald-600">{attempts}</span>
+            <span className="text-gray-500">Ошибок:</span>
+            {(() => {
+              const errors = Math.max(0, attempts - cards.length / 2);
+              return errors === 0 ? (
+                <span className="font-bold text-emerald-600">✓ без ошибок</span>
+              ) : (
+                <span className="font-bold text-red-500">{errors} {pluralErrors(errors)}</span>
+              );
+            })()}
           </div>
         </div>
         <div className="flex gap-3">
@@ -193,8 +206,16 @@ export default function Pairs() {
           {phase === 'memorize' ? `Запоминайте… ${memorizeLeft}с` : formatTime(elapsed)}
         </div>
         <div>
-          <span className="text-gray-500 text-sm">Попыток: </span>
-          <span className="font-bold text-gray-700">{attempts}</span>
+          {attempts === 0 ? (
+            <span className="text-gray-400 text-sm">0 ошибок</span>
+          ) : (() => {
+            const errors = attempts - matched.size / 2;
+            return errors === 0 ? (
+              <span className="text-emerald-500 text-sm font-semibold">✓ без ошибок</span>
+            ) : (
+              <span className="text-red-500 text-sm font-semibold">{errors} {pluralErrors(errors)}</span>
+            );
+          })()}
         </div>
       </div>
 

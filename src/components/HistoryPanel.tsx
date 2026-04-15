@@ -71,10 +71,16 @@ function getDisplay(result: ExerciseResult): ExerciseDisplay {
     }
     case 'philwords': {
       const elapsed = n('elapsed');
+      const wordCount = n('wordCount');
+      const diffStr = str('difficulty');
+      const diffLabel = diffStr === 'small' ? 'маленькое' : diffStr === 'large' ? 'большое' : diffStr === 'medium' ? 'среднее' : null;
+      // quality thresholds scale with word count
+      const goodThresh = wordCount <= 8 ? 60 : wordCount <= 14 ? 90 : 150;
+      const okThresh = wordCount <= 8 ? 120 : wordCount <= 14 ? 200 : 320;
       return {
         primary: fmtTime(elapsed),
-        secondary: `${n('wordCount')} слов`,
-        quality: elapsed <= 90 ? 'good' : elapsed <= 200 ? 'ok' : 'bad',
+        secondary: diffLabel ? `${wordCount} слов · ${diffLabel}` : `${wordCount} слов`,
+        quality: elapsed <= goodThresh ? 'good' : elapsed <= okThresh ? 'ok' : 'bad',
       };
     }
     case 'schulte': {

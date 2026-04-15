@@ -10,7 +10,14 @@ const WORD_BANK = [
   'ЛЕТО', 'ОСЕНЬ', 'ВЕСНА', 'СНЕГ', 'ДОЖДЬ',
 ];
 
-const SIZE = 14;
+type Difficulty = 'small' | 'medium' | 'large';
+
+const DIFFICULTIES: Record<Difficulty, { label: string; desc: string; wordCount: number; size: number }> = {
+  small:  { label: 'Маленькое', desc: '8 слов · 10×10',  wordCount: 8,  size: 10 },
+  medium: { label: 'Среднее',   desc: '14 слов · 14×14', wordCount: 14, size: 14 },
+  large:  { label: 'Большое',   desc: '20 слов · 18×18', wordCount: 20, size: 18 },
+};
+
 type Grid = string[][];
 type Direction = [number, number];
 const DIRECTIONS: Direction[] = [
@@ -19,19 +26,19 @@ const DIRECTIONS: Direction[] = [
 ];
 const LETTERS = 'АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЫЬЭЮЯ';
 
-function buildGrid(words: string[]): { grid: Grid; placed: string[] } {
-  const grid: Grid = Array.from({ length: SIZE }, () => Array(SIZE).fill(''));
+function buildGrid(words: string[], size: number): { grid: Grid; placed: string[] } {
+  const grid: Grid = Array.from({ length: size }, () => Array(size).fill(''));
   const placed: string[] = [];
 
   for (const word of words) {
     let ok = false;
     for (let attempt = 0; attempt < 200 && !ok; attempt++) {
       const [dr, dc] = DIRECTIONS[Math.floor(Math.random() * DIRECTIONS.length)];
-      const rStart = Math.floor(Math.random() * SIZE);
-      const cStart = Math.floor(Math.random() * SIZE);
+      const rStart = Math.floor(Math.random() * size);
+      const cStart = Math.floor(Math.random() * size);
       const rEnd = rStart + dr * (word.length - 1);
       const cEnd = cStart + dc * (word.length - 1);
-      if (rEnd < 0 || rEnd >= SIZE || cEnd < 0 || cEnd >= SIZE) continue;
+      if (rEnd < 0 || rEnd >= size || cEnd < 0 || cEnd >= size) continue;
       let canPlace = true;
       for (let i = 0; i < word.length; i++) {
         const cell = grid[rStart + dr * i][cStart + dc * i];
@@ -47,8 +54,8 @@ function buildGrid(words: string[]): { grid: Grid; placed: string[] } {
     }
   }
 
-  for (let r = 0; r < SIZE; r++) {
-    for (let c = 0; c < SIZE; c++) {
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
       if (!grid[r][c]) grid[r][c] = LETTERS[Math.floor(Math.random() * LETTERS.length)];
     }
   }
@@ -56,9 +63,10 @@ function buildGrid(words: string[]): { grid: Grid; placed: string[] } {
   return { grid, placed };
 }
 
-function generateGame() {
-  const shuffled = [...WORD_BANK].sort(() => Math.random() - 0.5).slice(0, 14);
-  return buildGrid(shuffled);
+function generateGame(difficulty: Difficulty) {
+  const { wordCount, size } = DIFFICULTIES[difficulty];
+  const shuffled = [...WORD_BANK].sort(() => Math.random() - 0.5).slice(0, wordCount);
+  return buildGrid(shuffled, size);
 }
 
 interface CellPos { r: number; c: number; }
@@ -79,8 +87,12 @@ function getCellsBetween(a: CellPos, b: CellPos): CellPos[] | null {
   return cells;
 }
 
+type Phase = 'settings' | 'playing';
+
 export default function Philwords() {
-  const [{ grid, placed }, setGame] = useState(() => generateGame());
+  const [difficulty, setDifficulty] = useState<Difficulty>('medium');
+  const [phase, setPhase] = useState<Phase>('settings');
+  const [{ grid, placed }, setGame] = useState<ReturnType<typeof generateGame>>({ grid: [], placed: [] });
   const [foundWords, setFoundWords] = useState<Set<string>>(new Set());
   const [foundCells, setFoundCells] = useState<Set<string>>(new Set());
   const [selStart, setSelStart] = useState<CellPos | null>(null);
@@ -92,8 +104,11 @@ export default function Philwords() {
   const [started, setStarted] = useState(false);
   const savedRef = useRef(false);
 
-  const startNew = useCallback(() => {
-    setGame(generateGame());
+  const size = DIFFICULTIES[difficulty].size;
+
+  const startGame = useCallback((diff: Difficulty) => {
+    const game = generateGame(diff);
+    setGame(game);
     setFoundWords(new Set());
     setFoundCells(new Set());
     setSelStart(null);
@@ -103,13 +118,25 @@ export default function Philwords() {
     setWin(false);
     setStarted(false);
     savedRef.current = false;
+    setPhase('playing');
+  }, []);
+
+  const backToSettings = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    setPhase('settings');
+    setWin(false);
   }, []);
 
   // Save result on win
   useEffect(() => {
     if (win && !savedRef.current) {
       savedRef.current = true;
-      saveResult('philwords', 100, { elapsed, wordCount: placed.length });
+      saveResult('philwords', 100, {
+        elapsed,
+        wordCount: placed.length,
+        difficulty,
+        gridSize: size,
+      });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [win]);
@@ -172,6 +199,44 @@ export default function Philwords() {
     return m > 0 ? `${m}м ${s % 60}с` : `${s}с`;
   };
 
+  // Settings screen
+  if (phase === 'settings') {
+    return (
+      <div className="max-w-md mx-auto animate-fade-in">
+        <div className="glass rounded-2xl p-6 shadow-sm">
+          <h2 className="text-xl font-bold text-gray-800 mb-5">Настройки</h2>
+          <span className="text-gray-600 font-medium text-sm">Сложность</span>
+          <div className="flex flex-col gap-3 mt-2 mb-6">
+            {(Object.entries(DIFFICULTIES) as [Difficulty, typeof DIFFICULTIES[Difficulty]][]).map(([key, cfg]) => (
+              <button
+                key={key}
+                onClick={() => setDifficulty(key)}
+                className={`flex items-center justify-between px-4 py-3 rounded-xl font-semibold transition-all ${
+                  difficulty === key
+                    ? 'bg-blue-500 text-white shadow-md'
+                    : 'bg-white/70 text-gray-600 hover:bg-blue-50'
+                }`}
+              >
+                <span>{cfg.label}</span>
+                <span className={`text-sm font-normal ${difficulty === key ? 'text-blue-100' : 'text-gray-400'}`}>{cfg.desc}</span>
+              </button>
+            ))}
+          </div>
+          <p className="text-gray-400 text-sm mb-5">
+            Найдите все спрятанные слова — они могут идти в любом направлении.
+          </p>
+          <button
+            onClick={() => startGame(difficulty)}
+            className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold shadow-md hover:opacity-90 transition-all active:scale-95"
+          >
+            Начать
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Playing screen
   return (
     <div className="animate-fade-in flex flex-col gap-4" style={{ height: 'calc(100vh - 100px)' }}>
       {/* Top bar */}
@@ -181,14 +246,14 @@ export default function Philwords() {
           <span className="font-bold text-blue-600">{foundWords.size}/{placed.length}</span>
         </div>
         <div className="font-mono text-xl font-bold text-gray-700">{formatTime(elapsed)}</div>
-        <button onClick={startNew} className="px-4 py-2 rounded-xl text-sm font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 transition-all active:scale-95">
-          Новая игра
+        <button onClick={backToSettings} className="px-4 py-2 rounded-xl text-sm font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 transition-all active:scale-95">
+          Настройки
         </button>
       </div>
 
       {/* Main area: grid left, words right */}
       <div className="flex gap-4 flex-1 min-h-0 items-start">
-        {/* Grid — width-driven square, max 68% of container */}
+        {/* Grid */}
         <div
           className="glass rounded-2xl p-2 shadow-sm flex-shrink-0"
           style={{ width: 'min(68%, 680px)', aspectRatio: '1 / 1' }}
@@ -196,15 +261,17 @@ export default function Philwords() {
           <div
             className="grid gap-0.5 h-full"
             style={{
-              gridTemplateColumns: `repeat(${SIZE}, 1fr)`,
-              gridTemplateRows: `repeat(${SIZE}, 1fr)`,
+              gridTemplateColumns: `repeat(${size}, 1fr)`,
+              gridTemplateRows: `repeat(${size}, 1fr)`,
             }}
           >
             {grid.map((row, r) =>
               row.map((ch, c) => (
                 <button
                   key={`${r}-${c}`}
-                  className={`rounded-md font-bold text-sm transition-all duration-100 select-none flex items-center justify-center ${getCellBg(r, c)}`}
+                  className={`rounded-md font-bold transition-all duration-100 select-none flex items-center justify-center ${
+                    size >= 18 ? 'text-xs' : size >= 14 ? 'text-sm' : 'text-base'
+                  } ${getCellBg(r, c)}`}
                   onClick={() => handleCellClick(r, c)}
                   onMouseEnter={() => setHoverCell({ r, c })}
                   onMouseLeave={() => setHoverCell(null)}
@@ -216,11 +283,11 @@ export default function Philwords() {
           </div>
         </div>
 
-        {/* Word list — takes remaining horizontal space */}
+        {/* Word list */}
         <div className="flex-1 min-w-0 flex flex-col gap-2">
           <div className="glass rounded-2xl p-4 shadow-sm flex-1 min-h-0 overflow-auto">
             <h3 className="font-semibold text-gray-600 text-sm mb-3 uppercase tracking-wide">Слова для поиска</h3>
-            <div className="grid grid-cols-2 gap-2">
+            <div className={`grid gap-2 ${placed.length > 14 ? 'grid-cols-2' : 'grid-cols-2'}`}>
               {placed.map(w => (
                 <div
                   key={w}
@@ -241,12 +308,23 @@ export default function Philwords() {
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
           <div className="glass rounded-3xl p-10 text-center shadow-2xl animate-scale-in max-w-sm mx-4">
             <div className="text-6xl mb-4">🎉</div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">Все слова найдены!</h2>
-            <p className="text-gray-500 mb-1">Время</p>
-            <p className="text-3xl font-bold text-blue-600 mb-6">{formatTime(elapsed)}</p>
-            <button onClick={startNew} className="px-8 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold shadow-md hover:opacity-90 transition-all active:scale-95">
-              Играть снова
-            </button>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Все слова найдены!</h2>
+            <div className="glass rounded-2xl p-4 mb-6 text-left">
+              <div className="flex justify-between mb-2">
+                <span className="text-gray-500">Время:</span>
+                <span className="text-2xl font-bold text-blue-600">{formatTime(elapsed)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Слов найдено:</span>
+                <span className="font-bold text-gray-800">{placed.length} ({DIFFICULTIES[difficulty].label.toLowerCase()})</span>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button onClick={backToSettings} className="flex-1 py-3 rounded-xl glass text-gray-700 font-semibold hover:bg-white/80 transition-all active:scale-95">Настройки</button>
+              <button onClick={() => startGame(difficulty)} className="flex-1 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold shadow-md hover:opacity-90 transition-all active:scale-95">
+                Ещё раз
+              </button>
+            </div>
           </div>
         </div>
       )}
