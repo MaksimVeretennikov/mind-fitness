@@ -173,7 +173,7 @@ export default function Balls() {
               className="w-full mt-2 accent-orange-500" />
             <div className="flex justify-between text-xs text-gray-400 mt-1"><span>5</span><span>15</span></div>
           </label>
-          <p className="text-gray-400 text-sm leading-relaxed mb-5">
+          <p className="text-gray-600 text-sm leading-relaxed mb-5">
             Каждый шарик своего цвета — запомните их положение. Через {HIDE_DELAY / 1000} сек номера скроются и все станут одного цвета. Нажимайте по порядку: 1, 2, 3…
           </p>
           <button onClick={startGame} className="w-full py-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-semibold shadow-md hover:opacity-90 transition-all active:scale-95">

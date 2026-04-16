@@ -11,7 +11,9 @@
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
-  #root { min-height: 100vh; }
+  #root { min-height: 100vh; display: flex; flex-direction: column; }
+  #root > main { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; }
+  #root > .app-footer { margin-top: auto; }
 }
 
 @layer utilities {
@@ -203,27 +205,27 @@
     0 1px 3px rgba(0,0,0,0.35);
 }
 
-/* ─── Dark theme adaptations ─────────────────────────────────────────────── */
-:root[data-theme="dark"] .glass,
-:root[data-theme="dark"] .glass-dark {
+/* ─── Dark theme adaptations (HomeScreen only) ───────────────────────────── */
+:root[data-theme="dark"] [data-home] .glass,
+:root[data-theme="dark"] [data-home] .glass-dark {
   background: rgba(14, 12, 38, 0.58) !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
 }
-:root[data-theme="dark"] .text-gray-800 { color: rgba(228, 225, 255, 0.93) !important; }
-:root[data-theme="dark"] .text-gray-700 { color: rgba(210, 207, 245, 0.88) !important; }
-:root[data-theme="dark"] .text-gray-500 { color: rgba(180, 176, 220, 0.78) !important; }
-:root[data-theme="dark"] .text-gray-400 { color: rgba(158, 154, 200, 0.65) !important; }
+:root[data-theme="dark"] [data-home] .text-gray-800 { color: rgba(228, 225, 255, 0.93) !important; }
+:root[data-theme="dark"] [data-home] .text-gray-700 { color: rgba(210, 207, 245, 0.88) !important; }
+:root[data-theme="dark"] [data-home] .text-gray-500 { color: rgba(180, 176, 220, 0.78) !important; }
+:root[data-theme="dark"] [data-home] .text-gray-400 { color: rgba(158, 154, 200, 0.65) !important; }
 
-/* ─── Sunset theme adaptations ───────────────────────────────────────────── */
-:root[data-theme="sunset"] .glass,
-:root[data-theme="sunset"] .glass-dark {
+/* ─── Sunset theme adaptations (HomeScreen only) ─────────────────────────── */
+:root[data-theme="sunset"] [data-home] .glass,
+:root[data-theme="sunset"] [data-home] .glass-dark {
   background: rgba(32, 10, 22, 0.52) !important;
   border-color: rgba(255, 180, 120, 0.18) !important;
 }
-:root[data-theme="sunset"] .text-gray-800 { color: rgba(255, 238, 222, 0.95) !important; }
-:root[data-theme="sunset"] .text-gray-700 { color: rgba(255, 225, 205, 0.90) !important; }
-:root[data-theme="sunset"] .text-gray-500 { color: rgba(255, 205, 178, 0.78) !important; }
-:root[data-theme="sunset"] .text-gray-400 { color: rgba(255, 190, 155, 0.65) !important; }
+:root[data-theme="sunset"] [data-home] .text-gray-800 { color: rgba(255, 238, 222, 0.95) !important; }
+:root[data-theme="sunset"] [data-home] .text-gray-700 { color: rgba(255, 225, 205, 0.90) !important; }
+:root[data-theme="sunset"] [data-home] .text-gray-500 { color: rgba(255, 205, 178, 0.78) !important; }
+:root[data-theme="sunset"] [data-home] .text-gray-400 { color: rgba(255, 190, 155, 0.65) !important; }
 
 /* ─── Footer ─────────────────────────────────────────────────────────────── */
 .app-footer {

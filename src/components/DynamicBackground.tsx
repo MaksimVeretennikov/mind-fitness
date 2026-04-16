@@ -18,7 +18,8 @@ interface TimeTheme {
 }
 
 function getTheme(hour: number): TimeTheme {
-  if (hour >= 0 && hour < 5) {
+  // Night wraps: 21:00 → 05:00
+  if (hour >= 21 || hour < 5) {
     return {
       gradient: 'linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 50%, #0d0d2b 100%)',
       bgBlur: 0, bgBrightness: 1,
@@ -50,7 +51,7 @@ function getTheme(hour: number): TimeTheme {
       overlay: 'rgba(215, 235, 255, 0.08)',
       period: 'light', hasStars: false,
     };
-  } else if (hour >= 17 && hour < 20) {
+  } else if (hour >= 17 && hour < 19) {
     return {
       bgImage: '/backgrounds/sunset.jpg',
       bgBlur: 6, bgBrightness: 0.88,
@@ -59,6 +60,7 @@ function getTheme(hour: number): TimeTheme {
       period: 'sunset', hasStars: false,
     };
   } else {
+    // Evening: 19:00 – 21:00
     return {
       gradient: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #2c3e50 100%)',
       bgBlur: 0, bgBrightness: 1,
@@ -69,14 +71,16 @@ function getTheme(hour: number): TimeTheme {
   }
 }
 
-export default function DynamicBackground() {
+export default function DynamicBackground({ hourOverride }: { hourOverride?: number }) {
   const [hour, setHour] = useState(() => new Date().getHours());
 
   useEffect(() => {
+    if (hourOverride !== undefined) return;
     const id = setInterval(() => setHour(new Date().getHours()), 60_000);
     return () => clearInterval(id);
-  }, []);
-  const theme = getTheme(hour);
+  }, [hourOverride]);
+  const effectiveHour = hourOverride ?? hour;
+  const theme = getTheme(effectiveHour);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme.period;

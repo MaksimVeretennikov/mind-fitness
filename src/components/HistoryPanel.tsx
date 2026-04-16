@@ -73,7 +73,7 @@ function getDisplay(result: ExerciseResult): ExerciseDisplay {
       const elapsed = n('elapsed');
       const wordCount = n('wordCount');
       const diffStr = str('difficulty');
-      const diffLabel = diffStr === 'small' ? 'маленькое' : diffStr === 'large' ? 'большое' : diffStr === 'medium' ? 'среднее' : null;
+      const diffLabel = diffStr === 'small' ? 'маленькая' : diffStr === 'large' ? 'большая' : diffStr === 'medium' ? 'средняя' : null;
       // quality thresholds scale with word count
       const goodThresh = wordCount <= 5 ? 45 : wordCount <= 10 ? 75 : 120;
       const okThresh = wordCount <= 5 ? 90 : wordCount <= 10 ? 160 : 270;

@@ -39,13 +39,15 @@ export default function App() {
       <AuthModal />
       <HistoryPanel />
 
-      {current ? (
-        <ExerciseShell id={current} onBack={() => setCurrent(null)}>
-          <ExerciseComponent id={current} onBack={() => setCurrent(null)} />
-        </ExerciseShell>
-      ) : (
-        <HomeScreen onSelect={setCurrent} />
-      )}
+      <main>
+        {current ? (
+          <ExerciseShell id={current} onBack={() => setCurrent(null)}>
+            <ExerciseComponent id={current} onBack={() => setCurrent(null)} />
+          </ExerciseShell>
+        ) : (
+          <HomeScreen onSelect={setCurrent} />
+        )}
+      </main>
 
       <footer className="app-footer">
         <div>Created by Maksim Veretennikov</div>

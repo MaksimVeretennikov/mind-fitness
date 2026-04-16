@@ -13,7 +13,7 @@ export default function ExerciseShell({ id, onBack, children }: Props) {
   const ex = ALL_EXERCISES.find((e) => e.id === id)!;
 
   return (
-    <div className="min-h-screen animate-fade-in">
+    <div className="animate-fade-in">
       {/* Top bar */}
       <div className="glass sticky top-0 z-40 px-4 py-3 shadow-sm">
         <div className="max-w-6xl mx-auto flex items-center gap-4">

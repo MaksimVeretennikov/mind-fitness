@@ -131,7 +131,7 @@ export default function Philwords() {
     setFlash(null);
     setElapsed(0);
     setWin(false);
-    setStarted(false);
+    setStarted(true);
     savedRef.current = false;
     setPhase('playing');
   }, []);
@@ -170,7 +170,6 @@ export default function Philwords() {
 
   const handleCellClick = (r: number, c: number) => {
     if (win) return;
-    if (!started) setStarted(true);
     if (!selStart) {
       setSelStart({ r, c });
     } else {

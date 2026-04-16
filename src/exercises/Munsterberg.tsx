@@ -265,7 +265,7 @@ export default function Munsterberg() {
 
       <div className="glass rounded-2xl p-5 shadow-sm select-none overflow-hidden">
         {rows.map((row, rowIdx) => (
-          <div key={rowIdx} className="flex" style={{ marginBottom: '2px' }}>
+          <div key={rowIdx} className="flex justify-between" style={{ marginBottom: '2px' }}>
             {row.split('').map((ch, colIdx) => {
               const globalIdx = rowIdx * ROW_LEN + colIdx;
               const isFound = foundIndices.has(globalIdx);

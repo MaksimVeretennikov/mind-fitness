@@ -371,7 +371,7 @@ export default function Adverbs({ onBack }: Props) {
   if (phase === 'setup') {
     return (
       <div className="flex flex-col items-center justify-center min-h-[70vh] gap-8 animate-fade-in">
-        <div className="text-center">
+        <div className="glass rounded-3xl px-10 py-7 text-center shadow-sm">
           <div className="text-5xl mb-4 animate-float">📝</div>
           <h1 className="text-3xl font-bold text-gray-800 mb-2">Правописание наречий</h1>
           <p className="text-gray-500 max-w-md mx-auto">

@@ -7,7 +7,7 @@ interface Props {
 
 export default function HomeScreen({ onSelect }: Props) {
   return (
-    <div className="min-h-screen px-4 py-10 animate-fade-in">
+    <div data-home="true" className="min-h-screen px-4 py-10 animate-fade-in">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
