@@ -15,6 +15,8 @@ import UserBadge from './components/UserBadge';
 import AuthModal from './components/AuthModal';
 import HistoryPanel from './components/HistoryPanel';
 import DynamicBackground from './components/DynamicBackground';
+import DevTimePanel from './components/DevTimePanel';
+import type { DayIndex } from './weeklyPhotos';
 
 function ExerciseComponent({ id, onBack }: { id: ExerciseId; onBack: () => void }) {
   switch (id) {
@@ -31,10 +33,20 @@ function ExerciseComponent({ id, onBack }: { id: ExerciseId; onBack: () => void 
 
 export default function App() {
   const [current, setCurrent] = useState<ExerciseId | null>(null);
+  const [devHour, setDevHour] = useState<number | undefined>(undefined);
+  const [devDay, setDevDay] = useState<DayIndex | undefined>(undefined);
 
   return (
     <AuthProvider>
-      <DynamicBackground />
+      <DynamicBackground hourOverride={devHour} dayOverride={devDay} />
+      {import.meta.env.DEV && (
+        <DevTimePanel
+          currentHour={devHour}
+          currentDay={devDay}
+          onHourChange={setDevHour}
+          onDayChange={setDevDay}
+        />
+      )}
       <UserBadge />
       <AuthModal />
       <HistoryPanel />

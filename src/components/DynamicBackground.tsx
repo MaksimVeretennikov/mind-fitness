@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import StarField from './StarField';
+import { getPhotoFor, type DayIndex, type DayPeriod } from '../weeklyPhotos';
 
 type ThemePeriod = 'light' | 'dark' | 'sunset';
 
@@ -17,7 +18,17 @@ interface TimeTheme {
   hasStars: boolean;
 }
 
-function getTheme(hour: number): TimeTheme {
+function classifyDaytime(hour: number): DayPeriod | null {
+  if (hour >= 5 && hour < 8) return 'dawn';
+  if (hour >= 8 && hour < 12) return 'morning';
+  if (hour >= 12 && hour < 17) return 'afternoon';
+  if (hour >= 17 && hour < 19) return 'sunset';
+  return null; // evening / night handled by gradients
+}
+
+function getTheme(hour: number, day: DayIndex): TimeTheme {
+  const slot = classifyDaytime(hour);
+
   // Night wraps: 21:00 → 05:00
   if (hour >= 21 || hour < 5) {
     return {
@@ -27,60 +38,75 @@ function getTheme(hour: number): TimeTheme {
       glowColor: 'rgba(80, 80, 180, 0.2)', glowX: '50%', glowY: '-10%',
       period: 'dark', hasStars: true,
     };
-  } else if (hour >= 5 && hour < 8) {
+  }
+  if (slot === 'dawn') {
     return {
-      bgImage: '/backgrounds/dawn.jpg',
+      bgImage: getPhotoFor(day, 'dawn'),
       bgBlur: 5, bgBrightness: 0.94,
-      bgPosition: 'center 75%',   // push horizon/sun toward bottom
+      bgPosition: 'center 75%',
       overlay: 'rgba(255, 230, 200, 0.08)',
       period: 'light', hasStars: false,
     };
-  } else if (hour >= 8 && hour < 12) {
+  }
+  if (slot === 'morning') {
     return {
-      bgImage: '/backgrounds/morning.jpg',
+      bgImage: getPhotoFor(day, 'morning'),
       bgBlur: 4, bgBrightness: 1.0,
       bgPosition: 'center 40%',
       overlay: 'rgba(220, 240, 255, 0.08)',
       period: 'light', hasStars: false,
     };
-  } else if (hour >= 12 && hour < 17) {
+  }
+  if (slot === 'afternoon') {
     return {
-      bgImage: '/backgrounds/afternoon.jpg',
+      bgImage: getPhotoFor(day, 'afternoon'),
       bgBlur: 5, bgBrightness: 1.0,
       bgPosition: 'center 45%',
       overlay: 'rgba(215, 235, 255, 0.08)',
       period: 'light', hasStars: false,
     };
-  } else if (hour >= 17 && hour < 19) {
+  }
+  if (slot === 'sunset') {
     return {
-      bgImage: '/backgrounds/sunset.jpg',
+      bgImage: getPhotoFor(day, 'sunset'),
       bgBlur: 6, bgBrightness: 0.88,
       bgPosition: 'center 50%',
       overlay: 'rgba(20, 5, 15, 0.18)',
       period: 'sunset', hasStars: false,
     };
-  } else {
-    // Evening: 19:00 – 21:00
-    return {
-      gradient: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #2c3e50 100%)',
-      bgBlur: 0, bgBrightness: 1,
-      overlay: 'transparent',
-      glowColor: 'rgba(44, 62, 80, 0.35)', glowX: '50%', glowY: '18%',
-      period: 'dark', hasStars: true,
-    };
   }
+  // Evening: 19:00 – 21:00
+  return {
+    gradient: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #2c3e50 100%)',
+    bgBlur: 0, bgBrightness: 1,
+    overlay: 'transparent',
+    glowColor: 'rgba(44, 62, 80, 0.35)', glowX: '50%', glowY: '18%',
+    period: 'dark', hasStars: true,
+  };
 }
 
-export default function DynamicBackground({ hourOverride }: { hourOverride?: number }) {
+interface Props {
+  hourOverride?: number;
+  dayOverride?: DayIndex;
+}
+
+export default function DynamicBackground({ hourOverride, dayOverride }: Props) {
   const [hour, setHour] = useState(() => new Date().getHours());
+  const [day, setDay] = useState<DayIndex>(() => new Date().getDay() as DayIndex);
 
   useEffect(() => {
     if (hourOverride !== undefined) return;
-    const id = setInterval(() => setHour(new Date().getHours()), 60_000);
+    const id = setInterval(() => {
+      const now = new Date();
+      setHour(now.getHours());
+      setDay(now.getDay() as DayIndex);
+    }, 60_000);
     return () => clearInterval(id);
   }, [hourOverride]);
+
   const effectiveHour = hourOverride ?? hour;
-  const theme = getTheme(effectiveHour);
+  const effectiveDay = dayOverride ?? day;
+  const theme = getTheme(effectiveHour, effectiveDay);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme.period;
