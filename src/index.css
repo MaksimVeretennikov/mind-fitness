@@ -750,9 +750,189 @@
 .metric-ok   .history-metric-primary { background: #fef9c3; color: #a16207; }
 .metric-bad  .history-metric-primary { background: #fee2e2; color: #b91c1c; }
 
+/* ─── Streak Badge ───────────────────────────────────────────────────────── */
+.streak-badge {
+  position: fixed;
+  top: 14px;
+  right: 66px;
+  z-index: 100;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px 7px 10px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(255, 215, 120, 0.95), rgba(255, 168, 76, 0.95));
+  color: #5b3a00;
+  font-weight: 700;
+  font-size: 0.88rem;
+  line-height: 1;
+  border: 1.5px solid rgba(255,255,255,0.7);
+  box-shadow: 0 2px 10px rgba(234, 160, 40, 0.35), inset 0 1px 0 rgba(255,255,255,0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  user-select: none;
+  animation: streak-badge-in 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+.streak-badge-star {
+  font-size: 1.05rem;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(180, 90, 0, 0.5);
+  animation: streak-star-pulse 2.4s ease-in-out infinite;
+}
+.streak-badge-count {
+  letter-spacing: 0.02em;
+}
+
+:root[data-theme="dark"] .streak-badge,
+:root[data-theme="sunset"] .streak-badge {
+  border-color: rgba(255,255,255,0.35);
+}
+
+/* When user is logged out the "Войти" button is wider than the avatar,
+   so push the streak badge further left to avoid overlap. */
+.user-badge-root:has(.user-badge-login) ~ .streak-badge {
+  right: 104px;
+}
+
+@keyframes streak-badge-in {
+  from { opacity: 0; transform: translateY(-6px) scale(0.9); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+@keyframes streak-star-pulse {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(255,255,255,0)); }
+  50%      { transform: scale(1.15); filter: drop-shadow(0 0 6px rgba(255,255,255,0.7)); }
+}
+
+/* ─── Daily Welcome Modal ────────────────────────────────────────────────── */
+.welcome-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fade-drop 0.2s ease both;
+}
+.welcome-card {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  padding: 32px 28px 26px;
+  border-radius: 22px;
+  background: linear-gradient(160deg, rgba(255,255,255,0.98), rgba(252,244,225,0.98));
+  border: 1px solid rgba(255,255,255,0.8);
+  box-shadow: 0 20px 60px rgba(80, 50, 0, 0.35);
+  text-align: center;
+  overflow: hidden;
+}
+.welcome-glow {
+  position: absolute;
+  top: -80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, rgba(255, 200, 90, 0.45), rgba(255, 200, 90, 0) 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+.welcome-card > * { position: relative; z-index: 1; }
+
+.welcome-stars {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 14px;
+  min-height: 36px;
+  flex-wrap: wrap;
+}
+.welcome-star {
+  font-size: 1.8rem;
+  color: #f5a524;
+  text-shadow: 0 2px 6px rgba(245, 165, 36, 0.5);
+  display: inline-block;
+}
+.welcome-star-pop {
+  animation: star-pop 0.45s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+.welcome-star-extra {
+  margin-left: 6px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: rgba(245, 165, 36, 0.15);
+  color: #b45309;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+@keyframes star-pop {
+  0%   { transform: scale(0) rotate(-30deg); opacity: 0; }
+  70%  { transform: scale(1.25) rotate(8deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+.welcome-title {
+  margin: 0 0 10px;
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: #1f2937;
+  letter-spacing: -0.01em;
+}
+.welcome-streak-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.welcome-streak-number {
+  font-size: 2.6rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  line-height: 1;
+}
+.welcome-streak-label {
+  font-size: 1rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+.welcome-subtitle {
+  margin: 0 0 22px;
+  font-size: 0.95rem;
+  color: #4b5563;
+  line-height: 1.45;
+}
+.welcome-button {
+  width: 100%;
+  padding: 13px 22px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #8b5cf6, #6366f1);
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(99,102,241,0.4);
+  transition: transform 0.1s, box-shadow 0.15s, opacity 0.15s;
+}
+.welcome-button:hover { opacity: 0.95; box-shadow: 0 6px 20px rgba(99,102,241,0.5); }
+.welcome-button:active { transform: scale(0.97); }
+
 /* ─── Mobile adjustments ─────────────────────────────────────────────────── */
 @media (max-width: 375px) {
   .auth-card { padding: 28px 20px 22px; }
   .history-panel { width: 100vw; }
   .user-badge-root { top: 10px; right: 12px; }
+  .streak-badge { top: 10px; right: 60px; padding: 6px 10px 6px 9px; font-size: 0.82rem; }
+  .user-badge-root:has(.user-badge-login) ~ .streak-badge { right: 96px; }
+  .welcome-card { padding: 26px 22px 22px; }
+  .welcome-title { font-size: 1.35rem; }
+  .welcome-streak-number { font-size: 2.2rem; }
 }

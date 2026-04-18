@@ -11,7 +11,10 @@ import Balls from './exercises/Balls';
 import Reaction from './exercises/Reaction';
 import Adverbs from './exercises/Adverbs';
 import { AuthProvider } from './contexts/AuthContext';
+import { StreakProvider } from './contexts/StreakContext';
 import UserBadge from './components/UserBadge';
+import StreakBadge from './components/StreakBadge';
+import DailyWelcome from './components/DailyWelcome';
 import AuthModal from './components/AuthModal';
 import HistoryPanel from './components/HistoryPanel';
 import DynamicBackground from './components/DynamicBackground';
@@ -38,33 +41,37 @@ export default function App() {
 
   return (
     <AuthProvider>
-      <DynamicBackground hourOverride={devHour} dayOverride={devDay} />
-      {import.meta.env.DEV && (
-        <DevTimePanel
-          currentHour={devHour}
-          currentDay={devDay}
-          onHourChange={setDevHour}
-          onDayChange={setDevDay}
-        />
-      )}
-      <UserBadge />
-      <AuthModal />
-      <HistoryPanel />
-
-      <main>
-        {current ? (
-          <ExerciseShell id={current} onBack={() => setCurrent(null)}>
-            <ExerciseComponent id={current} onBack={() => setCurrent(null)} />
-          </ExerciseShell>
-        ) : (
-          <HomeScreen onSelect={setCurrent} />
+      <StreakProvider>
+        <DynamicBackground hourOverride={devHour} dayOverride={devDay} />
+        {import.meta.env.DEV && (
+          <DevTimePanel
+            currentHour={devHour}
+            currentDay={devDay}
+            onHourChange={setDevHour}
+            onDayChange={setDevDay}
+          />
         )}
-      </main>
+        <UserBadge />
+        <StreakBadge />
+        <AuthModal />
+        <HistoryPanel />
+        <DailyWelcome />
 
-      <footer className="app-footer">
-        <div>Created by Maksim Veretennikov</div>
-        <div>Copyright &copy; 2026. All rights reserved.</div>
-      </footer>
+        <main>
+          {current ? (
+            <ExerciseShell id={current} onBack={() => setCurrent(null)}>
+              <ExerciseComponent id={current} onBack={() => setCurrent(null)} />
+            </ExerciseShell>
+          ) : (
+            <HomeScreen onSelect={setCurrent} />
+          )}
+        </main>
+
+        <footer className="app-footer">
+          <div>Created by Maksim Veretennikov</div>
+          <div>Copyright &copy; 2026. All rights reserved.</div>
+        </footer>
+      </StreakProvider>
     </AuthProvider>
   );
 }
