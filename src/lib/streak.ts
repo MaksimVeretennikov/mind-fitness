@@ -1,6 +1,16 @@
+import { supabase } from './supabase';
+
+// ─── localStorage keys ────────────────────────────────────────────────────────
 const KEY_LAST_VISIT = 'mf-streak-last-visit';
-const KEY_COUNT = 'mf-streak-count';
-const KEY_BEST = 'mf-streak-best';
+const KEY_COUNT      = 'mf-streak-count';
+const KEY_BEST       = 'mf-streak-best';
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+export interface StreakData {
+  count: number;
+  best: number;
+  lastVisit: string | null; // YYYY-MM-DD
+}
 
 export interface StreakState {
   count: number;
@@ -9,58 +19,102 @@ export interface StreakState {
   changed: 'new' | 'incremented' | 'reset' | 'same-day';
 }
 
-function formatDate(d: Date): string {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
+// ─── Pure date math ───────────────────────────────────────────────────────────
+export function formatDate(d: Date): string {
+  const y  = d.getFullYear();
+  const m  = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${dd}`;
 }
 
-function parseDate(s: string): Date | null {
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s);
-  if (!m) return null;
-  return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+function diffDays(lastVisit: string, now: Date): number {
+  const [y, m, d] = lastVisit.split('-').map(Number);
+  const aUtc = Date.UTC(y, m - 1, d);
+  const bUtc = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.round((bUtc - aUtc) / (24 * 60 * 60 * 1000));
 }
 
-function diffDays(a: Date, b: Date): number {
-  const ms = 24 * 60 * 60 * 1000;
-  const aUtc = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate());
-  const bUtc = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
-  return Math.round((bUtc - aUtc) / ms);
-}
-
-export function resolveStreak(now: Date = new Date()): StreakState {
+/**
+ * Pure computation: given previous stored data and the current time,
+ * return the new StreakData and UI state. Does NOT touch any storage.
+ */
+export function computeStreak(
+  prev: StreakData,
+  now: Date = new Date(),
+): { data: StreakData; state: StreakState } {
   const today = formatDate(now);
-  const lastRaw = localStorage.getItem(KEY_LAST_VISIT);
-  const last = lastRaw ? parseDate(lastRaw) : null;
-  const prevCount = Number(localStorage.getItem(KEY_COUNT) || '0') || 0;
-  const prevBest = Number(localStorage.getItem(KEY_BEST) || '0') || 0;
 
-  if (last && formatDate(last) === today) {
-    return { count: prevCount, best: prevBest, showWelcome: false, changed: 'same-day' };
+  if (prev.lastVisit === today) {
+    return {
+      data: prev,
+      state: { count: prev.count, best: prev.best, showWelcome: false, changed: 'same-day' },
+    };
   }
 
   let count: number;
   let changed: StreakState['changed'];
-  if (!last) {
-    count = 1;
+
+  if (!prev.lastVisit) {
+    count   = 1;
     changed = 'new';
   } else {
-    const gap = diffDays(last, now);
+    const gap = diffDays(prev.lastVisit, now);
     if (gap === 1) {
-      count = prevCount + 1;
+      count   = prev.count + 1;
       changed = 'incremented';
     } else {
-      count = 1;
+      count   = 1;
       changed = 'reset';
     }
   }
 
-  const best = Math.max(prevBest, count);
+  const best = Math.max(prev.best, count);
+  return {
+    data:  { count, best, lastVisit: today },
+    state: { count, best, showWelcome: true, changed },
+  };
+}
 
-  localStorage.setItem(KEY_LAST_VISIT, today);
-  localStorage.setItem(KEY_COUNT, String(count));
-  localStorage.setItem(KEY_BEST, String(best));
+// ─── localStorage backend ─────────────────────────────────────────────────────
+export function loadFromLS(): StreakData {
+  return {
+    count:     Number(localStorage.getItem(KEY_COUNT) || '0') || 0,
+    best:      Number(localStorage.getItem(KEY_BEST)  || '0') || 0,
+    lastVisit: localStorage.getItem(KEY_LAST_VISIT),
+  };
+}
 
-  return { count, best, showWelcome: true, changed };
+export function saveToLS(data: StreakData): void {
+  if (data.lastVisit) localStorage.setItem(KEY_LAST_VISIT, data.lastVisit);
+  localStorage.setItem(KEY_COUNT, String(data.count));
+  localStorage.setItem(KEY_BEST,  String(data.best));
+}
+
+// ─── Supabase backend ─────────────────────────────────────────────────────────
+export async function loadFromDB(userId: string): Promise<StreakData | null> {
+  const { data, error } = await supabase
+    .from('streaks')
+    .select('count, best, last_visit')
+    .eq('user_id', userId)
+    .single();
+
+  if (error || !data) return null;
+  return {
+    count:     data.count,
+    best:      data.best,
+    lastVisit: data.last_visit, // 'YYYY-MM-DD' from Postgres DATE column
+  };
+}
+
+export async function saveToDB(userId: string, d: StreakData): Promise<void> {
+  await supabase.from('streaks').upsert(
+    {
+      user_id:    userId,
+      count:      d.count,
+      best:       d.best,
+      last_visit: d.lastVisit,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: 'user_id' },
+  );
 }
