@@ -331,14 +331,14 @@ export default function ChoiceQuiz({
         <button
           onClick={() => handleAnswer(leftIs)}
           disabled={locked}
-          className="flex-1 min-h-[96px] py-6 px-5 rounded-3xl text-xl font-bold text-white bg-gradient-to-br from-indigo-500 to-blue-600 shadow-lg hover:shadow-xl hover:opacity-90 transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed leading-snug"
+          className="flex-1 min-h-[96px] py-6 px-5 rounded-3xl text-4xl font-bold text-white bg-gradient-to-br from-indigo-500 to-blue-600 shadow-lg hover:shadow-xl hover:opacity-90 transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed leading-snug"
         >
           {labelFor(leftIs)}
         </button>
         <button
           onClick={() => handleAnswer(rightIs)}
           disabled={locked}
-          className="flex-1 min-h-[96px] py-6 px-5 rounded-3xl text-xl font-bold text-white bg-gradient-to-br from-violet-500 to-purple-600 shadow-lg hover:shadow-xl hover:opacity-90 transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed leading-snug"
+          className="flex-1 min-h-[96px] py-6 px-5 rounded-3xl text-4xl font-bold text-white bg-gradient-to-br from-violet-500 to-purple-600 shadow-lg hover:shadow-xl hover:opacity-90 transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed leading-snug"
         >
           {labelFor(rightIs)}
         </button>
