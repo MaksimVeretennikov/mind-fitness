@@ -41,7 +41,7 @@ const ITEMS: Item[] = [
   { display: 'назва_ый брат', single: 'названый брат', double: 'названный брат', answer: 'single' },
   { display: 'посажё_ый отец', single: 'посажёный отец', double: 'посажённый отец', answer: 'single' },
   { display: 'смышлё_ый мальчик', single: 'смышлёный мальчик', double: 'смышлённый мальчик', answer: 'single' },
-  { display: 'тяжелора_еный', single: 'тяжелораненый', double: 'тяжелораненный', answer: 'single' },
+  { display: 'тяжелоране_ый', single: 'тяжелораненый', double: 'тяжелораненный', answer: 'single' },
   { display: 'лата_ая шуба', single: 'латаная шуба', double: 'латанная шуба', answer: 'single' },
   { display: 'кова_ый', single: 'кованый', double: 'кованный', answer: 'single' },
   { display: 'жёва_ый', single: 'жёваный', double: 'жёванный', answer: 'single' },
