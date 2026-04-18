@@ -20,7 +20,7 @@ function headline(count: number, changed: string): string {
   return 'Молодец!';
 }
 
-function subtitle(count: number, changed: string): string {
+function subtitle(changed: string): string {
   if (changed === 'reset') return 'Начинаем новую серию — и сегодня уже первый день.';
   if (changed === 'new') return 'Твоя первая звёздочка получена. Тренируйся каждый день, чтобы копить серию.';
   return 'Ты пришёл сегодня и продлил свою серию. Так держать!';
@@ -72,7 +72,7 @@ export default function DailyWelcome() {
           <span className="welcome-streak-number">{count}</span>
           <span className="welcome-streak-label">{dayWord(count)} подряд</span>
         </div>
-        <p className="welcome-subtitle">{subtitle(count, changed)}</p>
+        <p className="welcome-subtitle">{subtitle(changed)}</p>
 
         <button className="welcome-button" onClick={dismissWelcome}>
           Начать тренировку
