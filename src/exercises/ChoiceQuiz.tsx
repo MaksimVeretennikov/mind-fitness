@@ -18,6 +18,7 @@ export interface QuizItem {
 
 interface Mistake {
   display: string;
+  chosen: string;
   correct: string;
 }
 
@@ -133,7 +134,7 @@ export default function ChoiceQuiz({
         : typeof current.display === 'string'
         ? current.display
         : '';
-      const newMistakes = [...mistakes, { display: displayStr, correct: current.correct }];
+      const newMistakes = [...mistakes, { display: displayStr, chosen: current.wrong, correct: current.correct }];
       setMistakes(newMistakes);
       setCardBg('rgba(252, 165, 165, 0.55)');
       setShaking(true);
@@ -247,12 +248,17 @@ export default function ChoiceQuiz({
               {mistakes.map((m, i) => (
                 <div
                   key={i}
-                  className="flex items-center justify-between text-sm py-1.5 border-b border-gray-100 last:border-0"
+                  className="flex items-center justify-between gap-3 text-sm py-1.5 border-b border-gray-100 last:border-0"
                 >
-                  <span className="text-gray-500">{m.display}</span>
-                  <span className="text-red-600 font-semibold bg-red-50 px-2 py-0.5 rounded-lg">
-                    {m.correct}
-                  </span>
+                  <span className="text-gray-500 shrink-0">{m.display}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-red-600 font-semibold bg-red-50 px-2 py-0.5 rounded-lg line-through">
+                      {m.chosen}
+                    </span>
+                    <span className="text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-lg">
+                      {m.correct}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
