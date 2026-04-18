@@ -9,6 +9,38 @@ export const RUSSIAN_EXERCISES: Exercise[] = [
     color: 'text-indigo-700',
     gradient: 'from-indigo-500 to-blue-600',
   },
+  {
+    id: 'prefixes',
+    title: 'Правописание приставок',
+    description: 'Выберите правильную букву на месте пропуска. Тренирует знание приставок и готовит к ЕГЭ.',
+    icon: '✍️',
+    color: 'text-indigo-700',
+    gradient: 'from-indigo-500 to-blue-600',
+  },
+  {
+    id: 'spelling-nn',
+    title: 'Правописание Н и НН',
+    description: 'Сколько Н нужно вставить на месте пропуска? Тренирует орфографию и готовит к ЕГЭ.',
+    icon: '🔤',
+    color: 'text-indigo-700',
+    gradient: 'from-indigo-500 to-blue-600',
+  },
+  {
+    id: 'word-forms',
+    title: 'Формы слова',
+    description: 'Выберите правильную форму множественного числа. Тренирует грамматическую норму.',
+    icon: '📚',
+    color: 'text-indigo-700',
+    gradient: 'from-indigo-500 to-blue-600',
+  },
+  {
+    id: 'stress',
+    title: 'Ударение',
+    description: 'Выберите слово с правильным ударением. Тренирует орфоэпическую норму русского языка.',
+    icon: '🔊',
+    color: 'text-indigo-700',
+    gradient: 'from-indigo-500 to-blue-600',
+  },
 ];
 
 export const EXERCISES: Exercise[] = [

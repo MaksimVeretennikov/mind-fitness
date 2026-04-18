@@ -6,7 +6,11 @@ export type ExerciseId =
   | 'pairs'
   | 'balls'
   | 'reaction'
-  | 'adverbs';
+  | 'adverbs'
+  | 'prefixes'
+  | 'spelling-nn'
+  | 'word-forms'
+  | 'stress';
 
 export interface Exercise {
   id: ExerciseId;

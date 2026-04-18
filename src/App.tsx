@@ -10,6 +10,10 @@ import Pairs from './exercises/Pairs';
 import Balls from './exercises/Balls';
 import Reaction from './exercises/Reaction';
 import Adverbs from './exercises/Adverbs';
+import Prefixes from './exercises/Prefixes';
+import SpellingNN from './exercises/SpellingNN';
+import WordForms from './exercises/WordForms';
+import Stress from './exercises/Stress';
 import { AuthProvider } from './contexts/AuthContext';
 import { StreakProvider } from './contexts/StreakContext';
 import UserBadge from './components/UserBadge';
@@ -31,6 +35,10 @@ function ExerciseComponent({ id, onBack }: { id: ExerciseId; onBack: () => void 
     case 'balls': return <Balls />;
     case 'reaction': return <Reaction />;
     case 'adverbs': return <Adverbs onBack={onBack} />;
+    case 'prefixes': return <Prefixes onBack={onBack} />;
+    case 'spelling-nn': return <SpellingNN onBack={onBack} />;
+    case 'word-forms': return <WordForms onBack={onBack} />;
+    case 'stress': return <Stress onBack={onBack} />;
   }
 }
 
