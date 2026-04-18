@@ -14,8 +14,8 @@ function renderStress(word: string) {
         const isUpper = ch !== ch.toLowerCase() && ch === ch.toUpperCase();
         if (isUpper) {
           return (
-            <span key={i} className="underline underline-offset-4 decoration-2 font-extrabold">
-              {ch.toLowerCase()}
+            <span key={i} className="font-extrabold">
+              {ch}
             </span>
           );
         }

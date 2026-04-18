@@ -97,7 +97,7 @@ export default function SpellingNN({ onBack }: Props) {
       pool={pool}
       resultKey="spelling-nn"
       title="Правописание Н и НН"
-      emoji="🔤"
+      emoji="✏️"
       subtitle="Сколько Н нужно вставить на месте пропуска?"
       count={count}
       onCountChange={setCount}

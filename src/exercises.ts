@@ -21,7 +21,7 @@ export const RUSSIAN_EXERCISES: Exercise[] = [
     id: 'spelling-nn',
     title: 'Правописание Н и НН',
     description: 'Сколько Н нужно вставить на месте пропуска? Тренирует орфографию и готовит к ЕГЭ.',
-    icon: '🔤',
+    icon: '✏️',
     color: 'text-indigo-700',
     gradient: 'from-indigo-500 to-blue-600',
   },

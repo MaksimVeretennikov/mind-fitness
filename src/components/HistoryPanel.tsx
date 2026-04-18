@@ -19,6 +19,10 @@ const EXERCISE_NAMES: Record<string, string> = {
   balls: 'Шарики с номерами',
   reaction: 'Реакция на шарик',
   adverbs: 'Наречия',
+  prefixes: 'Приставки',
+  'spelling-nn': 'Н и НН',
+  'word-forms': 'Формы слова',
+  stress: 'Ударение',
 };
 
 const EXERCISE_ICONS: Record<string, string> = {
@@ -30,6 +34,10 @@ const EXERCISE_ICONS: Record<string, string> = {
   balls: '🎯',
   reaction: '⚡',
   adverbs: '📝',
+  prefixes: '✍️',
+  'spelling-nn': '✏️',
+  'word-forms': '📚',
+  stress: '🔊',
 };
 
 function fmtTime(s: number): string {
