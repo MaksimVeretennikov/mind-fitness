@@ -67,12 +67,12 @@ export default function MistakesHistory({ exerciseName, label = 'История 
       {open && (
         <>
           <div
-            className="fixed inset-0 bg-black/30 z-[90] animate-fade-in"
+            className="fixed inset-0 bg-black/60 backdrop-blur-md z-[90] animate-fade-in"
             onClick={() => setOpen(false)}
           />
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 pointer-events-none">
             <div
-              className="glass rounded-2xl shadow-xl w-full max-w-lg max-h-[80vh] overflow-hidden flex flex-col pointer-events-auto animate-slide-up"
+              className="bg-white rounded-2xl shadow-2xl border border-gray-200 w-full max-w-lg max-h-[80vh] overflow-hidden flex flex-col pointer-events-auto animate-slide-up"
               onClick={e => e.stopPropagation()}
             >
               <div className="flex items-center justify-between px-6 py-4 border-b border-white/40">
