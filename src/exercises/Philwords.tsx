@@ -140,6 +140,7 @@ export default function Philwords() {
     if (timerRef.current) clearInterval(timerRef.current);
     setPhase('settings');
     setWin(false);
+    setStarted(false);
   }, []);
 
   // Save result on win
