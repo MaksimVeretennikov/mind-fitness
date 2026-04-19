@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, type ReactNode } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { saveResult } from '../lib/auth';
+import MistakesHistory from '../components/MistakesHistory';
 
 export interface QuizItem {
   /** What is shown at the top of the card (the question prompt). */
@@ -159,7 +160,12 @@ export default function ChoiceQuiz({
       const score = Math.round((correct / total) * 100);
       if (!savedRef.current) {
         savedRef.current = true;
-        saveResult(resultKey, score, { correct, total, errors: currentMistakes.length });
+        saveResult(resultKey, score, {
+          correct,
+          total,
+          errors: currentMistakes.length,
+          mistakes: currentMistakes,
+        });
       }
       setFinalCorrect(correct);
       setFinalTotal(total);
@@ -218,6 +224,8 @@ export default function ChoiceQuiz({
             Начать
           </button>
         </div>
+
+        <MistakesHistory exerciseName={resultKey} />
       </div>
     );
   }
@@ -225,10 +233,13 @@ export default function ChoiceQuiz({
   /* ─── Result ─── */
   if (phase === 'result') {
     const pct = finalTotal > 0 ? finalCorrect / finalTotal : 0;
-    const scoreColor =
-      pct >= 0.8 ? 'text-emerald-600' : pct >= 0.5 ? 'text-amber-500' : 'text-red-500';
+    const scoreColor = pct >= 0.8 ? 'text-emerald-600' : 'text-amber-500';
     const label =
-      pct >= 0.8 ? '🎉 Отлично!' : pct >= 0.5 ? '👍 Неплохо!' : '📚 Нужно потренироваться';
+      pct >= 0.9 ? '🎉 Отлично!'
+      : pct >= 0.8 ? '✨ Хороший результат'
+      : pct >= 0.65 ? '👍 Неплохо'
+      : pct >= 0.5 ? '💪 Есть над чем поработать'
+      : '📚 Стоит повторить тему';
 
     return (
       <div className="flex flex-col items-center gap-6 py-8 animate-fade-in max-w-lg mx-auto">

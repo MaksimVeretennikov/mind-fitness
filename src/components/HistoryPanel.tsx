@@ -196,11 +196,59 @@ const QUALITY_CLASS: Record<Quality, string> = {
   bad: 'metric-bad',
 };
 
+const RU_EXERCISES = new Set([
+  'adverbs', 'prefixes', 'spelling-nn', 'word-forms', 'stress', 'abbreviations',
+]);
+
+interface ChoiceMistake { display: string; chosen: string; correct: string }
+interface AbbrMistake { abbr: string; full: string }
+
+function renderMistakes(result: ExerciseResult) {
+  const raw = (result.details as { mistakes?: unknown })?.mistakes;
+  if (!Array.isArray(raw) || raw.length === 0) {
+    return (
+      <div className="history-mistakes-empty">
+        {result.exercise_name === 'abbreviations'
+          ? '🎉 Все аббревиатуры знал'
+          : '🎉 Без ошибок'}
+      </div>
+    );
+  }
+  if (result.exercise_name === 'abbreviations') {
+    const list = raw as AbbrMistake[];
+    return (
+      <div className="history-mistakes-list">
+        {list.map((m, i) => (
+          <div key={i} className="history-mistake-row">
+            <span className="history-mistake-abbr">{m.abbr}</span>
+            <span className="history-mistake-full">{m.full}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+  const list = raw as ChoiceMistake[];
+  return (
+    <div className="history-mistakes-list">
+      {list.map((m, i) => (
+        <div key={i} className="history-mistake-row">
+          <span className="history-mistake-display">{m.display}</span>
+          <div className="history-mistake-answers">
+            <span className="history-mistake-chosen">{m.chosen}</span>
+            <span className="history-mistake-correct">{m.correct}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function HistoryPanel() {
   const { user, showHistoryPanel, setShowHistoryPanel } = useAuth();
   const [results, setResults] = useState<ExerciseResult[]>([]);
   const [loadingData, setLoadingData] = useState(false);
   const [filterExercise, setFilterExercise] = useState<string | null>(null);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (!showHistoryPanel || !user) return;
@@ -261,7 +309,7 @@ export default function HistoryPanel() {
               </div>
               <div className="history-stat-divider" />
               <div className="history-stat">
-                <span className="history-stat-value">{uniqueExercises}<span style={{fontSize:'0.8rem', fontWeight:500}}>/8</span></span>
+                <span className="history-stat-value">{uniqueExercises}</span>
                 <span className="history-stat-label">Упражнений</span>
               </div>
               <div className="history-stat-divider" />
@@ -297,23 +345,47 @@ export default function HistoryPanel() {
                   <div className="history-group-label">{label}</div>
                   {items.map(r => {
                     const display = getDisplay(r);
+                    const isRu = RU_EXERCISES.has(r.exercise_name);
+                    const isOpen = expandedIds.has(r.id);
+                    const toggle = () => {
+                      if (!isRu) return;
+                      setExpandedIds(prev => {
+                        const next = new Set(prev);
+                        next.has(r.id) ? next.delete(r.id) : next.add(r.id);
+                        return next;
+                      });
+                    };
                     return (
-                      <div key={r.id} className="history-card">
-                        <span className="history-card-icon">
-                          {EXERCISE_ICONS[r.exercise_name] ?? '🏋️'}
-                        </span>
-                        <div className="history-card-body">
-                          <span className="history-card-name">
-                            {EXERCISE_NAMES[r.exercise_name] ?? r.exercise_name}
+                      <div key={r.id} className={`history-card-wrap ${isOpen ? 'is-open' : ''}`}>
+                        <div
+                          className={`history-card ${isRu ? 'history-card--clickable' : ''}`}
+                          onClick={toggle}
+                          role={isRu ? 'button' : undefined}
+                        >
+                          <span className="history-card-icon">
+                            {EXERCISE_ICONS[r.exercise_name] ?? '🏋️'}
                           </span>
-                          <span className="history-card-time">{relativeTime(r.created_at)}</span>
-                        </div>
-                        <div className={`history-metric ${QUALITY_CLASS[display.quality]}`}>
-                          <span className="history-metric-primary">{display.primary}</span>
-                          {display.secondary && (
-                            <span className="history-metric-secondary">{display.secondary}</span>
+                          <div className="history-card-body">
+                            <span className="history-card-name">
+                              {EXERCISE_NAMES[r.exercise_name] ?? r.exercise_name}
+                            </span>
+                            <span className="history-card-time">{relativeTime(r.created_at)}</span>
+                          </div>
+                          <div className={`history-metric ${QUALITY_CLASS[display.quality]}`}>
+                            <span className="history-metric-primary">{display.primary}</span>
+                            {display.secondary && (
+                              <span className="history-metric-secondary">{display.secondary}</span>
+                            )}
+                          </div>
+                          {isRu && (
+                            <span className={`history-card-chevron ${isOpen ? 'open' : ''}`} aria-hidden>
+                              ▾
+                            </span>
                           )}
                         </div>
+                        {isRu && isOpen && (
+                          <div className="history-card-details">{renderMistakes(r)}</div>
+                        )}
                       </div>
                     );
                   })}
