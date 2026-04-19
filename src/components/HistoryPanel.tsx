@@ -13,7 +13,7 @@ interface ExerciseResult {
 const EXERCISE_NAMES: Record<string, string> = {
   munsterberg: 'Тест Мюнстерберга',
   philwords: 'Филворды',
-  schulte: 'Таблица Шульте',
+  schulte: 'Зоркий глаз',
   sequence: 'Последовательности',
   pairs: 'Игра на пары',
   balls: 'Шарики с номерами',
@@ -28,7 +28,7 @@ const EXERCISE_NAMES: Record<string, string> = {
 const EXERCISE_ICONS: Record<string, string> = {
   munsterberg: '🔍',
   philwords: '📝',
-  schulte: '🔢',
+  schulte: '👁️',
   sequence: '🧠',
   pairs: '🃏',
   balls: '🎯',
@@ -137,7 +137,11 @@ function getDisplay(result: ExerciseResult): ExerciseDisplay {
         quality: catches >= 15 ? 'good' : catches >= 7 ? 'ok' : 'bad',
       };
     }
-    case 'adverbs': {
+    case 'adverbs':
+    case 'prefixes':
+    case 'spelling-nn':
+    case 'word-forms':
+    case 'stress': {
       const correct = n('correct'), total = n('total', 1);
       const pct = total > 0 ? correct / total : 0;
       return {
@@ -193,6 +197,7 @@ export default function HistoryPanel() {
   const { user, showHistoryPanel, setShowHistoryPanel } = useAuth();
   const [results, setResults] = useState<ExerciseResult[]>([]);
   const [loadingData, setLoadingData] = useState(false);
+  const [filterExercise, setFilterExercise] = useState<string | null>(null);
 
   useEffect(() => {
     if (!showHistoryPanel || !user) return;
@@ -216,7 +221,9 @@ export default function HistoryPanel() {
     return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
   })).size;
 
-  const groups = groupByDate(results);
+  const presentExercises = Array.from(new Set(results.map(r => r.exercise_name)));
+  const filtered = filterExercise ? results.filter(r => r.exercise_name === filterExercise) : results;
+  const groups = groupByDate(filtered);
 
   return (
     <>
@@ -259,6 +266,25 @@ export default function HistoryPanel() {
                 <span className="history-stat-value">{uniqueDays}</span>
                 <span className="history-stat-label">Дней</span>
               </div>
+            </div>
+
+            {/* Filter pills */}
+            <div className="history-filter">
+              <button
+                className={`history-filter-pill ${filterExercise === null ? 'history-filter-pill--active' : ''}`}
+                onClick={() => setFilterExercise(null)}
+              >
+                Все
+              </button>
+              {presentExercises.map(ex => (
+                <button
+                  key={ex}
+                  className={`history-filter-pill ${filterExercise === ex ? 'history-filter-pill--active' : ''}`}
+                  onClick={() => setFilterExercise(prev => prev === ex ? null : ex)}
+                >
+                  {EXERCISE_ICONS[ex] ?? '🏋️'} {EXERCISE_NAMES[ex] ?? ex}
+                </button>
+              ))}
             </div>
 
             {/* Results list */}

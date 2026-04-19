@@ -232,7 +232,7 @@ export default function ChoiceQuiz({
 
     return (
       <div className="flex flex-col items-center gap-6 py-8 animate-fade-in max-w-lg mx-auto">
-        <div className="text-center">
+        <div className="glass rounded-2xl px-10 py-7 text-center shadow-sm w-full">
           <div className={`text-7xl font-bold mb-2 ${scoreColor}`}>
             {finalCorrect} / {finalTotal}
           </div>

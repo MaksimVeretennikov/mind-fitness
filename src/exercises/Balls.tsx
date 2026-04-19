@@ -187,9 +187,9 @@ export default function Balls() {
   if (phase === 'result') {
     return (
       <div className="flex flex-col items-center gap-5 py-8 animate-scale-in">
-        <div className="text-6xl">🏆</div>
-        <h2 className="text-2xl font-bold text-gray-800">Отлично!</h2>
-        <div className="glass rounded-2xl p-6 text-center shadow-lg w-64">
+        <div className="glass rounded-3xl p-8 text-center shadow-lg w-72">
+          <div className="text-6xl mb-3">🏆</div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-5">Отлично!</h2>
           <div className="flex justify-between mb-3">
             <span className="text-gray-500">Время:</span>
             <span className="font-bold text-gray-800">{formatTime(elapsed)}</span>

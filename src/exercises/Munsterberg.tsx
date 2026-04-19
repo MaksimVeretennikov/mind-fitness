@@ -201,17 +201,19 @@ export default function Munsterberg() {
   if (phase === 'result') {
     return (
       <div className="flex flex-col items-center gap-6 py-12 animate-scale-in">
-        <div className="text-6xl">🎉</div>
-        <h2 className="text-3xl font-bold text-gray-800">Время вышло!</h2>
-        <div className="glass rounded-2xl p-8 text-center shadow-lg max-w-sm w-full">
+        <div className="glass rounded-3xl p-8 text-center shadow-lg max-w-sm w-full">
+          <div className="text-6xl mb-3">🎉</div>
+          <h2 className="text-3xl font-bold text-gray-800 mb-4">Время вышло!</h2>
           <p className="text-gray-500 mb-2">Найдено слов</p>
           <p className="text-5xl font-bold text-violet-600 mb-1">{found.size}</p>
           <p className="text-gray-400 text-sm">из {totalWords}</p>
-          <div className="mt-4 flex flex-wrap gap-2 justify-center">
-            {[...found].map(w => (
-              <span key={w} className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">{w}</span>
-            ))}
-          </div>
+          {found.size > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2 justify-center">
+              {[...found].map(w => (
+                <span key={w} className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">{w}</span>
+              ))}
+            </div>
+          )}
         </div>
         <div className="flex gap-3">
           <button onClick={() => setPhase('settings')} className="px-6 py-3 rounded-xl glass text-gray-700 font-semibold hover:bg-white/80 transition-all active:scale-95">

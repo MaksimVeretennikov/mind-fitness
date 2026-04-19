@@ -164,25 +164,23 @@ export default function Pairs() {
   }
 
   if (phase === 'result') {
+    const resultErrors = Math.max(0, attempts - cards.length / 2);
     return (
       <div className="flex flex-col items-center gap-5 py-8 animate-scale-in">
-        <div className="text-6xl">🎉</div>
-        <h2 className="text-2xl font-bold text-gray-800">Все пары найдены!</h2>
-        <div className="glass rounded-2xl p-6 text-center shadow-lg w-64">
+        <div className="glass rounded-3xl p-8 text-center shadow-lg w-72">
+          <div className="text-6xl mb-3">🎉</div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-5">Все пары найдены!</h2>
           <div className="flex justify-between mb-3">
             <span className="text-gray-500">Время:</span>
             <span className="font-bold text-gray-800">{formatTime(elapsed)}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-500">Ошибок:</span>
-            {(() => {
-              const errors = Math.max(0, attempts - cards.length / 2);
-              return errors === 0 ? (
-                <span className="font-bold text-emerald-600">✓ без ошибок</span>
-              ) : (
-                <span className="font-bold text-red-500">{errors} {pluralErrors(errors)}</span>
-              );
-            })()}
+            {resultErrors === 0 ? (
+              <span className="font-bold text-emerald-600">✓ без ошибок</span>
+            ) : (
+              <span className="font-bold text-red-500">{resultErrors} {pluralErrors(resultErrors)}</span>
+            )}
           </div>
         </div>
         <div className="flex gap-3">

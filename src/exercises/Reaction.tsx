@@ -234,9 +234,9 @@ export default function Reaction() {
   if (phase === 'result') {
     return (
       <div className="flex flex-col items-center gap-5 py-8 animate-scale-in">
-        <div className="text-6xl">⚡</div>
-        <h2 className="text-2xl font-bold text-gray-800">Игра окончена!</h2>
-        <div className="glass rounded-2xl p-6 shadow-lg w-72">
+        <div className="glass rounded-3xl p-8 text-center shadow-lg w-80">
+          <div className="text-6xl mb-3">⚡</div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-5">Игра окончена!</h2>
           <div className="flex justify-between mb-3">
             <span className="text-gray-500">Очки:</span>
             <span className="font-bold text-2xl text-red-500">{score}</span>
