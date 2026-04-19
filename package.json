@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prebuild": "node scripts/fetch-bg.mjs",
     "build": "tsc -b && vite build",
+    "fetch-bg": "node scripts/fetch-bg.mjs",
     "lint": "eslint .",
     "preview": "vite preview"
   },

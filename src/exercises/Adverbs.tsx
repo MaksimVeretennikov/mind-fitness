@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { saveResult } from '../lib/auth';
+import MistakesHistory from '../components/MistakesHistory';
 
 /* ─── Word Bank ─────────────────────────────────────────────────────────────── */
 
@@ -240,7 +241,24 @@ type Phase = 'setup' | 'playing' | 'result';
 
 interface Mistake {
   display: string;
+  chosen: string;
   correct: string;
+}
+
+// Render the "wrong" spelling variant — i.e. what the user chose when wrong.
+// If correct answer is "слитно" → wrong variant is раздельно form (with spaces).
+// If correct answer is "раздельно" → wrong variant is the merged form (no spaces/parens).
+function wrongVariantFor(item: AdverbItem): string {
+  // Strip parentheses. If the correct value is the "слитно" form (no space),
+  // then the раздельно wrong variant inserts a space at the paren boundary.
+  // If correct is раздельно (contains a space), then слитно wrong is no-space.
+  const rawNoParens = item.display.replace(/\((.*?)\)/g, '$1');
+  if (item.answer === 'слитно') {
+    // wrong = раздельно → keep the space the parens were
+    return item.display.replace(/\((.*?)\)/g, '$1 ').replace(/\s+/g, ' ').trim();
+  }
+  // wrong = слитно → remove spaces
+  return rawNoParens.replace(/\s+/g, '');
 }
 
 /* ─── Helpers ───────────────────────────────────────────────────────────────── */
@@ -315,9 +333,13 @@ export default function Adverbs({ onBack }: Props) {
       });
       advanceTo(index + 1, mistakes);
     } else {
-      const newMistakes = [
+      const newMistakes: Mistake[] = [
         ...mistakes,
-        { display: current.display, correct: current.correct },
+        {
+          display: current.display,
+          chosen: wrongVariantFor(current),
+          correct: current.correct,
+        },
       ];
       setMistakes(newMistakes);
 
@@ -350,7 +372,12 @@ export default function Adverbs({ onBack }: Props) {
       const score = Math.round((correct / total) * 100);
       if (!savedRef.current) {
         savedRef.current = true;
-        saveResult('adverbs', score, { correct, total, errors: currentMistakes.length });
+        saveResult('adverbs', score, {
+          correct,
+          total,
+          errors: currentMistakes.length,
+          mistakes: currentMistakes,
+        });
       }
       setFinalCorrect(correct);
       setFinalTotal(total);
@@ -408,6 +435,8 @@ export default function Adverbs({ onBack }: Props) {
             Начать
           </button>
         </div>
+
+        <MistakesHistory exerciseName="adverbs" />
       </div>
     );
   }
@@ -415,10 +444,13 @@ export default function Adverbs({ onBack }: Props) {
   /* ─── Result Screen ─────────────────────────────────────────────────────── */
   if (phase === 'result') {
     const pct = finalTotal > 0 ? finalCorrect / finalTotal : 0;
-    const scoreColor =
-      pct >= 0.8 ? 'text-emerald-600' : pct >= 0.5 ? 'text-amber-500' : 'text-red-500';
+    const scoreColor = pct >= 0.8 ? 'text-emerald-600' : 'text-amber-500';
     const label =
-      pct >= 0.8 ? '🎉 Отлично!' : pct >= 0.5 ? '👍 Неплохо!' : '📚 Нужно потренироваться';
+      pct >= 0.9 ? '🎉 Отлично!'
+      : pct >= 0.8 ? '✨ Хороший результат'
+      : pct >= 0.65 ? '👍 Неплохо'
+      : pct >= 0.5 ? '💪 Есть над чем поработать'
+      : '📚 Стоит повторить тему';
 
     return (
       <div className="flex flex-col items-center gap-6 py-8 animate-fade-in max-w-lg mx-auto">
@@ -438,12 +470,17 @@ export default function Adverbs({ onBack }: Props) {
               {mistakes.map((m, i) => (
                 <div
                   key={i}
-                  className="flex items-center justify-between text-sm py-1.5 border-b border-gray-100 last:border-0"
+                  className="flex items-center justify-between gap-3 text-sm py-1.5 border-b border-gray-100 last:border-0"
                 >
-                  <span className="text-gray-500">{m.display}</span>
-                  <span className="text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-lg">
-                    {m.correct}
-                  </span>
+                  <span className="text-gray-500 shrink-0">{m.display}</span>
+                  <div className="flex items-center gap-2 flex-wrap justify-end">
+                    <span className="text-red-600 font-semibold bg-red-50 px-2 py-0.5 rounded-lg line-through">
+                      {m.chosen}
+                    </span>
+                    <span className="text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-lg">
+                      {m.correct}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>

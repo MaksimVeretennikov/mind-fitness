@@ -781,6 +781,94 @@
 .metric-ok   .history-metric-primary { background: #fef9c3; color: #a16207; }
 .metric-bad  .history-metric-primary { background: #fee2e2; color: #b91c1c; }
 
+.history-card-wrap { margin-bottom: 8px; }
+.history-card-wrap .history-card { margin-bottom: 0; }
+.history-card--clickable { cursor: pointer; user-select: none; }
+.history-card-chevron {
+  color: #9ca3af;
+  font-size: 0.9rem;
+  margin-left: 4px;
+  transition: transform 0.2s ease;
+}
+.history-card-chevron.open { transform: rotate(180deg); }
+
+.history-card-wrap.is-open .history-card {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom: 1px dashed rgba(0,0,0,0.08);
+}
+
+.history-card-details {
+  background: rgba(255,255,255,0.9);
+  border: 1px solid rgba(0,0,0,0.06);
+  border-top: none;
+  border-bottom-left-radius: 14px;
+  border-bottom-right-radius: 14px;
+  padding: 10px 14px 12px;
+  animation: historyFadeIn 0.18s ease;
+}
+
+@keyframes historyFadeIn {
+  from { opacity: 0; transform: translateY(-3px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.history-mistakes-empty {
+  font-size: 0.82rem;
+  color: #6b7280;
+  text-align: center;
+  padding: 6px 0;
+}
+.history-mistakes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.history-mistake-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 2px;
+  font-size: 0.82rem;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+.history-mistake-row:last-child { border-bottom: none; }
+.history-mistake-display { color: #6b7280; flex-shrink: 0; }
+.history-mistake-answers {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.history-mistake-chosen {
+  color: #b91c1c;
+  background: #fee2e2;
+  text-decoration: line-through;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+.history-mistake-correct {
+  color: #15803d;
+  background: #dcfce7;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+.history-mistake-abbr {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #1f2937;
+  flex-shrink: 0;
+}
+.history-mistake-full {
+  color: #4b5563;
+  text-align: right;
+  line-height: 1.3;
+}
+
 /* ─── Streak Badge ───────────────────────────────────────────────────────── */
 .streak-badge {
   position: fixed;

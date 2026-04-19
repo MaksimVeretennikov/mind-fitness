@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { saveResult } from '../lib/auth';
+import MistakesHistory from '../components/MistakesHistory';
 
 interface AbbreviationItem {
   abbr: string;
@@ -54,6 +55,7 @@ export default function Abbreviations({ onBack }: Props) {
   const [items, setItems] = useState<AbbreviationItem[]>([]);
   const [index, setIndex] = useState(0);
   const [correct, setCorrect] = useState(0);
+  const [mistakes, setMistakes] = useState<AbbreviationItem[]>([]);
   const [isFlipped, setIsFlipped] = useState(false);
   const [locked, setLocked] = useState(false);
   const [cardColor, setCardColor] = useState<'neutral' | 'green' | 'red'>('neutral');
@@ -67,6 +69,7 @@ export default function Abbreviations({ onBack }: Props) {
     setItems(selected);
     setIndex(0);
     setCorrect(0);
+    setMistakes([]);
     setIsFlipped(false);
     setLocked(false);
     setCardColor('neutral');
@@ -85,6 +88,9 @@ export default function Abbreviations({ onBack }: Props) {
     setLocked(true);
 
     const newCorrect = isCorrect ? correct + 1 : correct;
+    const current = items[index];
+    const newMistakes = isCorrect ? mistakes : [...mistakes, current];
+    if (!isCorrect) setMistakes(newMistakes);
     setCardColor(isCorrect ? 'green' : 'red');
 
     await new Promise<void>((r) => setTimeout(r, 250));
@@ -106,6 +112,7 @@ export default function Abbreviations({ onBack }: Props) {
           correct: newCorrect,
           total,
           errors: total - newCorrect,
+          mistakes: newMistakes,
         });
       }
       setFinalCorrect(newCorrect);
@@ -163,6 +170,8 @@ export default function Abbreviations({ onBack }: Props) {
             Начать
           </button>
         </div>
+
+        <MistakesHistory exerciseName="abbreviations" />
       </div>
     );
   }
@@ -170,10 +179,13 @@ export default function Abbreviations({ onBack }: Props) {
   /* ─── Result ─── */
   if (phase === 'result') {
     const pct = finalTotal > 0 ? finalCorrect / finalTotal : 0;
-    const scoreColor =
-      pct >= 0.8 ? 'text-emerald-600' : pct >= 0.5 ? 'text-amber-500' : 'text-red-500';
+    const scoreColor = pct >= 0.8 ? 'text-emerald-600' : 'text-amber-500';
     const label =
-      pct >= 0.8 ? '🎉 Отлично!' : pct >= 0.5 ? '👍 Неплохо!' : '📚 Нужно потренироваться';
+      pct >= 0.9 ? '🎉 Отлично!'
+      : pct >= 0.8 ? '✨ Хороший результат'
+      : pct >= 0.65 ? '👍 Неплохо'
+      : pct >= 0.5 ? '💪 Есть над чем поработать'
+      : '📚 Стоит повторить тему';
 
     return (
       <div className="flex flex-col items-center gap-6 py-8 animate-fade-in max-w-lg mx-auto">
@@ -183,6 +195,25 @@ export default function Abbreviations({ onBack }: Props) {
           </div>
           <p className="text-gray-500 text-xl">{label}</p>
         </div>
+
+        {mistakes.length > 0 && (
+          <div className="glass rounded-2xl p-6 w-full shadow-sm">
+            <h3 className="font-semibold text-gray-700 mb-4 text-sm uppercase tracking-wide">
+              Не знал ({mistakes.length})
+            </h3>
+            <div className="flex flex-col gap-1.5">
+              {mistakes.map((m, i) => (
+                <div
+                  key={i}
+                  className="flex items-start justify-between gap-3 text-sm py-1.5 border-b border-gray-100 last:border-0"
+                >
+                  <span className="font-bold text-gray-800 shrink-0 tracking-wide">{m.abbr}</span>
+                  <span className="text-gray-600 text-right leading-snug">{m.full}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="flex gap-3 w-full max-w-sm">
           <button
