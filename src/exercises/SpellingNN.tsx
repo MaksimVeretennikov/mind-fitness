@@ -32,7 +32,7 @@ const ITEMS: Item[] = [
   { display: 'ю_ость', single: 'юность', double: 'юнность', answer: 'single' },
   { display: 'стира_ый-перестираный', single: 'стираный-перестираный', double: 'стиранный-перестиранный', answer: 'single' },
   { display: 'глаже_ый-переглаженый', single: 'глаженый-переглаженый', double: 'глаженный-переглаженный', answer: 'single' },
-  { display: 'ра_еный солдат', single: 'раненый солдат', double: 'раненный солдат', answer: 'single', hint: 'без зависимых слов' },
+  { display: 'ране_ый солдат', single: 'раненый солдат', double: 'раненный солдат', answer: 'single', hint: 'без зависимых слов' },
   { display: 'домотка_ый', single: 'домотканый', double: 'домотканный', answer: 'single' },
   { display: 'пестротка_ый', single: 'пестротканый', double: 'пестротканный', answer: 'single' },
   { display: 'верче_ый парень', single: 'верченый парень', double: 'верченный парень', answer: 'single' },
@@ -48,8 +48,8 @@ const ITEMS: Item[] = [
   { display: 'клёва_ый', single: 'клёваный', double: 'клёванный', answer: 'single' },
 
   // Double НН
-  { display: 'ра_енный в руку солдат', single: 'раненый в руку солдат', double: 'раненный в руку солдат', answer: 'double', hint: 'есть зависимое слово' },
-  { display: 'будучи ра_енным', single: 'будучи раненым', double: 'будучи раненным', answer: 'double' },
+  { display: 'ране_ый в руку солдат', single: 'раненый в руку солдат', double: 'раненный в руку солдат', answer: 'double', hint: 'есть зависимое слово' },
+  { display: 'будучи ране_ым', single: 'будучи раненым', double: 'будучи раненным', answer: 'double' },
   { display: 'коло_ада', single: 'колонада', double: 'колоннада', answer: 'double' },
   { display: 'ставле_ик', single: 'ставленик', double: 'ставленник', answer: 'double' },
   { display: 'трезве_ик', single: 'трезвеник', double: 'трезвенник', answer: 'double' },
