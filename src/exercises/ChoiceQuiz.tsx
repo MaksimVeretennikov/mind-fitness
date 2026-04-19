@@ -1,6 +1,7 @@
-import { useState, useRef, useEffect, type ReactNode } from 'react';
+import { useState, useRef, useEffect, useMemo, type ReactNode } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { saveResult } from '../lib/auth';
+import { pickResultLabel, toneToColor } from '../lib/resultLabels';
 import MistakesHistory from '../components/MistakesHistory';
 
 export interface QuizItem {
@@ -90,6 +91,11 @@ export default function ChoiceQuiz({
   const cardKey = useRef(0);
   const savedRef = useRef(false);
   const controls = useAnimation();
+
+  const resultLabel = useMemo(
+    () => pickResultLabel(finalTotal > 0 ? finalCorrect / finalTotal : 0),
+    [finalCorrect, finalTotal],
+  );
 
   useEffect(() => {
     if (phase !== 'playing') return;
@@ -232,14 +238,8 @@ export default function ChoiceQuiz({
 
   /* ─── Result ─── */
   if (phase === 'result') {
-    const pct = finalTotal > 0 ? finalCorrect / finalTotal : 0;
-    const scoreColor = pct >= 0.8 ? 'text-emerald-600' : 'text-amber-500';
-    const label =
-      pct >= 0.9 ? '🎉 Отлично!'
-      : pct >= 0.8 ? '✨ Хороший результат'
-      : pct >= 0.65 ? '👍 Неплохо'
-      : pct >= 0.5 ? '💪 Есть над чем поработать'
-      : '📚 Стоит повторить тему';
+    const { label, tone } = resultLabel;
+    const scoreColor = toneToColor(tone);
 
     return (
       <div className="flex flex-col items-center gap-6 py-8 animate-fade-in max-w-lg mx-auto">
