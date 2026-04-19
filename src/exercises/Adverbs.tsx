@@ -1,6 +1,7 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { saveResult } from '../lib/auth';
+import { pickResultLabel, toneToColor } from '../lib/resultLabels';
 import MistakesHistory from '../components/MistakesHistory';
 
 /* ─── Word Bank ─────────────────────────────────────────────────────────────── */
@@ -295,6 +296,11 @@ export default function Adverbs({ onBack }: Props) {
   const controls = useAnimation();
   const [renderKey, setRenderKey] = useState(0);
 
+  const resultLabel = useMemo(
+    () => pickResultLabel(finalTotal > 0 ? finalCorrect / finalTotal : 0),
+    [finalCorrect, finalTotal],
+  );
+
   useEffect(() => {
     if (phase !== 'playing') return;
     controls.set({ x: 0, y: 40, opacity: 0, scale: 0.96 });
@@ -443,14 +449,8 @@ export default function Adverbs({ onBack }: Props) {
 
   /* ─── Result Screen ─────────────────────────────────────────────────────── */
   if (phase === 'result') {
-    const pct = finalTotal > 0 ? finalCorrect / finalTotal : 0;
-    const scoreColor = pct >= 0.8 ? 'text-emerald-600' : 'text-amber-500';
-    const label =
-      pct >= 0.9 ? '🎉 Отлично!'
-      : pct >= 0.8 ? '✨ Хороший результат'
-      : pct >= 0.65 ? '👍 Неплохо'
-      : pct >= 0.5 ? '💪 Есть над чем поработать'
-      : '📚 Стоит повторить тему';
+    const { label, tone } = resultLabel;
+    const scoreColor = toneToColor(tone);
 
     return (
       <div className="flex flex-col items-center gap-6 py-8 animate-fade-in max-w-lg mx-auto">
