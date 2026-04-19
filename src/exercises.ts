@@ -41,6 +41,14 @@ export const RUSSIAN_EXERCISES: Exercise[] = [
     color: 'text-indigo-700',
     gradient: 'from-indigo-500 to-blue-600',
   },
+  {
+    id: 'abbreviations',
+    title: 'Аббревиатуры',
+    description: 'Проверьте, знаете ли вы расшифровку популярных российских аббревиатур.',
+    icon: '🔤',
+    color: 'text-indigo-700',
+    gradient: 'from-indigo-500 to-blue-600',
+  },
 ];
 
 export const EXERCISES: Exercise[] = [

@@ -14,6 +14,7 @@ import Prefixes from './exercises/Prefixes';
 import SpellingNN from './exercises/SpellingNN';
 import WordForms from './exercises/WordForms';
 import Stress from './exercises/Stress';
+import Abbreviations from './exercises/Abbreviations';
 import { AuthProvider } from './contexts/AuthContext';
 import { StreakProvider } from './contexts/StreakContext';
 import UserBadge from './components/UserBadge';
@@ -39,6 +40,7 @@ function ExerciseComponent({ id, onBack }: { id: ExerciseId; onBack: () => void 
     case 'spelling-nn': return <SpellingNN onBack={onBack} />;
     case 'word-forms': return <WordForms onBack={onBack} />;
     case 'stress': return <Stress onBack={onBack} />;
+    case 'abbreviations': return <Abbreviations onBack={onBack} />;
   }
 }
 

@@ -23,6 +23,7 @@ const EXERCISE_NAMES: Record<string, string> = {
   'spelling-nn': 'Н и НН',
   'word-forms': 'Формы слова',
   stress: 'Ударение',
+  abbreviations: 'Аббревиатуры',
 };
 
 const EXERCISE_ICONS: Record<string, string> = {
@@ -38,6 +39,7 @@ const EXERCISE_ICONS: Record<string, string> = {
   'spelling-nn': '✏️',
   'word-forms': '📚',
   stress: '🔊',
+  abbreviations: '🔤',
 };
 
 function fmtTime(s: number): string {
@@ -141,7 +143,8 @@ function getDisplay(result: ExerciseResult): ExerciseDisplay {
     case 'prefixes':
     case 'spelling-nn':
     case 'word-forms':
-    case 'stress': {
+    case 'stress':
+    case 'abbreviations': {
       const correct = n('correct'), total = n('total', 1);
       const pct = total > 0 ? correct / total : 0;
       return {

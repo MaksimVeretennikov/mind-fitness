@@ -10,7 +10,8 @@ export type ExerciseId =
   | 'prefixes'
   | 'spelling-nn'
   | 'word-forms'
-  | 'stress';
+  | 'stress'
+  | 'abbreviations';
 
 export interface Exercise {
   id: ExerciseId;
