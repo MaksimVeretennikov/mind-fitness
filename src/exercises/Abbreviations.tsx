@@ -235,7 +235,7 @@ export default function Abbreviations({ onBack }: Props) {
         className="w-full max-w-md"
         style={{ height: 300 }}
       >
-        <div className="card-3d w-full h-full" onClick={handleFlip} style={{ cursor: isFlipped ? 'default' : 'pointer' }}>
+        <div key={index} className="card-3d w-full h-full" onClick={handleFlip} style={{ cursor: isFlipped ? 'default' : 'pointer' }}>
           <div className={`card-inner ${isFlipped ? 'flipped' : ''}`}>
             {/* Front */}
             <div
