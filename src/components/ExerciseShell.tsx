@@ -1,6 +1,6 @@
-import { EXERCISES, RUSSIAN_EXERCISES } from '../exercises';
+import { EXERCISES, RUSSIAN_EXERCISES, GEOGRAPHY_EXERCISES } from '../exercises';
 
-const ALL_EXERCISES = [...EXERCISES, ...RUSSIAN_EXERCISES];
+const ALL_EXERCISES = [...EXERCISES, ...RUSSIAN_EXERCISES, ...GEOGRAPHY_EXERCISES];
 import type { ExerciseId } from '../types';
 
 interface Props {

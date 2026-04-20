@@ -51,6 +51,25 @@ export const RUSSIAN_EXERCISES: Exercise[] = [
   },
 ];
 
+export const GEOGRAPHY_EXERCISES: Exercise[] = [
+  {
+    id: 'geography-map',
+    title: 'Где на карте?',
+    description: 'Найдите страну на карте мира. Тренирует пространственную память и знание географии.',
+    icon: '🗺️',
+    color: 'text-violet-600',
+    gradient: 'from-violet-500 to-indigo-600',
+  },
+  {
+    id: 'geography-capitals',
+    title: 'Столицы мира',
+    description: 'Угадайте столицу страны — по флагу и названию. Выбирайте из вариантов или пишите сами.',
+    icon: '🏛️',
+    color: 'text-teal-600',
+    gradient: 'from-teal-500 to-emerald-600',
+  },
+];
+
 export const EXERCISES: Exercise[] = [
   {
     id: 'munsterberg',

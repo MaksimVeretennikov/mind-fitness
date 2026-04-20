@@ -11,7 +11,9 @@ export type ExerciseId =
   | 'spelling-nn'
   | 'word-forms'
   | 'stress'
-  | 'abbreviations';
+  | 'abbreviations'
+  | 'geography-map'
+  | 'geography-capitals';
 
 export interface Exercise {
   id: ExerciseId;

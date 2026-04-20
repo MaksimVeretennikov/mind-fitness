@@ -52,6 +52,37 @@ current **day of the week**.
   - Overrides flow into `DynamicBackground` via `hourOverride` / `dayOverride` props, so
     the UI reflects each of the 28 combinations instantly for manual QA.
 
+## Раздел «Кругозор» (география)
+Два упражнения, общая база [countries.ts](src/data/countries.ts) (~170 стран):
+`code`, `name`/`capital` (русские), `flag` (emoji), `region`, `difficulty`, `lat`/`lng`.
+
+- **Где на карте?** — [GeographyMap.tsx](src/exercises/GeographyMap.tsx). Интерактивная SVG-карта
+  на `react-simple-maps` + world-atlas 110m topojson (CDN). Клик по стране; таймер 15 сек;
+  при ошибке — пульсирующая правильная страна + расстояние. Маппинг ISO-2 ↔ M49 numeric —
+  [countryIds.ts](src/data/countryIds.ts). Слишком мелкие страны (Ватикан, Монако и т.п.)
+  исключены через `SKIP_IN_MAP` — их нет в 110m.
+- **Столицы мира** — [GeographyCapitals.tsx](src/exercises/GeographyCapitals.tsx). Два режима:
+  `choice` (4 варианта, 12 сек, дистракторы из того же региона) и `input` (ручной ввод,
+  20 сек, нечёткое сравнение с учётом диакритики и опечаток). Режим сохраняется в
+  `localStorage["geo-capitals-mode"]`.
+
+### Подсчёт очков (оба упражнения)
+`base (100) + timeBonus (0..150) + streakMultiplier (1.0..2.0)`. Серия сбрасывается на
+ошибке/таймауте. Плавающая анимация `+N` при правильном ответе.
+
+### Хранение прогресса
+- Сессии → общая таблица `exercise_results` через `saveResult()`. В `details`:
+  `{ correct, total, errors, score, bestStreak, region, difficulty, mode?, timeSec, mistakes[] }`.
+- Пер-страновой прогресс → отдельная таблица `geography_country_progress`
+  (миграция [20260420_geography.sql](supabase/migrations/20260420_geography.sql)). RLS
+  по `auth.uid() = user_id`. Работа через [geographyDB.ts](src/lib/geographyDB.ts):
+  `updateCountryProgressBatch()` в конце сессии, `getWeakCountries()` — для режима
+  «Повторить слабые страны».
+
+### Зависимости
+- `react-simple-maps@3` + `d3-geo` установлены с `--legacy-peer-deps` (peerDeps требуют
+  React 18, но с React 19 всё работает).
+
 ## Правило обновления
 После каждой значимой доработки (новая фича, рефакторинг, изменение архитектуры) —
 обнови этот файл. Отражай актуальное состояние проекта, не историю изменений.

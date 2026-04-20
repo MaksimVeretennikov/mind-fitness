@@ -15,6 +15,8 @@ import SpellingNN from './exercises/SpellingNN';
 import WordForms from './exercises/WordForms';
 import Stress from './exercises/Stress';
 import Abbreviations from './exercises/Abbreviations';
+import GeographyMap from './exercises/GeographyMap';
+import GeographyCapitals from './exercises/GeographyCapitals';
 import { AuthProvider } from './contexts/AuthContext';
 import { StreakProvider } from './contexts/StreakContext';
 import UserBadge from './components/UserBadge';
@@ -41,6 +43,8 @@ function ExerciseComponent({ id, onBack }: { id: ExerciseId; onBack: () => void 
     case 'word-forms': return <WordForms onBack={onBack} />;
     case 'stress': return <Stress onBack={onBack} />;
     case 'abbreviations': return <Abbreviations onBack={onBack} />;
+    case 'geography-map': return <GeographyMap onBack={onBack} />;
+    case 'geography-capitals': return <GeographyCapitals onBack={onBack} />;
   }
 }
 

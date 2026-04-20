@@ -24,6 +24,8 @@ const EXERCISE_NAMES: Record<string, string> = {
   'word-forms': 'Формы слова',
   stress: 'Ударение',
   abbreviations: 'Аббревиатуры',
+  'geography-map': 'Где на карте?',
+  'geography-capitals': 'Столицы мира',
 };
 
 const EXERCISE_ICONS: Record<string, string> = {
@@ -40,6 +42,8 @@ const EXERCISE_ICONS: Record<string, string> = {
   'word-forms': '📚',
   stress: '🔊',
   abbreviations: '🔤',
+  'geography-map': '🗺️',
+  'geography-capitals': '🏛️',
 };
 
 function fmtTime(s: number): string {
@@ -139,6 +143,17 @@ function getDisplay(result: ExerciseResult): ExerciseDisplay {
         quality: catches >= 15 ? 'good' : catches >= 7 ? 'ok' : 'bad',
       };
     }
+    case 'geography-map':
+    case 'geography-capitals': {
+      const correct = n('correct'), total = n('total', 1);
+      const pct = total > 0 ? correct / total : 0;
+      const sc = n('score');
+      return {
+        primary: `${correct} / ${total}`,
+        secondary: sc > 0 ? `${sc} очк.` : undefined,
+        quality: pct >= 0.8 ? 'good' : pct >= 0.5 ? 'ok' : 'bad',
+      };
+    }
     case 'adverbs':
     case 'prefixes':
     case 'spelling-nn':
@@ -198,6 +213,7 @@ const QUALITY_CLASS: Record<Quality, string> = {
 
 const RU_EXERCISES = new Set([
   'adverbs', 'prefixes', 'spelling-nn', 'word-forms', 'stress', 'abbreviations',
+  'geography-map', 'geography-capitals',
 ]);
 
 interface ChoiceMistake { display: string; chosen: string; correct: string }
