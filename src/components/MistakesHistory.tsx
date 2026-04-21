@@ -286,11 +286,11 @@ export default function MistakesHistory({ exerciseName, label = 'История 
 
   return (
     <>
-      <div className="flex gap-2 flex-wrap justify-center">
+      <div className="flex gap-2 md:gap-3 w-full">
         <button
           type="button"
           onClick={() => { setView('history'); setOpen(true); }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl glass hover:bg-white/80 text-gray-700 text-sm font-medium transition-all active:scale-95 border border-white/60"
+          className="flex-1 inline-flex items-center justify-center gap-2 px-4 md:px-6 py-2.5 md:py-3.5 rounded-xl md:rounded-2xl glass hover:bg-white/80 text-gray-700 text-sm md:text-base font-medium transition-all active:scale-95 border border-white/60"
         >
           <span>🗂️</span>
           <span>{label}</span>
@@ -298,7 +298,7 @@ export default function MistakesHistory({ exerciseName, label = 'История 
         <button
           type="button"
           onClick={() => { setView('all'); setOpen(true); }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl glass hover:bg-white/80 text-gray-700 text-sm font-medium transition-all active:scale-95 border border-white/60"
+          className="flex-1 inline-flex items-center justify-center gap-2 px-4 md:px-6 py-2.5 md:py-3.5 rounded-xl md:rounded-2xl glass hover:bg-white/80 text-gray-700 text-sm md:text-base font-medium transition-all active:scale-95 border border-white/60"
         >
           <span>📝</span>
           <span>Все ошибки</span>

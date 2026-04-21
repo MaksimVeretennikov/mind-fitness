@@ -484,8 +484,14 @@ export default function GeographyMap({ onBack }: Props) {
 
   return (
     <div className="geo-play geo-play--map animate-fade-in" style={{ minHeight: 'calc(100vh - 100px)' }}>
-      <div className="geo-hud">
-        <span className="geo-hud-item">Вопрос {qIndex + 1}/{questions.length}</span>
+      <div className="geo-topbar">
+        <span className="geo-hud-item geo-topbar-q">
+          <span className="geo-topbar-idx">{qIndex + 1}/{questions.length}</span>
+        </span>
+        <span className="geo-topbar-prompt">
+          <span className="geo-prompt-flag">{q.country.flag}</span>
+          <span className="geo-prompt-text">Где находится <b>{q.country.name}</b>?</span>
+        </span>
         <span className="geo-hud-item geo-hud-score">
           <AnimatePresence>
             {floatingPts && (
@@ -510,11 +516,6 @@ export default function GeographyMap({ onBack }: Props) {
 
       <div className="geo-timer">
         <div className="geo-timer-bar" style={{ width: `${timePct}%`, background: timerColor }} />
-      </div>
-
-      <div className="geo-prompt">
-        <span className="geo-prompt-flag">{q.country.flag}</span>
-        <span className="geo-prompt-text">Где находится <b>{q.country.name}</b>?</span>
       </div>
 
       <div className="geo-map-wrap">
