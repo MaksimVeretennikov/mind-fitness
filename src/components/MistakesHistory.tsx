@@ -37,7 +37,7 @@ export default function MistakesHistory({ exerciseName, label = 'История 
   const [view, setView] = useState<View>('history');
   const [loading, setLoading] = useState(false);
   const [attempts, setAttempts] = useState<Attempt[]>([]);
-  const [copied, setCopied] = useState(false);
+  const [copiedSide, setCopiedSide] = useState<'left' | 'right' | null>(null);
 
   useEffect(() => {
     if (!open || !user) return;
@@ -89,22 +89,33 @@ export default function MistakesHistory({ exerciseName, label = 'История 
     }
   }, [attempts, isAbbr]);
 
-  const copyText = useMemo(() => {
+  const copyLeftText = useMemo(() => {
     if (isAbbr) {
-      return (aggregated as Array<{ abbr: string; full: string; count: number }>)
-        .map((m) => `${m.abbr} — ${m.full}${m.count > 1 ? ` (×${m.count})` : ''}`)
+      return (aggregated as Array<{ abbr: string; count: number }>)
+        .map((m) => `${m.abbr}${m.count > 1 ? ` (×${m.count})` : ''}`)
         .join('\n');
     }
-    return (aggregated as Array<{ display: string; correct: string; count: number }>)
-      .map((m) => `${m.display} → ${m.correct}${m.count > 1 ? ` (×${m.count})` : ''}`)
+    return (aggregated as Array<{ display: string; count: number }>)
+      .map((m) => `${m.display}${m.count > 1 ? ` (×${m.count})` : ''}`)
       .join('\n');
   }, [aggregated, isAbbr]);
 
-  async function handleCopy() {
+  const copyRightText = useMemo(() => {
+    if (isAbbr) {
+      return (aggregated as Array<{ full: string; count: number }>)
+        .map((m) => `${m.full}${m.count > 1 ? ` (×${m.count})` : ''}`)
+        .join('\n');
+    }
+    return (aggregated as Array<{ correct: string; count: number }>)
+      .map((m) => `${m.correct}${m.count > 1 ? ` (×${m.count})` : ''}`)
+      .join('\n');
+  }, [aggregated, isAbbr]);
+
+  async function handleCopy(side: 'left' | 'right') {
     try {
-      await navigator.clipboard.writeText(copyText);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
+      await navigator.clipboard.writeText(side === 'left' ? copyLeftText : copyRightText);
+      setCopiedSide(side);
+      setTimeout(() => setCopiedSide(null), 1500);
     } catch {
       /* ignore */
     }
@@ -269,14 +280,24 @@ export default function MistakesHistory({ exerciseName, label = 'История 
           </div>
 
           {view === 'all' && aggregated.length > 0 && (
-            <div className="border-t border-gray-100 px-6 py-3 flex items-center justify-between gap-3 bg-gray-50">
-              <span className="text-xs text-gray-500">Всего уникальных: {aggregated.length}</span>
-              <button
-                onClick={handleCopy}
-                className="px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700 transition-all active:scale-95"
-              >
-                {copied ? '✓ Скопировано' : '📋 Скопировать список'}
-              </button>
+            <div className="border-t border-gray-100 px-6 py-3 bg-gray-50 flex flex-col gap-2">
+              <div className="text-xs text-gray-500">Всего уникальных: {aggregated.length}</div>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => handleCopy('left')}
+                  className="px-3 py-2 rounded-xl bg-white border border-gray-200 text-gray-700 text-xs font-semibold hover:bg-gray-100 transition-all active:scale-95"
+                  title={isAbbr ? 'Копировать аббревиатуры' : 'Копировать слова'}
+                >
+                  {copiedSide === 'left' ? '✓ Скопировано' : `📋 ${isAbbr ? 'Аббревиатуры' : 'Слова'}`}
+                </button>
+                <button
+                  onClick={() => handleCopy('right')}
+                  className="px-3 py-2 rounded-xl bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700 transition-all active:scale-95"
+                  title="Копировать правильные ответы"
+                >
+                  {copiedSide === 'right' ? '✓ Скопировано' : '📋 Правильные ответы'}
+                </button>
+              </div>
             </div>
           )}
         </div>

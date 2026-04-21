@@ -19,11 +19,14 @@ import GeographyMap from './exercises/GeographyMap';
 import GeographyCapitals from './exercises/GeographyCapitals';
 import { AuthProvider } from './contexts/AuthContext';
 import { StreakProvider } from './contexts/StreakContext';
+import { GroupProvider } from './contexts/GroupContext';
 import UserBadge from './components/UserBadge';
 import StreakBadge from './components/StreakBadge';
 import DailyWelcome from './components/DailyWelcome';
 import AuthModal from './components/AuthModal';
 import HistoryPanel from './components/HistoryPanel';
+import GroupModal from './components/GroupModal';
+import TeacherDashboard from './components/TeacherDashboard';
 import DynamicBackground from './components/DynamicBackground';
 import DevTimePanel from './components/DevTimePanel';
 import type { DayIndex } from './weeklyPhotos';
@@ -55,6 +58,7 @@ export default function App() {
 
   return (
     <AuthProvider>
+      <GroupProvider>
       <StreakProvider>
         <DynamicBackground hourOverride={devHour} dayOverride={devDay} />
         {import.meta.env.DEV && (
@@ -69,6 +73,8 @@ export default function App() {
         <StreakBadge />
         <AuthModal />
         <HistoryPanel />
+        <GroupModal />
+        <TeacherDashboard />
         <DailyWelcome />
 
         <main>
@@ -86,6 +92,7 @@ export default function App() {
           <div>Copyright &copy; 2026. All rights reserved.</div>
         </footer>
       </StreakProvider>
+      </GroupProvider>
     </AuthProvider>
   );
 }

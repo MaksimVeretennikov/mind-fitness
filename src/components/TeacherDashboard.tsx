@@ -1,0 +1,373 @@
+import { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { useGroup } from '../contexts/GroupContext';
+import {
+  getGroupMembers,
+  getResultsForUsers,
+  type GroupMember,
+  type ExerciseResult,
+} from '../lib/groupsDB';
+
+const EXERCISE_NAMES: Record<string, string> = {
+  munsterberg: 'Тест Мюнстерберга',
+  philwords: 'Филворды',
+  schulte: 'Зоркий глаз',
+  sequence: 'Последовательности',
+  pairs: 'Игра на пары',
+  balls: 'Шарики с номерами',
+  reaction: 'Реакция на шарик',
+  adverbs: 'Наречия',
+  prefixes: 'Приставки',
+  'spelling-nn': 'Н и НН',
+  'word-forms': 'Формы слова',
+  stress: 'Ударение',
+  abbreviations: 'Аббревиатуры',
+  'geography-map': 'Где на карте?',
+  'geography-capitals': 'Столицы мира',
+};
+
+const EXERCISE_ICONS: Record<string, string> = {
+  adverbs: '📝', prefixes: '✍️', 'spelling-nn': '✏️',
+  'word-forms': '📚', stress: '🔊', abbreviations: '🔤',
+  munsterberg: '🔍', philwords: '📝', schulte: '👁️',
+  sequence: '🧠', pairs: '🃏', balls: '🎯', reaction: '⚡',
+  'geography-map': '🗺️', 'geography-capitals': '🏛️',
+};
+
+const RU_EXERCISES = new Set([
+  'adverbs', 'prefixes', 'spelling-nn', 'word-forms', 'stress', 'abbreviations',
+]);
+
+interface ChoiceMistake { display: string; chosen: string; correct: string }
+interface AbbrMistake { abbr: string; full: string }
+
+function relativeTime(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'только что';
+  if (mins < 60) return `${mins} мин назад`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours} ч назад`;
+  const days = Math.floor(hours / 24);
+  if (days === 1) return 'вчера';
+  if (days < 7) return `${days} дн назад`;
+  return new Date(iso).toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' });
+}
+
+function studentLabel(m: GroupMember): string {
+  return m.display_name?.trim() || m.email || 'Без имени';
+}
+
+function studentInitial(m: GroupMember): string {
+  const label = studentLabel(m);
+  return label[0]?.toUpperCase() ?? '?';
+}
+
+export default function TeacherDashboard() {
+  const { showTeacherDashboard, setShowTeacherDashboard, ownedGroup } = useGroup();
+  const [members, setMembers] = useState<GroupMember[]>([]);
+  const [results, setResults] = useState<ExerciseResult[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    if (!showTeacherDashboard || !ownedGroup) return;
+    setLoading(true);
+    (async () => {
+      const ms = await getGroupMembers(ownedGroup.id);
+      setMembers(ms);
+      const userIds = ms.map((m) => m.user_id);
+      const rs = await getResultsForUsers(userIds);
+      setResults(rs);
+      setLoading(false);
+    })();
+  }, [showTeacherDashboard, ownedGroup]);
+
+  // Aggregate per-student stats: Russian-only total score, error count (7d), last activity
+  const resultsByUser = useMemo(() => {
+    const map = new Map<string, ExerciseResult[]>();
+    for (const r of results) {
+      const arr = map.get(r.user_id) ?? [];
+      arr.push(r);
+      map.set(r.user_id, arr);
+    }
+    return map;
+  }, [results]);
+
+  const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+
+  function ruErrorsLast7d(userId: string): number {
+    const arr = resultsByUser.get(userId) ?? [];
+    let count = 0;
+    for (const r of arr) {
+      if (!RU_EXERCISES.has(r.exercise_name)) continue;
+      if (new Date(r.created_at).getTime() < weekAgo) continue;
+      const ms = (r.details as { mistakes?: unknown })?.mistakes;
+      if (Array.isArray(ms)) count += ms.length;
+    }
+    return count;
+  }
+
+  function ruTotalScore(userId: string): number {
+    const arr = resultsByUser.get(userId) ?? [];
+    let sum = 0;
+    for (const r of arr) {
+      if (!RU_EXERCISES.has(r.exercise_name)) continue;
+      sum += Number(r.score) || 0;
+    }
+    return sum;
+  }
+
+  function lastActivity(userId: string): string | null {
+    const arr = resultsByUser.get(userId) ?? [];
+    if (arr.length === 0) return null;
+    return arr[0].created_at;
+  }
+
+  const filteredMembers = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    const list = q
+      ? members.filter((m) => studentLabel(m).toLowerCase().includes(q))
+      : members;
+    return [...list].sort((a, b) => {
+      const la = lastActivity(a.user_id);
+      const lb = lastActivity(b.user_id);
+      if (!la && !lb) return studentLabel(a).localeCompare(studentLabel(b));
+      if (!la) return 1;
+      if (!lb) return -1;
+      return new Date(lb).getTime() - new Date(la).getTime();
+    });
+  }, [members, search, resultsByUser]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const selectedMember = members.find((m) => m.user_id === selectedId) ?? null;
+  const selectedResults = selectedId ? resultsByUser.get(selectedId) ?? [] : [];
+
+  // Aggregated Russian mistakes for the selected student, grouped by exercise
+  const aggregatedMistakes = useMemo(() => {
+    const byExercise = new Map<
+      string,
+      Map<string, { display: string; correct: string; count: number; isAbbr: boolean }>
+    >();
+    for (const r of selectedResults) {
+      if (!RU_EXERCISES.has(r.exercise_name)) continue;
+      const raw = (r.details as { mistakes?: unknown })?.mistakes;
+      if (!Array.isArray(raw)) continue;
+      const isAbbr = r.exercise_name === 'abbreviations';
+      const inner = byExercise.get(r.exercise_name) ?? new Map();
+      for (const m of raw) {
+        if (isAbbr) {
+          const mm = m as AbbrMistake;
+          if (!mm?.abbr) continue;
+          const key = `${mm.abbr}|${mm.full}`;
+          const prev = inner.get(key);
+          if (prev) prev.count += 1;
+          else inner.set(key, { display: mm.abbr, correct: mm.full, count: 1, isAbbr: true });
+        } else {
+          const mm = m as ChoiceMistake;
+          if (!mm?.display) continue;
+          const key = `${mm.display}|${mm.correct}`;
+          const prev = inner.get(key);
+          if (prev) prev.count += 1;
+          else inner.set(key, { display: mm.display, correct: mm.correct, count: 1, isAbbr: false });
+        }
+      }
+      byExercise.set(r.exercise_name, inner);
+    }
+    return Array.from(byExercise.entries()).map(([ex, inner]) => ({
+      exercise: ex,
+      mistakes: Array.from(inner.values()).sort((a, b) => b.count - a.count),
+    }));
+  }, [selectedResults]);
+
+  if (!showTeacherDashboard || !ownedGroup) return null;
+
+  return createPortal(
+    <>
+      <div className="dashboard-backdrop" onClick={() => setShowTeacherDashboard(false)} />
+      <div className="dashboard-wrap">
+        <div className="dashboard" onClick={(e) => e.stopPropagation()}>
+          <div className="dashboard-header">
+            <div className="dashboard-title-block">
+              <h2>{ownedGroup.name}</h2>
+              <div className="dashboard-subtitle">
+                {members.length}{' '}
+                {members.length === 1 ? 'ученик' : members.length < 5 ? 'ученика' : 'учеников'}
+              </div>
+              <div className="dashboard-code-chip">🔑 {ownedGroup.code}</div>
+            </div>
+            <button
+              className="dashboard-close"
+              onClick={() => setShowTeacherDashboard(false)}
+              aria-label="Закрыть"
+            >
+              ×
+            </button>
+          </div>
+
+          <div className="dashboard-body">
+            <div className="dashboard-sidebar">
+              <div className="dashboard-search">
+                <input
+                  placeholder="Поиск ученика…"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
+              <div className="dashboard-students">
+                {loading ? (
+                  <div className="dashboard-empty">Загрузка…</div>
+                ) : filteredMembers.length === 0 ? (
+                  <div className="dashboard-empty">
+                    {members.length === 0
+                      ? 'Пока нет учеников. Поделитесь кодом группы.'
+                      : 'Никого не найдено'}
+                  </div>
+                ) : (
+                  filteredMembers.map((m) => {
+                    const errs = ruErrorsLast7d(m.user_id);
+                    const last = lastActivity(m.user_id);
+                    return (
+                      <button
+                        key={m.user_id}
+                        className={`dashboard-student ${
+                          selectedId === m.user_id ? 'dashboard-student--active' : ''
+                        }`}
+                        onClick={() => setSelectedId(m.user_id)}
+                      >
+                        <div className="dashboard-student-avatar">{studentInitial(m)}</div>
+                        <div className="dashboard-student-body">
+                          <div className="dashboard-student-name">{studentLabel(m)}</div>
+                          <div className="dashboard-student-meta">
+                            {last ? relativeTime(last) : 'нет активности'}
+                          </div>
+                        </div>
+                        <div className="dashboard-student-stats">
+                          <span className="dashboard-student-score">{ruTotalScore(m.user_id)}</span>
+                          <span
+                            className={`dashboard-student-errors ${
+                              errs === 0 ? 'dashboard-student-errors--none' : ''
+                            }`}
+                          >
+                            {errs === 0 ? '✓ 0' : `${errs} ош.`}
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+
+            <div className="dashboard-detail">
+              {!selectedMember ? (
+                <div className="dashboard-empty-detail">
+                  <div className="dashboard-empty-detail-icon">👈</div>
+                  <div>Выберите ученика слева</div>
+                </div>
+              ) : (
+                <>
+                  <div className="dashboard-detail-header">
+                    <div className="dashboard-detail-avatar">{studentInitial(selectedMember)}</div>
+                    <div>
+                      <div className="dashboard-detail-name">{studentLabel(selectedMember)}</div>
+                      {selectedMember.email && (
+                        <div className="dashboard-detail-email">{selectedMember.email}</div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="dashboard-detail-stats">
+                    <div className="dashboard-stat-card">
+                      <div className="dashboard-stat-value">{selectedResults.length}</div>
+                      <div className="dashboard-stat-label">Всего попыток</div>
+                    </div>
+                    <div className="dashboard-stat-card">
+                      <div className="dashboard-stat-value">
+                        {ruTotalScore(selectedMember.user_id)}
+                      </div>
+                      <div className="dashboard-stat-label">Очков (рус.)</div>
+                    </div>
+                    <div className="dashboard-stat-card">
+                      <div className="dashboard-stat-value">
+                        {ruErrorsLast7d(selectedMember.user_id)}
+                      </div>
+                      <div className="dashboard-stat-label">Ошибок за 7 дней</div>
+                    </div>
+                  </div>
+
+                  <div className="dashboard-section-title">Ошибки по упражнениям</div>
+                  {aggregatedMistakes.length === 0 ? (
+                    <div className="dashboard-empty-detail" style={{ padding: '30px 20px' }}>
+                      🎉 Ошибок по русскому языку пока нет
+                    </div>
+                  ) : (
+                    <div className="dashboard-mistakes">
+                      {aggregatedMistakes.map(({ exercise, mistakes }) => (
+                        <div key={exercise} className="dashboard-mistakes-group">
+                          <div className="dashboard-mistakes-group-title">
+                            <span>{EXERCISE_ICONS[exercise] ?? '📝'}</span>
+                            <span>{EXERCISE_NAMES[exercise] ?? exercise}</span>
+                            <span style={{ marginLeft: 'auto', fontSize: '0.76rem', color: '#9ca3af', fontWeight: 500 }}>
+                              {mistakes.length} уник.
+                            </span>
+                          </div>
+                          {mistakes.map((m, i) => (
+                            <div key={i} className="dashboard-mistake-row">
+                              <span className="dashboard-mistake-display">{m.display}</span>
+                              <div className="dashboard-mistake-right">
+                                <span className="dashboard-mistake-correct">{m.correct}</span>
+                                {m.count > 1 && (
+                                  <span className="dashboard-mistake-count">×{m.count}</span>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="dashboard-section-title">История попыток</div>
+                  {selectedResults.length === 0 ? (
+                    <div className="dashboard-empty-detail" style={{ padding: '30px 20px' }}>
+                      Ученик ещё не выполнил ни одного упражнения
+                    </div>
+                  ) : (
+                    <div className="dashboard-history-list">
+                      {selectedResults.slice(0, 30).map((r) => {
+                        const details = r.details as { correct?: number; total?: number };
+                        const correct = details?.correct;
+                        const total = details?.total;
+                        return (
+                          <div key={r.id} className="dashboard-history-row">
+                            <div className="dashboard-history-left">
+                              <span>{EXERCISE_ICONS[r.exercise_name] ?? '🏋️'}</span>
+                              <span>{EXERCISE_NAMES[r.exercise_name] ?? r.exercise_name}</span>
+                            </div>
+                            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                              {typeof correct === 'number' && typeof total === 'number' && (
+                                <span style={{ fontWeight: 600, color: '#4b5563' }}>
+                                  {correct}/{total}
+                                </span>
+                              )}
+                              <span style={{ fontWeight: 700, color: '#4f46e5' }}>{r.score}</span>
+                              <span className="dashboard-history-time">
+                                {relativeTime(r.created_at)}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </>,
+    document.body,
+  );
+}
