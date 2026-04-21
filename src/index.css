@@ -103,12 +103,18 @@
   inset: 0;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
+  isolation: isolate;
 }
-.card-back { transform: rotateY(180deg); }
+.card-back {
+  transform: rotateY(180deg) translateZ(0);
+  -webkit-transform: rotateY(180deg) translateZ(0);
+}
 
 /* ─── Dynamic background ─────────────────────────────────────────────────── */
 .dynamic-bg {

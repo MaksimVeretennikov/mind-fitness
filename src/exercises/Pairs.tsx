@@ -194,7 +194,7 @@ export default function Pairs() {
   // Calculate card size to fill screen height
   // playing or memorize phase
   return (
-    <div className="animate-fade-in flex flex-col gap-3" style={{ minHeight: 'calc(100vh - 90px)' }}>
+    <div className="animate-fade-in flex flex-col gap-3" style={{ minHeight: 'calc(100vh - 160px)' }}>
       <div className="flex items-center justify-between glass rounded-2xl px-5 py-3 shadow-sm flex-shrink-0">
         <div>
           <span className="text-gray-500 text-sm">Пар: </span>

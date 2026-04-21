@@ -191,13 +191,13 @@ export default function ChoiceQuiz({
   if (phase === 'setup') {
     return (
       <div className="flex flex-col items-center justify-center min-h-[70vh] gap-8 animate-fade-in">
-        <div className="glass rounded-3xl px-10 py-7 text-center shadow-sm">
-          <div className="text-5xl mb-4 animate-float">{emoji}</div>
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">{title}</h1>
-          <p className="text-gray-500 max-w-md mx-auto">{subtitle}</p>
+        <div className="glass rounded-3xl px-10 py-7 text-center shadow-sm max-w-2xl">
+          <div className="text-5xl md:text-6xl mb-4 animate-float">{emoji}</div>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">{title}</h1>
+          <p className="text-gray-500 md:text-lg max-w-md mx-auto">{subtitle}</p>
         </div>
 
-        <div className="glass rounded-2xl p-8 w-full max-w-sm shadow-sm flex flex-col gap-6">
+        <div className="glass rounded-2xl p-8 md:p-10 w-full max-w-sm md:max-w-xl shadow-sm flex flex-col gap-6">
           {setupExtras}
 
           {showCountSelector && (
@@ -344,7 +344,7 @@ export default function ChoiceQuiz({
         )}
       </motion.div>
 
-      <div className="flex gap-5 w-full max-w-2xl px-2">
+      <div className="flex gap-5 w-full max-w-3xl px-2">
         <button
           onClick={() => handleAnswer(leftIs)}
           disabled={locked}

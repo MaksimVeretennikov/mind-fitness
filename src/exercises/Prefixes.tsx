@@ -28,15 +28,15 @@ export default function Prefixes({ onBack }: Props) {
 
   const setupExtras = (
     <div>
-      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 text-center">
+      <p className="text-xs md:text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3 text-center">
         Тип приставки
       </p>
-      <div className="flex flex-col gap-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
         {CATEGORIES.map((cat) => (
           <button
             key={cat}
             onClick={() => setCategory(cat)}
-            className={`px-3 py-2 rounded-xl text-xs font-semibold text-left transition-all duration-200 active:scale-95 ${
+            className={`px-3 py-2.5 md:py-3 rounded-xl text-xs md:text-sm font-semibold text-left transition-all duration-200 active:scale-95 ${
               category === cat
                 ? 'bg-gradient-to-r from-indigo-500 to-blue-600 text-white shadow-md'
                 : 'glass text-gray-600 hover:bg-white/80 border border-white/60'

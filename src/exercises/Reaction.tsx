@@ -258,7 +258,7 @@ export default function Reaction() {
   }
 
   return (
-    <div className="animate-fade-in flex flex-col gap-3" style={{ minHeight: 'calc(100vh - 90px)' }}>
+    <div className="animate-fade-in flex flex-col gap-3" style={{ minHeight: 'calc(100vh - 160px)' }}>
       {/* HUD */}
       <div className={`flex items-center justify-between rounded-2xl px-5 py-3 shadow-sm transition-colors duration-200 flex-shrink-0 ${flashMiss ? 'bg-red-100' : 'glass'}`}>
         <div>

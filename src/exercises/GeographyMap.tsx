@@ -483,7 +483,7 @@ export default function GeographyMap({ onBack }: Props) {
   const hoverStroke = isDark ? 'rgba(109, 40, 217, 0.9)' : 'rgba(109, 40, 217, 0.7)';
 
   return (
-    <div className="geo-play geo-play--map animate-fade-in">
+    <div className="geo-play geo-play--map animate-fade-in" style={{ minHeight: 'calc(100vh - 100px)' }}>
       <div className="geo-hud">
         <span className="geo-hud-item">Вопрос {qIndex + 1}/{questions.length}</span>
         <span className="geo-hud-item geo-hud-score">
@@ -521,9 +521,9 @@ export default function GeographyMap({ onBack }: Props) {
         <ComposableMap
           projectionConfig={{ scale: 160 }}
           projection={region === 'all' ? 'geoNaturalEarth1' : 'geoMercator'}
-          width={900}
-          height={500}
-          style={{ width: '100%', height: 'auto' }}
+          width={1400}
+          height={750}
+          style={{ width: '100%', height: '100%' }}
         >
           <ZoomableGroup center={view.center} zoom={view.zoom}>
             <Geographies geography={TOPOJSON_URL}>

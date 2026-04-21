@@ -139,15 +139,15 @@ export default function Abbreviations({ onBack }: Props) {
   if (phase === 'setup') {
     return (
       <div className="flex flex-col items-center justify-center min-h-[70vh] gap-8 animate-fade-in">
-        <div className="glass rounded-3xl px-10 py-7 text-center shadow-sm">
-          <div className="text-5xl mb-4 animate-float">🔤</div>
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Аббревиатуры</h1>
-          <p className="text-gray-500 max-w-md mx-auto">
+        <div className="glass rounded-3xl px-10 py-7 text-center shadow-sm max-w-2xl">
+          <div className="text-5xl md:text-6xl mb-4 animate-float">🔤</div>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">Аббревиатуры</h1>
+          <p className="text-gray-500 md:text-lg max-w-md mx-auto">
             Переворачивайте карточки и проверяйте, знаете ли вы расшифровку аббревиатуры
           </p>
         </div>
 
-        <div className="glass rounded-2xl p-8 w-full max-w-sm shadow-sm flex flex-col gap-6">
+        <div className="glass rounded-2xl p-8 md:p-10 w-full max-w-sm md:max-w-xl shadow-sm flex flex-col gap-6">
           <div>
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 text-center">
               Количество карточек
@@ -239,10 +239,10 @@ export default function Abbreviations({ onBack }: Props) {
 
   const cardBgClass =
     cardColor === 'green'
-      ? 'bg-emerald-100/80'
+      ? 'bg-emerald-100'
       : cardColor === 'red'
-      ? 'bg-red-100/80'
-      : 'bg-white/85';
+      ? 'bg-red-100'
+      : 'bg-white';
 
   return (
     <div className="flex flex-col items-center gap-6 py-6 animate-fade-in">
@@ -270,7 +270,7 @@ export default function Abbreviations({ onBack }: Props) {
           <div className={`card-inner ${isFlipped ? 'flipped' : ''}`}>
             {/* Front */}
             <div
-              className={`card-face rounded-2xl border border-white/60 shadow-md backdrop-blur-md flex flex-col items-center justify-center gap-3 ${cardBgClass} transition-colors duration-200`}
+              className={`card-face rounded-2xl border border-white/60 shadow-md flex flex-col items-center justify-center gap-3 ${cardBgClass} transition-colors duration-200`}
             >
               <span className="text-6xl font-bold text-gray-800 tracking-wide">{current.abbr}</span>
               <span className="text-sm text-gray-400 mt-2">Нажмите, чтобы перевернуть</span>
@@ -278,7 +278,7 @@ export default function Abbreviations({ onBack }: Props) {
 
             {/* Back */}
             <div
-              className={`card-back card-face rounded-2xl border border-white/60 shadow-md backdrop-blur-md overflow-hidden ${cardBgClass} transition-colors duration-200`}
+              className={`card-back card-face rounded-2xl border border-white/60 shadow-md overflow-hidden ${cardBgClass} transition-colors duration-200`}
               style={{ cursor: 'default', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'flex-start' }}
             >
               {/* Top: full text */}

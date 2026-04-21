@@ -253,7 +253,7 @@ export default function Philwords() {
 
   // Playing screen
   return (
-    <div className="animate-fade-in flex flex-col gap-4" style={{ height: 'calc(100vh - 100px)' }}>
+    <div className="animate-fade-in flex flex-col gap-4" style={{ height: 'calc(100vh - 160px)' }}>
       {/* Top bar */}
       <div className="flex items-center justify-between glass rounded-2xl px-5 py-3 shadow-sm flex-shrink-0">
         <div>
@@ -271,7 +271,7 @@ export default function Philwords() {
         {/* Grid */}
         <div
           className="glass rounded-2xl p-2 shadow-sm flex-shrink-0"
-          style={{ width: 'min(68%, 680px)', aspectRatio: '1 / 1' }}
+          style={{ width: 'min(75%, calc(100vh - 180px))', aspectRatio: '1 / 1' }}
         >
           <div
             className="grid gap-0.5 h-full"

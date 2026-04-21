@@ -12,11 +12,15 @@ interface Props {
 export default function ExerciseShell({ id, onBack, children }: Props) {
   const ex = ALL_EXERCISES.find((e) => e.id === id)!;
 
+  const wideIds: ExerciseId[] = ['philwords', 'geography-map', 'geography-capitals', 'schulte', 'munsterberg'];
+  const isWide = wideIds.includes(id);
+  const containerCls = isWide ? 'max-w-[1400px]' : 'max-w-6xl';
+
   return (
     <div className="animate-fade-in">
       {/* Top bar */}
       <div className="glass sticky top-0 z-40 px-4 py-3 shadow-sm">
-        <div className="max-w-6xl mx-auto flex items-center gap-4">
+        <div className={`${containerCls} mx-auto flex items-center gap-4`}>
           <button
             onClick={onBack}
             className="flex items-center gap-2 px-4 py-2 rounded-xl glass hover:bg-white/80 transition-all text-gray-700 font-medium text-sm active:scale-95"
@@ -40,7 +44,7 @@ export default function ExerciseShell({ id, onBack, children }: Props) {
       </div>
 
       {/* Content */}
-      <div className="max-w-6xl mx-auto px-6 py-5 animate-slide-up">
+      <div className={`${containerCls} mx-auto px-6 py-5 animate-slide-up`}>
         {children}
       </div>
     </div>

@@ -125,8 +125,22 @@
 }
 
 .geo-play--map {
-  max-width: 1100px;
+  max-width: 1400px;
+  gap: 0.6rem;
+  padding: 0.6rem 0.5rem 1rem;
 }
+.geo-play--map .geo-hud {
+  max-width: 100%;
+  padding: 0 4px;
+}
+.geo-play--map .geo-timer {
+  max-width: 100%;
+}
+.geo-play--map .geo-prompt {
+  padding: 8px 18px;
+  font-size: 1rem;
+}
+.geo-play--map .geo-prompt-flag { font-size: 1.6rem; }
 
 .geo-hud {
   display: flex;
@@ -334,13 +348,25 @@
 .geo-map-wrap {
   position: relative;
   width: 100%;
-  max-width: 1050px;
+  max-width: 1400px;
   border-radius: 20px;
   overflow: hidden;
   background: linear-gradient(135deg, rgba(239, 246, 255, 0.96), rgba(224, 242, 254, 0.96));
   border: 1px solid rgba(255, 255, 255, 0.7);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  padding: 8px;
+  padding: 6px;
+}
+.geo-play--map .geo-map-wrap {
+  flex: 1 1 auto;
+  min-height: calc(100vh - 240px);
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+}
+.geo-play--map .geo-map-wrap > svg,
+.geo-play--map .geo-map-wrap .rsm-svg {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 .geo-missed-banner {
