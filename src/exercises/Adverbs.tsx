@@ -403,26 +403,26 @@ export default function Adverbs({ onBack }: Props) {
   /* ─── Setup Screen ──────────────────────────────────────────────────────── */
   if (phase === 'setup') {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[70vh] gap-8 animate-fade-in">
-        <div className="glass rounded-3xl px-10 py-7 text-center shadow-sm">
-          <div className="text-5xl mb-4 animate-float">📝</div>
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Правописание наречий</h1>
-          <p className="text-gray-500 max-w-md mx-auto">
+      <div className="flex flex-col items-center gap-4 md:gap-6 py-4 md:py-8 animate-fade-in w-full max-w-sm md:max-w-xl mx-auto px-2">
+        <div className="glass rounded-3xl px-8 md:px-10 py-6 md:py-7 text-center shadow-sm w-full">
+          <div className="text-5xl md:text-6xl mb-4 animate-float">📝</div>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">Правописание наречий</h1>
+          <p className="text-gray-500 md:text-lg">
             Слитно или раздельно? Выберите количество слов
           </p>
         </div>
 
-        <div className="glass rounded-2xl p-8 w-full max-w-sm shadow-sm flex flex-col gap-6">
+        <div className="glass rounded-2xl p-6 md:p-10 w-full shadow-sm flex flex-col gap-6 md:gap-8">
           <div>
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 text-center">
+            <p className="text-xs md:text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3 md:mb-4 text-center">
               Количество слов
             </p>
-            <div className="flex gap-2 justify-center">
+            <div className="flex gap-2 md:gap-3 justify-center">
               {[10, 20, 30].map(n => (
                 <button
                   key={n}
                   onClick={() => setCount(n)}
-                  className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all duration-200 active:scale-95 ${
+                  className={`flex-1 md:flex-none md:min-w-[96px] py-3 md:py-4 px-5 md:px-7 rounded-xl md:rounded-2xl text-base md:text-xl font-semibold transition-all duration-200 active:scale-95 ${
                     count === n
                       ? 'bg-gradient-to-r from-indigo-500 to-blue-600 text-white shadow-md'
                       : 'glass text-gray-600 hover:bg-white/80 border border-white/60'
@@ -436,7 +436,7 @@ export default function Adverbs({ onBack }: Props) {
 
           <button
             onClick={startGame}
-            className="w-full py-3 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-indigo-500 to-blue-600 shadow-sm hover:shadow-md hover:opacity-90 transition-all duration-200 active:scale-95"
+            className="w-full py-3.5 md:py-5 rounded-xl md:rounded-2xl text-base md:text-xl font-semibold text-white bg-gradient-to-r from-indigo-500 to-blue-600 shadow-sm hover:shadow-md hover:opacity-90 transition-all duration-200 active:scale-95"
           >
             Начать
           </button>

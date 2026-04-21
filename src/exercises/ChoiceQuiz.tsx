@@ -190,14 +190,14 @@ export default function ChoiceQuiz({
   /* ─── Setup ─── */
   if (phase === 'setup') {
     return (
-      <div className={`flex flex-col items-center gap-6 md:gap-8 py-6 md:py-10 animate-fade-in w-full mx-auto px-2 ${setupExtras ? 'max-w-sm md:max-w-2xl' : 'max-w-sm md:max-w-xl'}`}>
+      <div className={`flex flex-col items-center gap-4 md:gap-6 py-3 md:py-6 animate-fade-in w-full mx-auto px-2 ${setupExtras ? 'max-w-sm md:max-w-2xl' : 'max-w-sm md:max-w-xl'}`}>
         <div className="glass rounded-3xl px-8 md:px-10 py-6 md:py-7 text-center shadow-sm w-full">
           <div className="text-5xl md:text-6xl mb-4 animate-float">{emoji}</div>
           <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">{title}</h1>
           <p className="text-gray-500 md:text-lg">{subtitle}</p>
         </div>
 
-        <div className="glass rounded-2xl p-6 md:p-10 w-full shadow-sm flex flex-col gap-6 md:gap-8">
+        <div className={`glass rounded-2xl w-full shadow-sm flex flex-col ${setupExtras ? 'p-5 md:p-7 gap-4 md:gap-6' : 'p-6 md:p-10 gap-6 md:gap-8'}`}>
           {setupExtras}
 
           {showCountSelector && (
@@ -231,9 +231,7 @@ export default function ChoiceQuiz({
           </button>
         </div>
 
-        <div className="w-full">
-          <MistakesHistory exerciseName={resultKey} />
-        </div>
+        <MistakesHistory exerciseName={resultKey} />
       </div>
     );
   }
