@@ -115,6 +115,11 @@
   transform: rotateY(180deg) translateZ(0);
   -webkit-transform: rotateY(180deg) translateZ(0);
 }
+/* Safari: hidden face still intercepts clicks despite backface-visibility.
+   Toggle pointer-events so the visible face alone receives taps. */
+.card-face { pointer-events: none; }
+.card-inner:not(.flipped) > .card-face:not(.card-back) { pointer-events: auto; }
+.card-inner.flipped > .card-back { pointer-events: auto; }
 
 /* ─── Dynamic background ─────────────────────────────────────────────────── */
 .dynamic-bg {
@@ -1233,11 +1238,12 @@
   display: flex; justify-content: center; align-items: flex-start;
   padding: 24px 16px;
   overflow-y: auto;
-  pointer-events: none;
+  -webkit-overflow-scrolling: touch;
 }
 .dashboard {
-  pointer-events: auto;
   width: 100%; max-width: 1100px;
+  max-height: calc(100vh - 48px);
+  display: flex; flex-direction: column;
   background: #ffffff;
   border-radius: 22px;
   box-shadow: 0 24px 60px rgba(0,0,0,0.3);
@@ -1269,10 +1275,10 @@
 .dashboard-close:hover { background: rgba(0,0,0,0.1); }
 
 .dashboard-body {
+  flex: 1;
+  min-height: 0;
   display: grid;
   grid-template-columns: 340px 1fr;
-  min-height: 540px;
-  max-height: calc(90vh - 90px);
 }
 .dashboard-sidebar {
   border-right: 1px solid rgba(0,0,0,0.06);

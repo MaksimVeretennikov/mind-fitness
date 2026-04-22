@@ -184,8 +184,13 @@ export default function TeacherDashboard() {
 
   return createPortal(
     <>
-      <div className="dashboard-backdrop" onClick={() => setShowTeacherDashboard(false)} />
-      <div className="dashboard-wrap">
+      <div className="dashboard-backdrop" />
+      <div
+        className="dashboard-wrap"
+        onClick={(e) => {
+          if (e.target === e.currentTarget) setShowTeacherDashboard(false);
+        }}
+      >
         <div className="dashboard" onClick={(e) => e.stopPropagation()}>
           <div className="dashboard-header">
             <div className="dashboard-title-block">

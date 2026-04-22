@@ -32,12 +32,16 @@ function generateText(words: string[], wordCount: number): { text: string; posit
   );
 
   const positions = new Map<string, [number, number][]>();
+  const segmentSize = Math.floor(totalLength / chosen.length);
 
-  for (const word of chosen) {
+  // Place one word per evenly-sized segment so early rows also contain words.
+  chosen.forEach((word, i) => {
+    const segStart = i * segmentSize;
+    const segEnd = (i === chosen.length - 1 ? totalLength : segStart + segmentSize) - word.length;
     let placed = false;
     let attempts = 0;
-    while (!placed && attempts < 300) {
-      const pos = Math.floor(Math.random() * (totalLength - word.length));
+    while (!placed && attempts < 100) {
+      const pos = segStart + Math.floor(Math.random() * Math.max(1, segEnd - segStart + 1));
       let ok = true;
       for (const ps of positions.values()) {
         for (const [s, e] of ps) {
@@ -46,13 +50,13 @@ function generateText(words: string[], wordCount: number): { text: string; posit
         if (!ok) break;
       }
       if (ok) {
-        for (let i = 0; i < word.length; i++) filler[pos + i] = word[i];
+        for (let j = 0; j < word.length; j++) filler[pos + j] = word[j];
         positions.set(word, [[pos, pos + word.length]]);
         placed = true;
       }
       attempts++;
     }
-  }
+  });
 
   return { text: filler.join(''), positions };
 }
@@ -251,19 +255,19 @@ export default function Munsterberg() {
         Кликните на первую букву слова, затем на последнюю
       </p>
 
-      {flashResult && (
-        <div className={`text-center text-sm font-semibold py-1 mb-2 rounded-lg animate-scale-in ${flashResult === 'correct' ? 'text-green-600 bg-green-50' : 'text-red-500 bg-red-50'}`}>
-          {flashResult === 'correct' ? '✓ Верно!' : '✗ Не найдено'}
-        </div>
-      )}
-
-      {found.size > 0 && (
-        <div className="flex flex-wrap gap-2 mb-3">
-          {[...found].map(w => (
-            <span key={w} className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium animate-scale-in">{w}</span>
-          ))}
-        </div>
-      )}
+      <div
+        className={`text-center text-sm font-semibold rounded-lg mb-2 transition-opacity duration-150 ${
+          flashResult === 'correct'
+            ? 'text-green-600 bg-green-50 opacity-100'
+            : flashResult === 'wrong'
+            ? 'text-red-500 bg-red-50 opacity-100'
+            : 'opacity-0'
+        }`}
+        style={{ height: '28px', lineHeight: '28px' }}
+        aria-live="polite"
+      >
+        {flashResult === 'correct' ? '✓ Верно!' : flashResult === 'wrong' ? '✗ Не найдено' : '\u00A0'}
+      </div>
 
       <div className="glass rounded-2xl p-5 shadow-sm select-none overflow-hidden">
         {rows.map((row, rowIdx) => (
@@ -298,6 +302,14 @@ export default function Munsterberg() {
           </div>
         ))}
       </div>
+
+      {found.size > 0 && (
+        <div className="flex flex-wrap gap-2 mt-3">
+          {[...found].map(w => (
+            <span key={w} className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium animate-scale-in">{w}</span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
