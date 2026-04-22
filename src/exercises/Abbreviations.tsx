@@ -293,21 +293,25 @@ export default function Abbreviations({ onBack }: Props) {
 
               {/* Bottom: two click zones */}
               <div className="flex h-[45%]">
-                <div
-                  className="flex-1 flex flex-col items-center justify-center gap-1 cursor-pointer hover:bg-red-50/60 transition-colors duration-150 rounded-bl-2xl"
+                <button
+                  type="button"
+                  className="flex-1 flex flex-col items-center justify-center gap-1 bg-transparent border-0 hover:bg-red-50/60 transition-colors duration-150 rounded-bl-2xl"
+                  style={{ touchAction: 'manipulation' }}
                   onClick={(e) => { e.stopPropagation(); handleAnswer(false); }}
                 >
                   <span className="text-2xl">❌</span>
                   <span className="text-sm font-semibold text-red-500">Не знал</span>
-                </div>
+                </button>
                 <div className="w-px bg-gray-200/60" />
-                <div
-                  className="flex-1 flex flex-col items-center justify-center gap-1 cursor-pointer hover:bg-emerald-50/60 transition-colors duration-150 rounded-br-2xl"
+                <button
+                  type="button"
+                  className="flex-1 flex flex-col items-center justify-center gap-1 bg-transparent border-0 hover:bg-emerald-50/60 transition-colors duration-150 rounded-br-2xl"
+                  style={{ touchAction: 'manipulation' }}
                   onClick={(e) => { e.stopPropagation(); handleAnswer(true); }}
                 >
                   <span className="text-2xl">✅</span>
                   <span className="text-sm font-semibold text-emerald-600">Знал</span>
-                </div>
+                </button>
               </div>
             </div>
           </div>

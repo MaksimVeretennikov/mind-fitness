@@ -70,6 +70,55 @@ export default function TeacherDashboard() {
   const [loading, setLoading] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [expandedAttempts, setExpandedAttempts] = useState<Set<string>>(new Set());
+
+  useEffect(() => { setExpandedAttempts(new Set()); }, [selectedId]);
+
+  function toggleAttempt(id: string) {
+    setExpandedAttempts(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+
+  function renderAttemptMistakes(r: ExerciseResult) {
+    const raw = (r.details as { mistakes?: unknown })?.mistakes;
+    if (!Array.isArray(raw) || raw.length === 0) {
+      return (
+        <div className="dashboard-attempt-empty">
+          {r.exercise_name === 'abbreviations' ? '🎉 Все аббревиатуры знал' : '🎉 Без ошибок'}
+        </div>
+      );
+    }
+    if (r.exercise_name === 'abbreviations') {
+      const list = raw as AbbrMistake[];
+      return (
+        <div className="dashboard-attempt-mistakes">
+          {list.map((m, i) => (
+            <div key={i} className="dashboard-mistake-row">
+              <span className="dashboard-mistake-display" style={{ fontWeight: 700 }}>{m.abbr}</span>
+              <span className="dashboard-mistake-correct">{m.full}</span>
+            </div>
+          ))}
+        </div>
+      );
+    }
+    const list = raw as ChoiceMistake[];
+    return (
+      <div className="dashboard-attempt-mistakes">
+        {list.map((m, i) => (
+          <div key={i} className="dashboard-mistake-row">
+            <span className="dashboard-mistake-display">{m.display}</span>
+            <div className="dashboard-mistake-right">
+              <span style={{ color: '#dc2626', textDecoration: 'line-through', fontSize: '0.82rem' }}>{m.chosen}</span>
+              <span className="dashboard-mistake-correct">{m.correct}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   useEffect(() => {
     if (!showTeacherDashboard || !ownedGroup) return;
@@ -344,23 +393,40 @@ export default function TeacherDashboard() {
                         const details = r.details as { correct?: number; total?: number };
                         const correct = details?.correct;
                         const total = details?.total;
+                        const isRu = RU_EXERCISES.has(r.exercise_name);
+                        const isOpen = expandedAttempts.has(r.id);
                         return (
-                          <div key={r.id} className="dashboard-history-row">
-                            <div className="dashboard-history-left">
-                              <span>{EXERCISE_ICONS[r.exercise_name] ?? '🏋️'}</span>
-                              <span>{EXERCISE_NAMES[r.exercise_name] ?? r.exercise_name}</span>
-                            </div>
-                            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                              {typeof correct === 'number' && typeof total === 'number' && (
-                                <span style={{ fontWeight: 600, color: '#4b5563' }}>
-                                  {correct}/{total}
+                          <div key={r.id} className={`dashboard-history-item ${isOpen ? 'is-open' : ''}`}>
+                            <button
+                              type="button"
+                              className={`dashboard-history-row ${isRu ? 'dashboard-history-row--clickable' : ''}`}
+                              onClick={() => isRu && toggleAttempt(r.id)}
+                              disabled={!isRu}
+                            >
+                              <div className="dashboard-history-left">
+                                <span>{EXERCISE_ICONS[r.exercise_name] ?? '🏋️'}</span>
+                                <span>{EXERCISE_NAMES[r.exercise_name] ?? r.exercise_name}</span>
+                              </div>
+                              <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                                {typeof correct === 'number' && typeof total === 'number' && (
+                                  <span style={{ fontWeight: 600, color: '#4b5563' }}>
+                                    {correct}/{total}
+                                  </span>
+                                )}
+                                <span style={{ fontWeight: 700, color: '#4f46e5' }}>{r.score}</span>
+                                <span className="dashboard-history-time">
+                                  {relativeTime(r.created_at)}
                                 </span>
-                              )}
-                              <span style={{ fontWeight: 700, color: '#4f46e5' }}>{r.score}</span>
-                              <span className="dashboard-history-time">
-                                {relativeTime(r.created_at)}
-                              </span>
-                            </div>
+                                {isRu && (
+                                  <span className={`dashboard-history-chevron ${isOpen ? 'open' : ''}`} aria-hidden>
+                                    ▾
+                                  </span>
+                                )}
+                              </div>
+                            </button>
+                            {isRu && isOpen && (
+                              <div className="dashboard-history-details">{renderAttemptMistakes(r)}</div>
+                            )}
                           </div>
                         );
                       })}
