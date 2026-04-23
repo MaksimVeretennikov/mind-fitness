@@ -196,7 +196,7 @@ export default function TeacherDashboard() {
   const aggregatedMistakes = useMemo(() => {
     const byExercise = new Map<
       string,
-      Map<string, { display: string; correct: string; count: number; isAbbr: boolean }>
+      Map<string, { display: string; correct: string; chosen?: string; count: number; isAbbr: boolean }>
     >();
     for (const r of selectedResults) {
       if (!RU_EXERCISES.has(r.exercise_name)) continue;
@@ -218,7 +218,7 @@ export default function TeacherDashboard() {
           const key = `${mm.display}|${mm.correct}`;
           const prev = inner.get(key);
           if (prev) prev.count += 1;
-          else inner.set(key, { display: mm.display, correct: mm.correct, count: 1, isAbbr: false });
+          else inner.set(key, { display: mm.display, correct: mm.correct, chosen: mm.chosen, count: 1, isAbbr: false });
         }
       }
       byExercise.set(r.exercise_name, inner);
@@ -228,6 +228,25 @@ export default function TeacherDashboard() {
       mistakes: Array.from(inner.values()).sort((a, b) => b.count - a.count),
     }));
   }, [selectedResults]);
+
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  async function copyGroup(exercise: string, side: 'left' | 'right', mistakes: typeof aggregatedMistakes[number]['mistakes']) {
+    const text = mistakes
+      .map((m) => {
+        const val = side === 'left' ? m.display : m.correct;
+        return `${val}${m.count > 1 ? ` (×${m.count})` : ''}`;
+      })
+      .join('\n');
+    try {
+      await navigator.clipboard.writeText(text);
+      const key = `${exercise}|${side}`;
+      setCopiedKey(key);
+      setTimeout(() => setCopiedKey((k) => (k === key ? null : k)), 1500);
+    } catch {
+      /* ignore */
+    }
+  }
 
   if (!showTeacherDashboard || !ownedGroup) return null;
 
@@ -357,28 +376,53 @@ export default function TeacherDashboard() {
                     </div>
                   ) : (
                     <div className="dashboard-mistakes">
-                      {aggregatedMistakes.map(({ exercise, mistakes }) => (
-                        <div key={exercise} className="dashboard-mistakes-group">
-                          <div className="dashboard-mistakes-group-title">
-                            <span>{EXERCISE_ICONS[exercise] ?? '📝'}</span>
-                            <span>{EXERCISE_NAMES[exercise] ?? exercise}</span>
-                            <span style={{ marginLeft: 'auto', fontSize: '0.76rem', color: '#9ca3af', fontWeight: 500 }}>
-                              {mistakes.length} уник.
-                            </span>
-                          </div>
-                          {mistakes.map((m, i) => (
-                            <div key={i} className="dashboard-mistake-row">
-                              <span className="dashboard-mistake-display">{m.display}</span>
-                              <div className="dashboard-mistake-right">
-                                <span className="dashboard-mistake-correct">{m.correct}</span>
-                                {m.count > 1 && (
-                                  <span className="dashboard-mistake-count">×{m.count}</span>
-                                )}
-                              </div>
+                      {aggregatedMistakes.map(({ exercise, mistakes }) => {
+                        const isAbbr = exercise === 'abbreviations';
+                        const leftKey = `${exercise}|left`;
+                        const rightKey = `${exercise}|right`;
+                        return (
+                          <div key={exercise} className="dashboard-mistakes-group">
+                            <div className="dashboard-mistakes-group-title">
+                              <span>{EXERCISE_ICONS[exercise] ?? '📝'}</span>
+                              <span>{EXERCISE_NAMES[exercise] ?? exercise}</span>
+                              <span style={{ marginLeft: 'auto', fontSize: '0.76rem', color: '#9ca3af', fontWeight: 500 }}>
+                                {mistakes.length} уник.
+                              </span>
                             </div>
-                          ))}
-                        </div>
-                      ))}
+                            {mistakes.map((m, i) => (
+                              <div key={i} className="dashboard-mistake-row">
+                                <span className="dashboard-mistake-display">{m.display}</span>
+                                <div className="dashboard-mistake-right">
+                                  {!isAbbr && m.chosen && (
+                                    <span className="dashboard-mistake-chosen">{m.chosen}</span>
+                                  )}
+                                  <span className="dashboard-mistake-correct">{m.correct}</span>
+                                  {m.count > 1 && (
+                                    <span className="dashboard-mistake-count">×{m.count}</span>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                            <div className="dashboard-mistakes-copy">
+                              <button
+                                type="button"
+                                onClick={() => copyGroup(exercise, 'left', mistakes)}
+                                title={isAbbr ? 'Копировать аббревиатуры' : 'Копировать слова'}
+                              >
+                                {copiedKey === leftKey ? '✓ Скопировано' : `📋 ${isAbbr ? 'Аббревиатуры' : 'Слова'}`}
+                              </button>
+                              <button
+                                type="button"
+                                className="dashboard-mistakes-copy--primary"
+                                onClick={() => copyGroup(exercise, 'right', mistakes)}
+                                title="Копировать правильные ответы"
+                              >
+                                {copiedKey === rightKey ? '✓ Скопировано' : '📋 Правильные ответы'}
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
 
