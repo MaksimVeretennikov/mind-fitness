@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import type { ExerciseId } from './types';
 import HomeScreen from './components/HomeScreen';
 import ExerciseShell from './components/ExerciseShell';
@@ -57,6 +59,7 @@ export default function App() {
   const [devDay, setDevDay] = useState<DayIndex | undefined>(undefined);
 
   return (
+    <>
     <AuthProvider>
       <GroupProvider>
       <StreakProvider>
@@ -94,5 +97,8 @@ export default function App() {
       </StreakProvider>
       </GroupProvider>
     </AuthProvider>
+    <Analytics />
+    <SpeedInsights />
+    </>
   );
 }

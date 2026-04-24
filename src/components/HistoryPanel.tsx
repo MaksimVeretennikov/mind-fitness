@@ -259,25 +259,61 @@ function renderMistakes(result: ExerciseResult) {
   );
 }
 
+const RECENT_DAYS = 7;
+
+function getCutoffDate(): string {
+  const d = new Date();
+  d.setDate(d.getDate() - RECENT_DAYS);
+  d.setHours(0, 0, 0, 0);
+  return d.toISOString();
+}
+
 export default function HistoryPanel() {
   const { user, showHistoryPanel, setShowHistoryPanel } = useAuth();
   const [results, setResults] = useState<ExerciseResult[]>([]);
   const [loadingData, setLoadingData] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
   const [filterExercise, setFilterExercise] = useState<string | null>(null);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (!showHistoryPanel || !user) return;
+    const cutoff = getCutoffDate();
     setLoadingData(true);
+    setHasMore(false);
+    Promise.all([
+      supabase
+        .from('exercise_results')
+        .select('*')
+        .gte('created_at', cutoff)
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('exercise_results')
+        .select('id', { count: 'exact', head: true })
+        .lt('created_at', cutoff),
+    ]).then(([recent, older]) => {
+      setResults((recent.data as ExerciseResult[]) ?? []);
+      setHasMore((older.count ?? 0) > 0);
+      setLoadingData(false);
+    });
+  }, [showHistoryPanel, user]);
+
+  function loadMore() {
+    if (!user) return;
+    const cutoff = getCutoffDate();
+    setLoadingMore(true);
     supabase
       .from('exercise_results')
       .select('*')
+      .lt('created_at', cutoff)
       .order('created_at', { ascending: false })
       .then(({ data }) => {
-        setResults((data as ExerciseResult[]) ?? []);
-        setLoadingData(false);
+        setResults(prev => [...prev, ...((data as ExerciseResult[]) ?? [])]);
+        setHasMore(false);
+        setLoadingMore(false);
       });
-  }, [showHistoryPanel, user]);
+  }
 
   if (!showHistoryPanel) return null;
 
@@ -407,6 +443,16 @@ export default function HistoryPanel() {
                   })}
                 </div>
               ))}
+
+              {hasMore && (
+                <button
+                  className="history-load-more"
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                >
+                  {loadingMore ? 'Загрузка...' : 'Загрузить историю старше 7 дней'}
+                </button>
+              )}
             </div>
           </>
         )}

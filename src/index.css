@@ -834,6 +834,28 @@
   animation: historyFadeIn 0.18s ease;
 }
 
+.history-load-more {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px;
+  background: rgba(255,255,255,0.6);
+  border: 1px dashed rgba(0,0,0,0.15);
+  border-radius: 14px;
+  color: #6b7280;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.history-load-more:hover:not(:disabled) {
+  background: rgba(255,255,255,0.85);
+  color: #374151;
+}
+.history-load-more:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
 @keyframes historyFadeIn {
   from { opacity: 0; transform: translateY(-3px); }
   to   { opacity: 1; transform: translateY(0); }

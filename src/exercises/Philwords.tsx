@@ -314,7 +314,7 @@ export default function Philwords() {
             </div>
           </div>
           <p className="text-gray-400 text-xs glass rounded-xl px-3 py-2 flex-shrink-0">
-            Кликните первую и последнюю букву слова
+            Кликните первую и последнюю буквы слова
           </p>
         </div>
       </div>
