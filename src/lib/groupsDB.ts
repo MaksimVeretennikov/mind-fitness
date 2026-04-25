@@ -150,6 +150,7 @@ export interface RankingEntry {
 /** Group ranking via secure RPC — accessible to members and owner. */
 export async function getGroupRanking(groupId: string): Promise<RankingEntry[]> {
   const { data, error } = await supabase.rpc('get_group_ranking', { p_group_id: groupId });
-  if (error || !data) return [];
+  if (error) { console.error('[getGroupRanking]', error); return []; }
+  if (!data) return [];
   return data as RankingEntry[];
 }

@@ -1,6 +1,10 @@
 -- Group ranking: RPC function that returns mastery stats per member.
 -- Accessible to group members (students) and group owner (teacher).
 -- Mastery score = correct² / total  (rewards accuracy × volume, penalises wrong answers).
+--
+-- SECURITY DEFINER runs as the function owner (postgres / supabase_admin) which
+-- has bypassrls. We disable row_security locally after the explicit auth check so
+-- the inner queries are not blocked by any RLS policy on exercise_results or group_members.
 
 CREATE OR REPLACE FUNCTION get_group_ranking(p_group_id UUID)
 RETURNS TABLE (
@@ -16,15 +20,25 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public
 AS $$
+DECLARE
+  v_caller UUID := auth.uid();
 BEGIN
+  -- Capture uid() before any query so it reads the JWT in the right context
+  IF v_caller IS NULL THEN
+    RETURN;
+  END IF;
+
   -- Caller must be a group member or the group owner
   IF NOT EXISTS (
-    SELECT 1 FROM group_members WHERE group_id = p_group_id AND user_id = auth.uid()
+    SELECT 1 FROM group_members WHERE group_id = p_group_id AND user_id = v_caller
   ) AND NOT EXISTS (
-    SELECT 1 FROM groups WHERE id = p_group_id AND owner_id = auth.uid()
+    SELECT 1 FROM groups WHERE id = p_group_id AND owner_id = v_caller
   ) THEN
     RETURN;
   END IF;
+
+  -- Bypass RLS for the data queries — auth check above ensures only authorised callers proceed
+  SET LOCAL row_security = off;
 
   RETURN QUERY
   WITH ru_results AS (
