@@ -46,6 +46,7 @@ export default function MistakesHistory({ exerciseName, label = 'История 
       .from('exercise_results')
       .select('id, created_at, details')
       .eq('exercise_name', exerciseName)
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(100)
       .then(({ data }) => {

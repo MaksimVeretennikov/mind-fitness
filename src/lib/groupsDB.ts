@@ -194,7 +194,7 @@ export async function getGroupRankingDirect(groupId: string): Promise<RankingEnt
       total_questions: stats.total,
     });
   }
-  return entries.sort((a, b) => b.mastery_score - a.mastery_score);
+  return entries.sort((a, b) => b.total_correct - a.total_correct);
 }
 
 /** Group ranking via secure RPC — for group members (students). */
