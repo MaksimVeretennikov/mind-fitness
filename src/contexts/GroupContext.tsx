@@ -61,7 +61,7 @@ export function GroupProvider({ children }: { children: ReactNode }) {
     ]);
     setOwnedGroup(owned);
     setMemberGroup(membership?.group ?? null);
-    setMemberNickname(membership?.member.display_name ?? null);
+    setMemberNickname(membership?.member.nickname ?? null);
     setLoading(false);
   }, [user]);
 

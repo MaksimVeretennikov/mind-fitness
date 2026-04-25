@@ -314,7 +314,7 @@ export default function TeacherDashboard() {
             </button>
           </div>
 
-          <div className="dashboard-body">
+          <div className={`dashboard-body${selectedId ? ' has-selection' : ''}`}>
             <div className="dashboard-sidebar">
               <div className="dashboard-search">
                 <input
@@ -377,6 +377,13 @@ export default function TeacherDashboard() {
               ) : (
                 <>
                   <div className="dashboard-detail-header">
+                    <button
+                      className="dashboard-back-btn"
+                      onClick={() => setSelectedId(null)}
+                      aria-label="Назад к списку"
+                    >
+                      ←
+                    </button>
                     <div className="dashboard-detail-avatar">{studentInitial(selectedMember)}</div>
                     <div>
                       <div className="dashboard-detail-name">{studentLabel(selectedMember)}</div>

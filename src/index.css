@@ -1588,10 +1588,33 @@
 }
 .dashboard-empty-detail-icon { font-size: 2.4rem; margin-bottom: 8px; }
 
+/* Back button — hidden on desktop, visible on mobile */
+.dashboard-back-btn {
+  display: none;
+  align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 50%;
+  border: none; background: rgba(139,92,246,0.1);
+  color: #7c3aed; font-size: 1.1rem; cursor: pointer;
+  flex-shrink: 0; transition: background 0.12s;
+}
+.dashboard-back-btn:hover { background: rgba(139,92,246,0.2); }
+
 @media (max-width: 720px) {
-  .dashboard-body { grid-template-columns: 1fr; }
-  .dashboard-sidebar { border-right: none; border-bottom: 1px solid rgba(0,0,0,0.06); max-height: 45vh; }
-  .dashboard-detail { max-height: none; }
+  .dashboard-body { grid-template-columns: 1fr; grid-template-rows: 1fr; }
+
+  /* Default (no student selected): show sidebar only */
+  .dashboard-sidebar {
+    border-right: none;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    max-height: none;
+  }
+  .dashboard-detail { display: none; }
+
+  /* Student selected: show detail only, hide sidebar */
+  .dashboard-body.has-selection .dashboard-sidebar { display: none; }
+  .dashboard-body.has-selection .dashboard-detail { display: flex; }
+
+  .dashboard-back-btn { display: flex; }
 }
 
 /* ─── Mobile adjustments ─────────────────────────────────────────────────── */

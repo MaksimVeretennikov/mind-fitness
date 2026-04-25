@@ -12,6 +12,7 @@ export interface GroupMember {
   user_id: string;
   group_id: string;
   display_name: string | null;
+  nickname: string | null;
   email: string | null;
   joined_at: string;
 }
@@ -119,7 +120,7 @@ export async function leaveGroup(userId: string): Promise<void> {
 export async function updateMemberNickname(userId: string, nickname: string): Promise<string | null> {
   const { error } = await supabase
     .from('group_members')
-    .update({ display_name: nickname.trim() || null })
+    .update({ nickname: nickname.trim() || null })
     .eq('user_id', userId);
   return error ? 'Не удалось сохранить ник' : null;
 }
@@ -194,7 +195,7 @@ export async function getGroupRankingDirect(groupId: string): Promise<RankingEnt
     const member = members.find((m) => m.user_id === userId);
     entries.push({
       user_id: userId,
-      display_name: member?.display_name ?? null,
+      display_name: member?.nickname?.trim() || member?.display_name || null,
       mastery_score: stats.total > 0 ? (stats.correct * stats.correct) / stats.total : 0,
       accuracy_pct: stats.total > 0 ? (stats.correct / stats.total) * 100 : 0,
       total_attempts: stats.attempts,
