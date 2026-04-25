@@ -147,7 +147,57 @@ export interface RankingEntry {
   total_questions: number;
 }
 
-/** Group ranking via secure RPC — accessible to members and owner. */
+const RU_EXERCISE_NAMES = [
+  'adverbs', 'prefixes', 'spelling-nn', 'word-forms', 'stress', 'abbreviations',
+] as const;
+
+/**
+ * Compute ranking client-side for the group owner (teacher).
+ * Uses the existing RLS policy that lets the owner read all member results.
+ */
+export async function getGroupRankingDirect(groupId: string): Promise<RankingEntry[]> {
+  const members = await getGroupMembers(groupId);
+  if (members.length === 0) return [];
+
+  const userIds = members.map((m) => m.user_id);
+  const { data } = await supabase
+    .from('exercise_results')
+    .select('user_id, details')
+    .in('user_id', userIds)
+    .in('exercise_name', RU_EXERCISE_NAMES as unknown as string[]);
+
+  if (!data) return [];
+
+  const statsMap = new Map<string, { correct: number; total: number; attempts: number }>();
+  for (const r of data as { user_id: string; details: Record<string, unknown> }[]) {
+    const correct = Number(r.details?.correct ?? 0);
+    const total = Number(r.details?.total ?? 0);
+    if (total === 0) continue;
+    const prev = statsMap.get(r.user_id) ?? { correct: 0, total: 0, attempts: 0 };
+    statsMap.set(r.user_id, {
+      correct: prev.correct + correct,
+      total: prev.total + total,
+      attempts: prev.attempts + 1,
+    });
+  }
+
+  const entries: RankingEntry[] = [];
+  for (const [userId, stats] of statsMap) {
+    const member = members.find((m) => m.user_id === userId);
+    entries.push({
+      user_id: userId,
+      display_name: member?.display_name ?? null,
+      mastery_score: stats.total > 0 ? (stats.correct * stats.correct) / stats.total : 0,
+      accuracy_pct: stats.total > 0 ? (stats.correct / stats.total) * 100 : 0,
+      total_attempts: stats.attempts,
+      total_correct: stats.correct,
+      total_questions: stats.total,
+    });
+  }
+  return entries.sort((a, b) => b.mastery_score - a.mastery_score);
+}
+
+/** Group ranking via secure RPC — for group members (students). */
 export async function getGroupRanking(groupId: string): Promise<RankingEntry[]> {
   const { data, error } = await supabase.rpc('get_group_ranking', { p_group_id: groupId });
   if (error) { console.error('[getGroupRanking]', error); return []; }

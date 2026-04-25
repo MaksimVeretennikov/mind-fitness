@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useGroup } from '../contexts/GroupContext';
-import { getGroupRanking, type RankingEntry } from '../lib/groupsDB';
+import { getGroupRanking, getGroupRankingDirect, type RankingEntry } from '../lib/groupsDB';
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 const MEDAL_COLORS = ['#f59e0b', '#9ca3af', '#b45309'];
@@ -31,11 +31,14 @@ export default function GroupRanking() {
   useEffect(() => {
     if (!showGroupRanking || !activeGroup) return;
     setLoading(true);
-    getGroupRanking(activeGroup.id).then((data) => {
+    // Teacher (owner) uses direct DB queries via existing RLS.
+    // Student (member) uses SECURITY DEFINER RPC.
+    const fetch = ownedGroup ? getGroupRankingDirect : getGroupRanking;
+    fetch(activeGroup.id).then((data) => {
       setEntries(data);
       setLoading(false);
     });
-  }, [showGroupRanking, activeGroup]);
+  }, [showGroupRanking, activeGroup, ownedGroup]);
 
   if (!showGroupRanking || !activeGroup) return null;
 
