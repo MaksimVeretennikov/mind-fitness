@@ -29,6 +29,8 @@ import AuthModal from './components/AuthModal';
 import HistoryPanel from './components/HistoryPanel';
 import GroupModal from './components/GroupModal';
 import TeacherDashboard from './components/TeacherDashboard';
+import GroupRanking from './components/GroupRanking';
+import TrophyButton from './components/TrophyButton';
 import DynamicBackground from './components/DynamicBackground';
 import DevTimePanel from './components/DevTimePanel';
 import type { DayIndex } from './weeklyPhotos';
@@ -73,11 +75,15 @@ export default function App() {
           />
         )}
         <UserBadge />
-        <StreakBadge />
+        <div className="top-right-badges">
+          <TrophyButton />
+          <StreakBadge />
+        </div>
         <AuthModal />
         <HistoryPanel />
         <GroupModal />
         <TeacherDashboard />
+        <GroupRanking />
         <DailyWelcome />
 
         <main>

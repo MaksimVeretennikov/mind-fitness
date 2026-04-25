@@ -29,6 +29,8 @@ interface GroupContextValue {
   setShowGroupModal: (v: boolean) => void;
   showTeacherDashboard: boolean;
   setShowTeacherDashboard: (v: boolean) => void;
+  showGroupRanking: boolean;
+  setShowGroupRanking: (v: boolean) => void;
 }
 
 const GroupContext = createContext<GroupContextValue | null>(null);
@@ -40,6 +42,7 @@ export function GroupProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(false);
   const [showGroupModal, setShowGroupModal] = useState(false);
   const [showTeacherDashboard, setShowTeacherDashboard] = useState(false);
+  const [showGroupRanking, setShowGroupRanking] = useState(false);
 
   const refresh = useCallback(async () => {
     if (!user) {
@@ -112,6 +115,8 @@ export function GroupProvider({ children }: { children: ReactNode }) {
         setShowGroupModal,
         showTeacherDashboard,
         setShowTeacherDashboard,
+        showGroupRanking,
+        setShowGroupRanking,
       }}
     >
       {children}

@@ -38,6 +38,8 @@ const RU_EXERCISES = new Set([
   'adverbs', 'prefixes', 'spelling-nn', 'word-forms', 'stress', 'abbreviations',
 ]);
 
+const HISTORY_PAGE_SIZE = 15;
+
 interface ChoiceMistake { display: string; chosen: string; correct: string }
 interface AbbrMistake { abbr: string; full: string }
 
@@ -70,14 +72,34 @@ export default function TeacherDashboard() {
   const [loading, setLoading] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
-  const [expandedAttempts, setExpandedAttempts] = useState<Set<string>>(new Set());
 
-  useEffect(() => { setExpandedAttempts(new Set()); }, [selectedId]);
+  // History state
+  const [expandedAttempts, setExpandedAttempts] = useState<Set<string>>(new Set());
+  const [historyFilter, setHistoryFilter] = useState<string | null>(null);
+  const [historyLimit, setHistoryLimit] = useState(HISTORY_PAGE_SIZE);
+
+  // Errors section: collapsible per exercise
+  const [expandedExercises, setExpandedExercises] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    setExpandedAttempts(new Set());
+    setHistoryFilter(null);
+    setHistoryLimit(HISTORY_PAGE_SIZE);
+    setExpandedExercises(new Set());
+  }, [selectedId]);
 
   function toggleAttempt(id: string) {
     setExpandedAttempts(prev => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleExercise(ex: string) {
+    setExpandedExercises(prev => {
+      const next = new Set(prev);
+      if (next.has(ex)) next.delete(ex); else next.add(ex);
       return next;
     });
   }
@@ -133,7 +155,6 @@ export default function TeacherDashboard() {
     })();
   }, [showTeacherDashboard, ownedGroup]);
 
-  // Aggregate per-student stats: Russian-only total score, error count (7d), last activity
   const resultsByUser = useMemo(() => {
     const map = new Map<string, ExerciseResult[]>();
     for (const r of results) {
@@ -192,7 +213,6 @@ export default function TeacherDashboard() {
   const selectedMember = members.find((m) => m.user_id === selectedId) ?? null;
   const selectedResults = selectedId ? resultsByUser.get(selectedId) ?? [] : [];
 
-  // Aggregated Russian mistakes for the selected student, grouped by exercise
   const aggregatedMistakes = useMemo(() => {
     const byExercise = new Map<
       string,
@@ -247,6 +267,22 @@ export default function TeacherDashboard() {
       /* ignore */
     }
   }
+
+  // History: filter by exercise + pagination
+  const historyExercises = useMemo(() => {
+    const seen = new Set<string>();
+    for (const r of selectedResults) seen.add(r.exercise_name);
+    return Array.from(seen);
+  }, [selectedResults]);
+
+  const filteredHistory = useMemo(() => {
+    return historyFilter
+      ? selectedResults.filter((r) => r.exercise_name === historyFilter)
+      : selectedResults;
+  }, [selectedResults, historyFilter]);
+
+  const visibleHistory = filteredHistory.slice(0, historyLimit);
+  const hasMore = filteredHistory.length > historyLimit;
 
   if (!showTeacherDashboard || !ownedGroup) return null;
 
@@ -369,6 +405,7 @@ export default function TeacherDashboard() {
                     </div>
                   </div>
 
+                  {/* Ошибки по упражнениям — сворачиваемые */}
                   <div className="dashboard-section-title">Ошибки по упражнениям</div>
                   {aggregatedMistakes.length === 0 ? (
                     <div className="dashboard-empty-detail" style={{ padding: '30px 20px' }}>
@@ -378,103 +415,147 @@ export default function TeacherDashboard() {
                     <div className="dashboard-mistakes">
                       {aggregatedMistakes.map(({ exercise, mistakes }) => {
                         const isAbbr = exercise === 'abbreviations';
+                        const isOpen = expandedExercises.has(exercise);
                         const leftKey = `${exercise}|left`;
                         const rightKey = `${exercise}|right`;
                         return (
                           <div key={exercise} className="dashboard-mistakes-group">
-                            <div className="dashboard-mistakes-group-title">
+                            <button
+                              type="button"
+                              className="dashboard-mistakes-group-title dashboard-mistakes-group-title--btn"
+                              onClick={() => toggleExercise(exercise)}
+                            >
                               <span>{EXERCISE_ICONS[exercise] ?? '📝'}</span>
                               <span>{EXERCISE_NAMES[exercise] ?? exercise}</span>
-                              <span style={{ marginLeft: 'auto', fontSize: '0.76rem', color: '#9ca3af', fontWeight: 500 }}>
+                              <span className="dashboard-mistakes-count">
                                 {mistakes.length} уник.
                               </span>
-                            </div>
-                            {mistakes.map((m, i) => (
-                              <div key={i} className="dashboard-mistake-row">
-                                <span className="dashboard-mistake-display">{m.display}</span>
-                                <div className="dashboard-mistake-right">
-                                  {!isAbbr && m.chosen && (
-                                    <span className="dashboard-mistake-chosen">{m.chosen}</span>
-                                  )}
-                                  <span className="dashboard-mistake-correct">{m.correct}</span>
-                                  {m.count > 1 && (
-                                    <span className="dashboard-mistake-count">×{m.count}</span>
-                                  )}
+                              <span className={`dashboard-history-chevron ${isOpen ? 'open' : ''}`} aria-hidden>
+                                ▾
+                              </span>
+                            </button>
+                            {isOpen && (
+                              <>
+                                {mistakes.map((m, i) => (
+                                  <div key={i} className="dashboard-mistake-row">
+                                    <span className="dashboard-mistake-display">{m.display}</span>
+                                    <div className="dashboard-mistake-right">
+                                      {!isAbbr && m.chosen && (
+                                        <span className="dashboard-mistake-chosen">{m.chosen}</span>
+                                      )}
+                                      <span className="dashboard-mistake-correct">{m.correct}</span>
+                                      {m.count > 1 && (
+                                        <span className="dashboard-mistake-count">×{m.count}</span>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))}
+                                <div className="dashboard-mistakes-copy">
+                                  <button
+                                    type="button"
+                                    onClick={() => copyGroup(exercise, 'left', mistakes)}
+                                    title={isAbbr ? 'Копировать аббревиатуры' : 'Копировать слова'}
+                                  >
+                                    {copiedKey === leftKey ? '✓ Скопировано' : `📋 ${isAbbr ? 'Аббревиатуры' : 'Слова'}`}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="dashboard-mistakes-copy--primary"
+                                    onClick={() => copyGroup(exercise, 'right', mistakes)}
+                                    title="Копировать правильные ответы"
+                                  >
+                                    {copiedKey === rightKey ? '✓ Скопировано' : '📋 Правильные ответы'}
+                                  </button>
                                 </div>
-                              </div>
-                            ))}
-                            <div className="dashboard-mistakes-copy">
-                              <button
-                                type="button"
-                                onClick={() => copyGroup(exercise, 'left', mistakes)}
-                                title={isAbbr ? 'Копировать аббревиатуры' : 'Копировать слова'}
-                              >
-                                {copiedKey === leftKey ? '✓ Скопировано' : `📋 ${isAbbr ? 'Аббревиатуры' : 'Слова'}`}
-                              </button>
-                              <button
-                                type="button"
-                                className="dashboard-mistakes-copy--primary"
-                                onClick={() => copyGroup(exercise, 'right', mistakes)}
-                                title="Копировать правильные ответы"
-                              >
-                                {copiedKey === rightKey ? '✓ Скопировано' : '📋 Правильные ответы'}
-                              </button>
-                            </div>
+                              </>
+                            )}
                           </div>
                         );
                       })}
                     </div>
                   )}
 
+                  {/* История попыток с фильтром + пагинацией */}
                   <div className="dashboard-section-title">История попыток</div>
                   {selectedResults.length === 0 ? (
                     <div className="dashboard-empty-detail" style={{ padding: '30px 20px' }}>
                       Ученик ещё не выполнил ни одного упражнения
                     </div>
                   ) : (
-                    <div className="dashboard-history-list">
-                      {selectedResults.slice(0, 30).map((r) => {
-                        const details = r.details as { correct?: number; total?: number };
-                        const correct = details?.correct;
-                        const total = details?.total;
-                        const isRu = RU_EXERCISES.has(r.exercise_name);
-                        const isOpen = expandedAttempts.has(r.id);
-                        return (
-                          <div key={r.id} className={`dashboard-history-item ${isOpen ? 'is-open' : ''}`}>
-                            <button
-                              type="button"
-                              className={`dashboard-history-row ${isRu ? 'dashboard-history-row--clickable' : ''}`}
-                              onClick={() => isRu && toggleAttempt(r.id)}
-                              disabled={!isRu}
-                            >
-                              <div className="dashboard-history-left">
-                                <span>{EXERCISE_ICONS[r.exercise_name] ?? '🏋️'}</span>
-                                <span>{EXERCISE_NAMES[r.exercise_name] ?? r.exercise_name}</span>
-                              </div>
-                              <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                                {typeof correct === 'number' && typeof total === 'number' && (
-                                  <span style={{ fontWeight: 600, color: '#4b5563' }}>
-                                    {correct}/{total}
+                    <>
+                      {/* Фильтр по упражнению */}
+                      <div className="history-filter dashboard-history-filter">
+                        <button
+                          className={`history-filter-pill ${historyFilter === null ? 'history-filter-pill--active' : ''}`}
+                          onClick={() => { setHistoryFilter(null); setHistoryLimit(HISTORY_PAGE_SIZE); }}
+                        >
+                          Все
+                        </button>
+                        {historyExercises.map((ex) => (
+                          <button
+                            key={ex}
+                            className={`history-filter-pill ${historyFilter === ex ? 'history-filter-pill--active' : ''}`}
+                            onClick={() => { setHistoryFilter(ex === historyFilter ? null : ex); setHistoryLimit(HISTORY_PAGE_SIZE); }}
+                          >
+                            {EXERCISE_ICONS[ex] ?? ''} {EXERCISE_NAMES[ex] ?? ex}
+                          </button>
+                        ))}
+                      </div>
+
+                      <div className="dashboard-history-list">
+                        {visibleHistory.map((r) => {
+                          const details = r.details as { correct?: number; total?: number };
+                          const correct = details?.correct;
+                          const total = details?.total;
+                          const isRu = RU_EXERCISES.has(r.exercise_name);
+                          const isOpen = expandedAttempts.has(r.id);
+                          return (
+                            <div key={r.id} className={`dashboard-history-item ${isOpen ? 'is-open' : ''}`}>
+                              <button
+                                type="button"
+                                className={`dashboard-history-row ${isRu ? 'dashboard-history-row--clickable' : ''}`}
+                                onClick={() => isRu && toggleAttempt(r.id)}
+                                disabled={!isRu}
+                              >
+                                <div className="dashboard-history-left">
+                                  <span>{EXERCISE_ICONS[r.exercise_name] ?? '🏋️'}</span>
+                                  <span>{EXERCISE_NAMES[r.exercise_name] ?? r.exercise_name}</span>
+                                </div>
+                                <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                                  {typeof correct === 'number' && typeof total === 'number' && (
+                                    <span style={{ fontWeight: 600, color: '#4b5563' }}>
+                                      {correct}/{total}
+                                    </span>
+                                  )}
+                                  <span style={{ fontWeight: 700, color: '#4f46e5' }}>{r.score}</span>
+                                  <span className="dashboard-history-time">
+                                    {relativeTime(r.created_at)}
                                   </span>
-                                )}
-                                <span style={{ fontWeight: 700, color: '#4f46e5' }}>{r.score}</span>
-                                <span className="dashboard-history-time">
-                                  {relativeTime(r.created_at)}
-                                </span>
-                                {isRu && (
-                                  <span className={`dashboard-history-chevron ${isOpen ? 'open' : ''}`} aria-hidden>
-                                    ▾
-                                  </span>
-                                )}
-                              </div>
-                            </button>
-                            {isRu && isOpen && (
-                              <div className="dashboard-history-details">{renderAttemptMistakes(r)}</div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
+                                  {isRu && (
+                                    <span className={`dashboard-history-chevron ${isOpen ? 'open' : ''}`} aria-hidden>
+                                      ▾
+                                    </span>
+                                  )}
+                                </div>
+                              </button>
+                              {isRu && isOpen && (
+                                <div className="dashboard-history-details">{renderAttemptMistakes(r)}</div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {hasMore && (
+                        <button
+                          type="button"
+                          className="dashboard-load-more"
+                          onClick={() => setHistoryLimit((l) => l + HISTORY_PAGE_SIZE)}
+                        >
+                          Загрузить ещё ({filteredHistory.length - historyLimit})
+                        </button>
+                      )}
+                    </>
                   )}
                 </>
               )}

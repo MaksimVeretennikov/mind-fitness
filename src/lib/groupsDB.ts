@@ -136,3 +136,20 @@ export async function getResultsForUsers(userIds: string[]): Promise<ExerciseRes
     .limit(5000);
   return (data as ExerciseResult[]) ?? [];
 }
+
+export interface RankingEntry {
+  user_id: string;
+  display_name: string | null;
+  mastery_score: number;
+  accuracy_pct: number;
+  total_attempts: number;
+  total_correct: number;
+  total_questions: number;
+}
+
+/** Group ranking via secure RPC — accessible to members and owner. */
+export async function getGroupRanking(groupId: string): Promise<RankingEntry[]> {
+  const { data, error } = await supabase.rpc('get_group_ranking', { p_group_id: groupId });
+  if (error || !data) return [];
+  return data as RankingEntry[];
+}

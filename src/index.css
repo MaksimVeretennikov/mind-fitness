@@ -917,12 +917,47 @@
   line-height: 1.3;
 }
 
-/* ─── Streak Badge ───────────────────────────────────────────────────────── */
-.streak-badge {
+/* ─── Top-right badge area (trophy + streak) ─────────────────────────────── */
+.top-right-badges {
   position: fixed;
   top: 14px;
   right: 66px;
   z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+.top-right-badges > * { pointer-events: auto; }
+
+/* When logged out, "Войти" button is wider — push badges further left */
+.user-badge-root:has(.user-badge-login) ~ .top-right-badges {
+  right: 104px;
+}
+
+/* ─── Trophy Button ───────────────────────────────────────────────────────── */
+.trophy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  width: 38px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.10), inset 0 1px 0 rgba(255,255,255,0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: background 0.15s, transform 0.15s;
+  animation: streak-badge-in 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+.trophy-btn:hover { background: rgba(255,255,255,0.92); transform: scale(1.08); }
+.trophy-btn:active { transform: scale(0.95); }
+
+/* ─── Streak Badge ───────────────────────────────────────────────────────── */
+.streak-badge {
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -964,11 +999,6 @@
   color: #f5a623;
 }
 
-/* When user is logged out the "Войти" button is wider than the avatar,
-   so push the streak badge further left to avoid overlap. */
-.user-badge-root:has(.user-badge-login) ~ .streak-badge {
-  right: 104px;
-}
 
 @keyframes streak-badge-in {
   from { opacity: 0; transform: translateY(-6px) scale(0.9); }
@@ -1541,9 +1571,138 @@
   .auth-card { padding: 28px 20px 22px; }
   .history-panel { width: 100vw; }
   .user-badge-root { top: 10px; right: 12px; }
-  .streak-badge { top: 10px; right: 60px; padding: 7px 11px 7px 9px; font-size: 0.8rem; }
-  .user-badge-root:has(.user-badge-login) ~ .streak-badge { right: 96px; }
+  .top-right-badges { top: 10px; right: 60px; }
+  .user-badge-root:has(.user-badge-login) ~ .top-right-badges { right: 96px; }
+  .streak-badge { padding: 7px 11px 7px 9px; font-size: 0.8rem; }
   .welcome-card { padding: 26px 22px 22px; }
   .welcome-title { font-size: 1.35rem; }
   .welcome-streak-number { font-size: 2.2rem; }
 }
+
+/* ─── Group Ranking Modal ────────────────────────────────────────────────── */
+.ranking-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  z-index: 600;
+}
+.ranking-wrap {
+  position: fixed; inset: 0; z-index: 601;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.ranking-modal {
+  background: #fff;
+  border-radius: 20px;
+  width: 100%; max-width: 420px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.18), 0 4px 12px rgba(0,0,0,0.10);
+  overflow: hidden;
+  animation: ranking-in 0.3s cubic-bezier(0.34,1.4,0.64,1) both;
+}
+@keyframes ranking-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+.ranking-header {
+  display: flex; align-items: center; gap: 14px;
+  padding: 20px 20px 16px;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: #fff;
+}
+.ranking-header-icon { font-size: 2rem; line-height: 1; }
+.ranking-title { font-size: 1.2rem; font-weight: 700; }
+.ranking-subtitle { font-size: 0.82rem; opacity: 0.82; margin-top: 2px; }
+.ranking-close {
+  margin-left: auto;
+  background: rgba(255,255,255,0.18); border: none; color: #fff;
+  width: 32px; height: 32px; border-radius: 50%;
+  font-size: 1.3rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+.ranking-close:hover { background: rgba(255,255,255,0.32); }
+
+.ranking-body { padding: 18px 20px 20px; }
+
+.ranking-empty {
+  text-align: center; color: #9ca3af;
+  padding: 30px 10px; font-size: 0.9rem;
+}
+
+.ranking-list { display: flex; flex-direction: column; gap: 10px; }
+
+.ranking-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #f9fafb;
+  border: 1.5px solid transparent;
+  transition: border-color 0.15s;
+}
+.ranking-row--1 { background: #fffbeb; border-color: #fde68a; }
+.ranking-row--2 { background: #f8fafc; border-color: #e2e8f0; }
+.ranking-row--3 { background: #fdf8f4; border-color: #fed7aa; }
+
+.ranking-medal { font-size: 1.6rem; line-height: 1; flex-shrink: 0; }
+
+.ranking-info { flex: 1; min-width: 0; }
+.ranking-name { font-weight: 700; font-size: 0.95rem; color: #111827; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.ranking-bar-track {
+  height: 6px; border-radius: 3px; background: #e5e7eb; overflow: hidden;
+}
+.ranking-bar-fill {
+  height: 100%; border-radius: 3px;
+  background: linear-gradient(90deg, #4f46e5, #7c3aed);
+  transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+}
+
+.ranking-stats {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 3px;
+  flex-shrink: 0;
+}
+.ranking-accuracy { font-size: 1rem; font-weight: 700; color: #1f2937; }
+.ranking-attempts { font-size: 0.74rem; color: #9ca3af; }
+.ranking-mastery  { font-size: 0.78rem; font-weight: 600; color: #7c3aed; }
+
+.ranking-legend {
+  margin-top: 16px; padding-top: 14px;
+  border-top: 1px solid #f3f4f6;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.ranking-legend-row {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.78rem; color: #6b7280;
+}
+.ranking-legend-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.ranking-legend-dot--accuracy { background: #4f46e5; }
+.ranking-legend-dot--mastery  { background: #7c3aed; }
+
+/* ─── Dashboard improvements ─────────────────────────────────────────────── */
+
+/* Collapsible error group header */
+.dashboard-mistakes-group-title--btn {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%; background: none; border: none;
+  padding: 10px 0; cursor: pointer; text-align: left;
+  font-size: 0.88rem; font-weight: 600; color: #374151;
+}
+.dashboard-mistakes-group-title--btn:hover { color: #4f46e5; }
+.dashboard-mistakes-count {
+  margin-left: auto; font-size: 0.76rem; color: #9ca3af; font-weight: 500;
+}
+
+/* History filter inside dashboard */
+.dashboard-history-filter {
+  margin: 6px 0 10px;
+}
+
+/* Load-more button */
+.dashboard-load-more {
+  display: block; width: 100%; margin-top: 10px;
+  padding: 10px 16px; border-radius: 10px;
+  background: #f3f4f6; border: 1.5px solid #e5e7eb;
+  color: #4f46e5; font-weight: 600; font-size: 0.85rem;
+  cursor: pointer; transition: background 0.15s, border-color 0.15s;
+}
+.dashboard-load-more:hover { background: #ede9fe; border-color: #c4b5fd; }
