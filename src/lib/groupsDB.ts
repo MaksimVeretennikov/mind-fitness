@@ -116,6 +116,14 @@ export async function leaveGroup(userId: string): Promise<void> {
   await supabase.from('group_members').delete().eq('user_id', userId);
 }
 
+export async function updateMemberNickname(userId: string, nickname: string): Promise<string | null> {
+  const { error } = await supabase
+    .from('group_members')
+    .update({ display_name: nickname.trim() || null })
+    .eq('user_id', userId);
+  return error ? 'Не удалось сохранить ник' : null;
+}
+
 export async function getGroupMembers(groupId: string): Promise<GroupMember[]> {
   const { data } = await supabase
     .from('group_members')

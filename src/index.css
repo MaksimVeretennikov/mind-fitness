@@ -404,6 +404,28 @@
 .user-badge-item-signout:hover { background: rgba(239,68,68,0.07); }
 .user-badge-item-icon { font-size: 1rem; }
 
+/* Nick editor */
+.user-badge-nick-section { border-top: 1px solid rgba(0,0,0,0.06); margin-top: 2px; padding-top: 2px; }
+.user-badge-nick-label { flex: 1; display: flex; flex-direction: column; gap: 1px; }
+.user-badge-nick-current { font-size: 0.7rem; color: #6d28d9; font-weight: 600; line-height: 1; }
+.user-badge-nick-chevron { font-size: 0.65rem; color: #9ca3af; margin-left: auto; }
+.user-badge-nick-editor { padding: 6px 12px 10px; display: flex; flex-direction: column; gap: 6px; }
+.user-badge-nick-input {
+  width: 100%; padding: 7px 10px; border-radius: 8px;
+  border: 1.5px solid #e5e7eb; font-size: 0.82rem; outline: none;
+  background: #f9fafb; color: #1f2937; transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+.user-badge-nick-input:focus { border-color: #7c3aed; background: #fff; }
+.user-badge-nick-error { font-size: 0.72rem; color: #ef4444; }
+.user-badge-nick-save {
+  align-self: flex-end; padding: 5px 14px; border-radius: 7px;
+  background: #7c3aed; color: #fff; font-size: 0.78rem; font-weight: 600;
+  border: none; cursor: pointer; transition: background 0.12s;
+}
+.user-badge-nick-save:hover { background: #6d28d9; }
+.user-badge-nick-save:disabled { opacity: 0.6; cursor: default; }
+
 /* ─── Auth Modal ─────────────────────────────────────────────────────────── */
 .auth-overlay {
   position: fixed;

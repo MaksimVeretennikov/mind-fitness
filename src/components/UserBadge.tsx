@@ -4,8 +4,12 @@ import { useGroup } from '../contexts/GroupContext';
 
 export default function UserBadge() {
   const { user, loading, setShowAuthModal, setShowHistoryPanel, signOut } = useAuth();
-  const { ownedGroup, memberGroup, setShowGroupModal, setShowTeacherDashboard } = useGroup();
+  const { ownedGroup, memberGroup, memberNickname, setShowGroupModal, setShowTeacherDashboard, updateNickname } = useGroup();
   const [open, setOpen] = useState(false);
+  const [nickOpen, setNickOpen] = useState(false);
+  const [nickValue, setNickValue] = useState('');
+  const [nickSaving, setNickSaving] = useState(false);
+  const [nickError, setNickError] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -39,6 +43,21 @@ export default function UserBadge() {
   const initial = displayName ? displayName[0].toUpperCase() : (user.email ? user.email[0].toUpperCase() : '?');
   const activeGroup = ownedGroup ?? memberGroup;
   const isOwner = !!ownedGroup;
+
+  function openNickEditor() {
+    setNickValue(memberNickname ?? '');
+    setNickError(null);
+    setNickOpen(true);
+  }
+
+  async function saveNick() {
+    setNickSaving(true);
+    setNickError(null);
+    const err = await updateNickname(nickValue);
+    setNickSaving(false);
+    if (err) { setNickError(err); return; }
+    setNickOpen(false);
+  }
 
   return (
     <div className="user-badge-root" ref={dropdownRef}>
@@ -84,6 +103,44 @@ export default function UserBadge() {
               <span className="user-badge-item-icon">{memberGroup ? '🎓' : '👥'}</span>
               {memberGroup ? 'Моя группа' : 'Группа'}
             </button>
+          )}
+          {memberGroup && (
+            <div className="user-badge-nick-section">
+              <button
+                className="user-badge-item"
+                onClick={() => nickOpen ? setNickOpen(false) : openNickEditor()}
+              >
+                <span className="user-badge-item-icon">🏷️</span>
+                <span className="user-badge-nick-label">
+                  Ник в рейтинге
+                  {memberNickname && (
+                    <span className="user-badge-nick-current">{memberNickname}</span>
+                  )}
+                </span>
+                <span className="user-badge-nick-chevron">{nickOpen ? '▴' : '▾'}</span>
+              </button>
+              {nickOpen && (
+                <div className="user-badge-nick-editor">
+                  <input
+                    className="user-badge-nick-input"
+                    value={nickValue}
+                    onChange={(e) => setNickValue(e.target.value)}
+                    placeholder={displayName || 'Ваш ник'}
+                    maxLength={40}
+                    autoFocus
+                    onKeyDown={(e) => { if (e.key === 'Enter') saveNick(); if (e.key === 'Escape') setNickOpen(false); }}
+                  />
+                  {nickError && <div className="user-badge-nick-error">{nickError}</div>}
+                  <button
+                    className="user-badge-nick-save"
+                    onClick={saveNick}
+                    disabled={nickSaving}
+                  >
+                    {nickSaving ? 'Сохранение…' : 'Сохранить'}
+                  </button>
+                </div>
+              )}
+            </div>
           )}
           <button
             className="user-badge-item user-badge-item-signout"

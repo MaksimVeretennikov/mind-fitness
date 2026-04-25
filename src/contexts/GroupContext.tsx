@@ -13,17 +13,20 @@ import {
   createGroup as dbCreateGroup,
   joinGroupByCode as dbJoinGroupByCode,
   leaveGroup as dbLeaveGroup,
+  updateMemberNickname as dbUpdateNickname,
   type Group,
 } from '../lib/groupsDB';
 
 interface GroupContextValue {
   ownedGroup: Group | null;
   memberGroup: Group | null;
+  memberNickname: string | null;
   loading: boolean;
   refresh: () => Promise<void>;
   createGroup: (name: string, code: string) => Promise<string | null>;
   joinByCode: (code: string) => Promise<string | null>;
   leave: () => Promise<void>;
+  updateNickname: (nickname: string) => Promise<string | null>;
   // UI state
   showGroupModal: boolean;
   setShowGroupModal: (v: boolean) => void;
@@ -40,6 +43,7 @@ export function GroupProvider({ children }: { children: ReactNode }) {
   const [ownedGroup, setOwnedGroup] = useState<Group | null>(null);
   const [memberGroup, setMemberGroup] = useState<Group | null>(null);
   const [loading, setLoading] = useState(false);
+  const [memberNickname, setMemberNickname] = useState<string | null>(null);
   const [showGroupModal, setShowGroupModal] = useState(false);
   const [showTeacherDashboard, setShowTeacherDashboard] = useState(false);
   const [showGroupRanking, setShowGroupRanking] = useState(false);
@@ -57,6 +61,7 @@ export function GroupProvider({ children }: { children: ReactNode }) {
     ]);
     setOwnedGroup(owned);
     setMemberGroup(membership?.group ?? null);
+    setMemberNickname(membership?.member.display_name ?? null);
     setLoading(false);
   }, [user]);
 
@@ -99,6 +104,14 @@ export function GroupProvider({ children }: { children: ReactNode }) {
     if (!user) return;
     await dbLeaveGroup(user.id);
     setMemberGroup(null);
+    setMemberNickname(null);
+  }, [user]);
+
+  const updateNickname = useCallback(async (nickname: string): Promise<string | null> => {
+    if (!user) return 'Войдите в аккаунт';
+    const error = await dbUpdateNickname(user.id, nickname);
+    if (!error) setMemberNickname(nickname.trim() || null);
+    return error;
   }, [user]);
 
   return (
@@ -106,11 +119,13 @@ export function GroupProvider({ children }: { children: ReactNode }) {
       value={{
         ownedGroup,
         memberGroup,
+        memberNickname,
         loading,
         refresh,
         createGroup,
         joinByCode,
         leave,
+        updateNickname,
         showGroupModal,
         setShowGroupModal,
         showTeacherDashboard,
