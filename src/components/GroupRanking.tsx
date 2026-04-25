@@ -10,15 +10,8 @@ function studentName(entry: RankingEntry): string {
   return entry.display_name?.trim() || 'Участник';
 }
 
-function AccuracyBar({ pct }: { pct: number }) {
-  return (
-    <div className="ranking-bar-track">
-      <div
-        className="ranking-bar-fill"
-        style={{ width: `${Math.min(100, pct)}%` }}
-      />
-    </div>
-  );
+function entryScore(entry: RankingEntry): number {
+  return Math.round(entry.total_correct) * 10;
 }
 
 export default function GroupRanking() {
@@ -80,35 +73,12 @@ export default function GroupRanking() {
                       <div className="ranking-medal" style={{ color: MEDAL_COLORS[i] }}>
                         {MEDALS[i]}
                       </div>
-                      <div className="ranking-info">
-                        <div className="ranking-name">{studentName(entry)}</div>
-                        <AccuracyBar pct={entry.accuracy_pct} />
-                      </div>
-                      <div className="ranking-stats">
-                        <span className="ranking-accuracy">
-                          {Math.round(entry.accuracy_pct)}%
-                        </span>
-                        <span className="ranking-attempts">
-                          {entry.total_attempts}{' '}
-                          {entry.total_attempts === 1 ? 'попытка' : entry.total_attempts < 5 ? 'попытки' : 'попыток'}
-                        </span>
-                        <span className="ranking-mastery">
-                          {Math.round(entry.mastery_score)} м
-                        </span>
+                      <div className="ranking-name">{studentName(entry)}</div>
+                      <div className="ranking-score">
+                        {entryScore(entry)} <span className="ranking-score-label">очков</span>
                       </div>
                     </div>
                   ))}
-                </div>
-
-                <div className="ranking-legend">
-                  <div className="ranking-legend-row">
-                    <span className="ranking-legend-dot ranking-legend-dot--accuracy" />
-                    <span><strong>%</strong> — точность (правильные / всего)</span>
-                  </div>
-                  <div className="ranking-legend-row">
-                    <span className="ranking-legend-dot ranking-legend-dot--mastery" />
-                    <span><strong>м</strong> — мастерство (точность × объём)</span>
-                  </div>
                 </div>
               </>
             )}

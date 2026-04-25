@@ -184,7 +184,7 @@ export default function TeacherDashboard() {
     let sum = 0;
     for (const r of arr) {
       if (!RU_EXERCISES.has(r.exercise_name)) continue;
-      sum += Number(r.score) || 0;
+      sum += (Number((r.details as { correct?: number })?.correct) || 0) * 10;
     }
     return sum;
   }

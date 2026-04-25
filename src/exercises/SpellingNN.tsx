@@ -71,7 +71,7 @@ const ITEMS: Item[] = [
   { display: 'чека_ый', single: 'чеканый', double: 'чеканный', answer: 'double' },
   { display: 'жела_ый', single: 'желаный', double: 'желанный', answer: 'double' },
   { display: 'жема_ый', single: 'жеманый', double: 'жеманный', answer: 'double' },
-  { display: 'Прощё_ое воскресенье', single: 'Прощёное воскресенье', double: 'Прощённое воскресенье', answer: 'double' },
+  { display: 'Прощё_ое воскресенье', single: 'Прощёное воскресенье', double: 'Прощённое воскресенье', answer: 'single' },
 ];
 
 export default function SpellingNN({ onBack }: Props) {
