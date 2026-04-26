@@ -186,11 +186,24 @@ export async function getResultsForUser(
 }
 
 /**
- * Ranking for the group owner — delegates to the same SECURITY DEFINER RPC
- * used by students, which now reads total_score directly from streaks.
+ * Ranking for the group owner (teacher).
+ * Uses get_member_meta RPC (already proven working) instead of get_group_ranking
+ * to avoid PostgREST schema-cache issues after the RPC return-type change.
  */
 export async function getGroupRankingDirect(groupId: string): Promise<RankingEntry[]> {
-  return getGroupRanking(groupId);
+  const members = await getGroupMembers(groupId);
+  if (members.length === 0) return [];
+
+  const metaMap = await getMemberMeta(groupId);
+
+  return members
+    .map((m) => ({
+      user_id: m.user_id,
+      display_name: m.nickname?.trim() || m.display_name || null,
+      total_score: metaMap.get(m.user_id)?.score ?? 0,
+    }))
+    .filter((e) => e.total_score > 0)
+    .sort((a, b) => b.total_score - a.total_score);
 }
 
 /** Group ranking via secure RPC — for group members (students). */
