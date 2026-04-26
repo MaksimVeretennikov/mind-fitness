@@ -35,6 +35,7 @@ $$;
 
 -- Replace get_group_ranking RPC: now reads total_score directly from streaks.
 -- Much faster than aggregating exercise_results. Same auth check as before.
+DROP FUNCTION IF EXISTS get_group_ranking(UUID);
 CREATE OR REPLACE FUNCTION get_group_ranking(p_group_id UUID)
 RETURNS TABLE (
   user_id      UUID,
