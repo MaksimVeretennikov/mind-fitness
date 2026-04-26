@@ -72,6 +72,17 @@ const ITEMS: Item[] = [
   { display: 'жела_ый', single: 'желаный', double: 'желанный', answer: 'double' },
   { display: 'жема_ый', single: 'жеманый', double: 'жеманный', answer: 'double' },
   { display: 'Прощё_ое воскресенье', single: 'Прощёное воскресенье', double: 'Прощённое воскресенье', answer: 'single' },
+
+  // Новые слова
+  { display: 'поисти_е', single: 'поистине', double: 'поистинне', answer: 'single' },
+  { display: 'изыска_ый', single: 'изысканый', double: 'изысканный', answer: 'double' },
+  { display: 'свяще_ик', single: 'священик', double: 'священник', answer: 'double' },
+  { display: 'племя_ик', single: 'племяник', double: 'племянник', answer: 'double' },
+  { display: 'моше_ик', single: 'мошеник', double: 'мошенник', answer: 'double' },
+  { display: 'карма_ик', single: 'карманик', double: 'карманник', answer: 'double' },
+  { display: 'муче_ицы', single: 'мученицы', double: 'мученницы', answer: 'single' },
+  { display: 'масле_ица', single: 'масленица', double: 'масленница', answer: 'single' },
+  { display: 'гости_ой', single: 'гостиной', double: 'гостинной', answer: 'single' },
 ];
 
 export default function SpellingNN({ onBack }: Props) {

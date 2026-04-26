@@ -3,6 +3,7 @@ import { motion, useAnimation } from 'framer-motion';
 import { saveResult } from '../lib/auth';
 import { pickResultLabel, toneToColor } from '../lib/resultLabels';
 import MistakesHistory from '../components/MistakesHistory';
+import ErrorDrill from './ErrorDrill';
 
 /* ─── Word Bank ─────────────────────────────────────────────────────────────── */
 
@@ -281,6 +282,7 @@ interface Props {
 
 export default function Adverbs({ onBack }: Props) {
   const [phase, setPhase] = useState<Phase>('setup');
+  const [showDrill, setShowDrill] = useState(false);
   const [count, setCount] = useState(10);
   const [words, setWords] = useState<AdverbItem[]>([]);
   const [index, setIndex] = useState(0);
@@ -400,6 +402,11 @@ export default function Adverbs({ onBack }: Props) {
     setLocked(false);
   }
 
+  /* ─── Drill ─── */
+  if (showDrill) {
+    return <ErrorDrill exerciseName="adverbs" mode="text" onBack={() => setShowDrill(false)} />;
+  }
+
   /* ─── Setup Screen ──────────────────────────────────────────────────────── */
   if (phase === 'setup') {
     return (
@@ -443,6 +450,15 @@ export default function Adverbs({ onBack }: Props) {
         </div>
 
         <MistakesHistory exerciseName="adverbs" />
+
+        <button
+          type="button"
+          onClick={() => setShowDrill(true)}
+          className="inline-flex items-center gap-2 px-5 md:px-7 py-2.5 md:py-3.5 rounded-xl md:rounded-2xl glass hover:bg-white/80 text-gray-700 text-sm md:text-base font-medium transition-all active:scale-95 border border-white/60"
+        >
+          <span>✍️</span>
+          <span>Работа над ошибками</span>
+        </button>
       </div>
     );
   }
@@ -501,6 +517,16 @@ export default function Adverbs({ onBack }: Props) {
             На главную
           </button>
         </div>
+
+        {mistakes.length > 0 && (
+          <button
+            onClick={() => setShowDrill(true)}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl glass hover:bg-white/80 text-gray-700 text-sm font-medium transition-all active:scale-95 border border-white/60"
+          >
+            <span>✍️</span>
+            <span>Работа над ошибками</span>
+          </button>
+        )}
       </div>
     );
   }
