@@ -50,6 +50,7 @@ export default function Stress({ onBack }: Props) {
       count={count}
       onCountChange={setCount}
       onBack={onBack}
+      drillMode="choice"
     />
   );
 }

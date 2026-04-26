@@ -1612,7 +1612,17 @@
 
   /* Student selected: show detail only, hide sidebar */
   .dashboard-body.has-selection .dashboard-sidebar { display: none; }
-  .dashboard-body.has-selection .dashboard-detail { display: flex; }
+  .dashboard-body.has-selection .dashboard-detail {
+    display: block;
+    padding: 16px;
+    overflow-x: hidden;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .dashboard-detail-stats { grid-template-columns: repeat(3, 1fr); }
+  .dashboard-stat-value { font-size: 1.1rem; }
+  .dashboard-detail-avatar { width: 40px; height: 40px; font-size: 1.1rem; }
 
   .dashboard-back-btn { display: flex; }
 }

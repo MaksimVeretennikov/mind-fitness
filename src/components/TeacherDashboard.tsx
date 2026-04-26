@@ -534,7 +534,9 @@ export default function TeacherDashboard() {
                                       {correct}/{total}
                                     </span>
                                   )}
-                                  <span style={{ fontWeight: 700, color: '#4f46e5' }}>{r.score}</span>
+                                  <span style={{ fontWeight: 700, color: '#4f46e5' }}>
+                                    {typeof correct === 'number' ? correct * 10 : r.score}
+                                  </span>
                                   <span className="dashboard-history-time">
                                     {relativeTime(r.created_at)}
                                   </span>

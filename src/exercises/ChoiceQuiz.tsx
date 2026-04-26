@@ -3,6 +3,7 @@ import { motion, useAnimation } from 'framer-motion';
 import { saveResult } from '../lib/auth';
 import { pickResultLabel, toneToColor } from '../lib/resultLabels';
 import MistakesHistory from '../components/MistakesHistory';
+import ErrorDrill from './ErrorDrill';
 
 export interface QuizItem {
   /** What is shown at the top of the card (the question prompt). */
@@ -57,9 +58,11 @@ interface Props {
   onStart?: () => void;
   /** Optional plain-string display extractor for mistakes panel. */
   displayToString?: (display: ReactNode) => string;
+  /** Drill mode for error correction: 'text' (type answer) or 'choice' (click button). Default: 'text'. */
+  drillMode?: 'text' | 'choice';
 }
 
-type Phase = 'setup' | 'playing' | 'result';
+type Phase = 'setup' | 'playing' | 'result' | 'drill';
 
 export default function ChoiceQuiz({
   pool,
@@ -74,8 +77,10 @@ export default function ChoiceQuiz({
   onBack,
   onStart,
   displayToString,
+  drillMode = 'text',
 }: Props) {
   const [phase, setPhase] = useState<Phase>('setup');
+  const [showDrill, setShowDrill] = useState(false);
   const [items, setItems] = useState<QuizItem[]>([]);
   const [index, setIndex] = useState(0);
   // Per-question randomized layout: which side hosts the correct answer.
@@ -187,6 +192,17 @@ export default function ChoiceQuiz({
     setLocked(false);
   }
 
+  /* ─── Drill ─── */
+  if (showDrill) {
+    return (
+      <ErrorDrill
+        exerciseName={resultKey}
+        mode={drillMode}
+        onBack={() => setShowDrill(false)}
+      />
+    );
+  }
+
   /* ─── Setup ─── */
   if (phase === 'setup') {
     return (
@@ -232,6 +248,15 @@ export default function ChoiceQuiz({
         </div>
 
         <MistakesHistory exerciseName={resultKey} />
+
+        <button
+          type="button"
+          onClick={() => setShowDrill(true)}
+          className="inline-flex items-center gap-2 px-5 md:px-7 py-2.5 md:py-3.5 rounded-xl md:rounded-2xl glass hover:bg-white/80 text-gray-700 text-sm md:text-base font-medium transition-all active:scale-95 border border-white/60"
+        >
+          <span>✍️</span>
+          <span>Работа над ошибками</span>
+        </button>
       </div>
     );
   }
@@ -290,6 +315,16 @@ export default function ChoiceQuiz({
             На главную
           </button>
         </div>
+
+        {mistakes.length > 0 && (
+          <button
+            onClick={() => setShowDrill(true)}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl glass hover:bg-white/80 text-gray-700 text-sm font-medium transition-all active:scale-95 border border-white/60"
+          >
+            <span>✍️</span>
+            <span>Работа над ошибками</span>
+          </button>
+        )}
       </div>
     );
   }
