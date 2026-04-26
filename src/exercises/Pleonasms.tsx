@@ -198,8 +198,8 @@ export default function Pleonasms({ onBack }: Props) {
   const progressPct = (index / items.length) * 100;
 
   return (
-    <div className="flex flex-col items-center gap-6 py-6 animate-fade-in">
-      <div className="w-full max-w-md">
+    <div className="flex flex-col items-center gap-6 py-6 animate-fade-in w-full">
+      <div className="w-full max-w-2xl">
         <div className="flex justify-between text-sm text-gray-400 mb-2 font-medium">
           <span>{index + 1} / {items.length}</span>
           <span>{Math.round(progressPct)}%</span>
@@ -212,35 +212,37 @@ export default function Pleonasms({ onBack }: Props) {
         </div>
       </div>
 
-      <div className="glass rounded-2xl px-8 py-10 w-full max-w-md shadow-sm text-center">
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-8">
+      <div className="glass rounded-2xl px-8 py-10 w-full max-w-2xl shadow-sm text-center">
+        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-10">
           Нажмите на лишнее слово
         </p>
-        <div className="flex flex-wrap gap-3 justify-center">
+        <p className="text-3xl md:text-4xl font-semibold leading-relaxed">
           {current.words.map((word, wi) => {
-            let cls =
-              'px-5 py-3 rounded-xl text-xl md:text-2xl font-semibold border transition-all duration-200 active:scale-95 cursor-pointer ';
+            let cls = 'transition-all duration-200 ';
             if (clickedWord === null) {
-              cls += 'bg-white/70 border-white/60 text-gray-800 hover:bg-white/90 hover:scale-105';
+              cls += 'text-gray-800 cursor-pointer hover:text-indigo-600 underline decoration-dotted decoration-gray-400 hover:decoration-indigo-400';
             } else if (word === current.redundant) {
-              cls += 'bg-emerald-100 border-emerald-400 text-emerald-800 scale-105';
+              cls += 'text-emerald-600 font-bold no-underline cursor-default';
             } else if (word === clickedWord) {
-              cls += 'bg-red-100 border-red-400 text-red-800';
+              cls += 'text-red-500 line-through no-underline cursor-default';
             } else {
-              cls += 'bg-white/30 border-white/20 text-gray-400 cursor-default';
+              cls += 'text-gray-400 no-underline cursor-default';
             }
             return (
-              <button
-                key={wi}
-                onClick={() => handleWordClick(word)}
-                disabled={clickedWord !== null}
-                className={cls}
-              >
-                {word}
-              </button>
+              <span key={wi}>
+                <button
+                  onClick={() => handleWordClick(word)}
+                  disabled={clickedWord !== null}
+                  className={cls}
+                  style={{ background: 'none', border: 'none', padding: 0, font: 'inherit' }}
+                >
+                  {word}
+                </button>
+                {wi < current.words.length - 1 ? ' ' : ''}
+              </span>
             );
           })}
-        </div>
+        </p>
       </div>
     </div>
   );
