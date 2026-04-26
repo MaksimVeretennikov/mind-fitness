@@ -149,61 +149,61 @@ export async function getResultsForUsers(userIds: string[]): Promise<ExerciseRes
 export interface RankingEntry {
   user_id: string;
   display_name: string | null;
-  mastery_score: number;
-  accuracy_pct: number;
-  total_attempts: number;
-  total_correct: number;
-  total_questions: number;
+  total_score: number;
 }
 
-const RU_EXERCISE_NAMES = [
-  'adverbs', 'prefixes', 'spelling-nn', 'word-forms', 'stress', 'abbreviations',
-] as const;
+/** Per-member scores and last login time (from streaks table — one lightweight query). */
+export interface MemberMeta {
+  score: number;
+  lastLogin: string | null;
+}
+
+export async function getMemberMeta(userIds: string[]): Promise<Map<string, MemberMeta>> {
+  if (userIds.length === 0) return new Map();
+  const { data } = await supabase
+    .from('streaks')
+    .select('user_id, total_score, updated_at')
+    .in('user_id', userIds);
+  const map = new Map<string, MemberMeta>();
+  for (const row of (data ?? []) as { user_id: string; total_score: number; updated_at: string }[]) {
+    map.set(row.user_id, { score: row.total_score ?? 0, lastLogin: row.updated_at ?? null });
+  }
+  return map;
+}
+
+/** Fetch paginated results for a single student. */
+export async function getResultsForUser(
+  userId: string,
+  offset: number,
+  limit = 50,
+): Promise<{ results: ExerciseResult[]; hasMore: boolean }> {
+  const { data } = await supabase
+    .from('exercise_results')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .range(offset, offset + limit - 1);
+  const results = (data as ExerciseResult[]) ?? [];
+  return { results, hasMore: results.length === limit };
+}
 
 /**
- * Compute ranking client-side for the group owner (teacher).
- * Uses the existing RLS policy that lets the owner read all member results.
+ * Compute ranking for the group owner (teacher).
+ * Reads total_score directly from streaks — O(members) instead of O(all results).
  */
 export async function getGroupRankingDirect(groupId: string): Promise<RankingEntry[]> {
   const members = await getGroupMembers(groupId);
   if (members.length === 0) return [];
 
-  const userIds = members.map((m) => m.user_id);
-  const { data } = await supabase
-    .from('exercise_results')
-    .select('user_id, details')
-    .in('user_id', userIds)
-    .in('exercise_name', RU_EXERCISE_NAMES as unknown as string[]);
+  const metaMap = await getMemberMeta(members.map((m) => m.user_id));
 
-  if (!data) return [];
-
-  const statsMap = new Map<string, { correct: number; total: number; attempts: number }>();
-  for (const r of data as { user_id: string; details: Record<string, unknown> }[]) {
-    const correct = Number(r.details?.correct ?? 0);
-    const total = Number(r.details?.total ?? 0);
-    if (total === 0) continue;
-    const prev = statsMap.get(r.user_id) ?? { correct: 0, total: 0, attempts: 0 };
-    statsMap.set(r.user_id, {
-      correct: prev.correct + correct,
-      total: prev.total + total,
-      attempts: prev.attempts + 1,
-    });
-  }
-
-  const entries: RankingEntry[] = [];
-  for (const [userId, stats] of statsMap) {
-    const member = members.find((m) => m.user_id === userId);
-    entries.push({
-      user_id: userId,
-      display_name: member?.nickname?.trim() || member?.display_name || null,
-      mastery_score: stats.total > 0 ? (stats.correct * stats.correct) / stats.total : 0,
-      accuracy_pct: stats.total > 0 ? (stats.correct / stats.total) * 100 : 0,
-      total_attempts: stats.attempts,
-      total_correct: stats.correct,
-      total_questions: stats.total,
-    });
-  }
-  return entries.sort((a, b) => b.total_correct - a.total_correct);
+  return members
+    .map((m) => ({
+      user_id: m.user_id,
+      display_name: m.nickname?.trim() || m.display_name || null,
+      total_score: metaMap.get(m.user_id)?.score ?? 0,
+    }))
+    .sort((a, b) => b.total_score - a.total_score);
 }
 
 /** Group ranking via secure RPC — for group members (students). */

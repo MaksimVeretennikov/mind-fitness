@@ -13,6 +13,8 @@ import {
   saveToLS,
   loadFromDB,
   saveToDB,
+  loginBonus,
+  incrementTotalScore,
   type StreakData,
   type StreakState,
 } from '../lib/streak';
@@ -23,6 +25,7 @@ interface StreakContextValue {
   changed: StreakState['changed'];
   showWelcome: boolean;
   dismissWelcome: () => void;
+  bonusEarned: number;
 }
 
 const StreakContext = createContext<StreakContextValue | null>(null);
@@ -55,6 +58,7 @@ export function StreakProvider({ children }: { children: ReactNode }) {
         if (newState.changed !== 'same-day') {
           saveToDB(userId, newData);   // fire-and-forget
           saveToLS(newData);           // keep as local cache
+          incrementTotalScore(userId, loginBonus(newState.count)); // login bonus
         }
 
         if (mounted) setStreakState(newState);
@@ -99,6 +103,7 @@ export function StreakProvider({ children }: { children: ReactNode }) {
       changed:      streakState.changed,
       showWelcome:  streakState.showWelcome,
       dismissWelcome,
+      bonusEarned:  streakState.changed !== 'same-day' ? loginBonus(streakState.count) : 0,
     }}>
       {children}
     </StreakContext.Provider>

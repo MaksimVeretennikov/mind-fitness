@@ -26,8 +26,13 @@ function subtitle(changed: string): string {
   return 'Ты пришёл сегодня и продлил свою серию. Так держать!';
 }
 
+function bonusLabel(count: number, bonus: number): string {
+  if (count % 7 === 0) return `+${bonus} очков — бонус за ${count} дней подряд! 🎉`;
+  return `+${bonus} очков за сегодня`;
+}
+
 export default function DailyWelcome() {
-  const { count, showWelcome, dismissWelcome, changed } = useStreak();
+  const { count, showWelcome, dismissWelcome, changed, bonusEarned } = useStreak();
 
   useEffect(() => {
     if (!showWelcome) return;
@@ -73,6 +78,10 @@ export default function DailyWelcome() {
           <span className="welcome-streak-label">{dayWord(count)} подряд</span>
         </div>
         <p className="welcome-subtitle">{subtitle(changed)}</p>
+
+        {bonusEarned > 0 && (
+          <div className="welcome-bonus">{bonusLabel(count, bonusEarned)}</div>
+        )}
 
         <button className="welcome-button" onClick={dismissWelcome}>
           Начать тренировку

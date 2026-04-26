@@ -118,3 +118,13 @@ export async function saveToDB(userId: string, d: StreakData): Promise<void> {
     { onConflict: 'user_id' },
   );
 }
+
+/** Points awarded for a login on the given streak day (50 normally; +50 bonus every 7th day). */
+export function loginBonus(count: number): number {
+  return count % 7 === 0 ? 50 * (2 + count / 7) : 50;
+}
+
+/** Atomically add delta to total_score in streaks. Fire-and-forget. */
+export async function incrementTotalScore(userId: string, delta: number): Promise<void> {
+  await supabase.rpc('increment_total_score', { p_user_id: userId, p_delta: delta });
+}

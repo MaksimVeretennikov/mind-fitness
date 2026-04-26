@@ -176,7 +176,7 @@ export default function ChoiceQuiz({
           total,
           errors: currentMistakes.length,
           mistakes: currentMistakes,
-        });
+        }, correct * 10);
       }
       setFinalCorrect(correct);
       setFinalTotal(total);

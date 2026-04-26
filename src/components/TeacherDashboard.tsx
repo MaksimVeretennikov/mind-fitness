@@ -1,11 +1,13 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useGroup } from '../contexts/GroupContext';
 import {
   getGroupMembers,
-  getResultsForUsers,
+  getResultsForUser,
+  getMemberMeta,
   type GroupMember,
   type ExerciseResult,
+  type MemberMeta,
 } from '../lib/groupsDB';
 
 const EXERCISE_NAMES: Record<string, string> = {
@@ -38,6 +40,7 @@ const RU_EXERCISES = new Set([
   'adverbs', 'prefixes', 'spelling-nn', 'word-forms', 'stress', 'abbreviations',
 ]);
 
+const PAGE_SIZE = 50;
 const HISTORY_PAGE_SIZE = 15;
 
 interface ChoiceMistake { display: string; chosen: string; correct: string }
@@ -65,20 +68,27 @@ function studentInitial(m: GroupMember): string {
   return label[0]?.toUpperCase() ?? '?';
 }
 
+interface StudentCache {
+  results: ExerciseResult[];
+  hasMore: boolean;
+  loading: boolean;
+}
+
 export default function TeacherDashboard() {
   const { showTeacherDashboard, setShowTeacherDashboard, ownedGroup } = useGroup();
   const [members, setMembers] = useState<GroupMember[]>([]);
-  const [results, setResults] = useState<ExerciseResult[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [memberMeta, setMemberMeta] = useState<Map<string, MemberMeta>>(new Map());
+  const [loadingMembers, setLoadingMembers] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
 
-  // History state
+  // Per-student result cache: loaded lazily on click
+  const [cache, setCache] = useState<Map<string, StudentCache>>(new Map());
+
+  // History UI state
   const [expandedAttempts, setExpandedAttempts] = useState<Set<string>>(new Set());
   const [historyFilter, setHistoryFilter] = useState<string | null>(null);
   const [historyLimit, setHistoryLimit] = useState(HISTORY_PAGE_SIZE);
-
-  // Errors section: collapsible per exercise
   const [expandedExercises, setExpandedExercises] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -86,6 +96,50 @@ export default function TeacherDashboard() {
     setHistoryFilter(null);
     setHistoryLimit(HISTORY_PAGE_SIZE);
     setExpandedExercises(new Set());
+  }, [selectedId]);
+
+  // Load members + lightweight meta on dashboard open
+  useEffect(() => {
+    if (!showTeacherDashboard || !ownedGroup) return;
+    setLoadingMembers(true);
+    (async () => {
+      const ms = await getGroupMembers(ownedGroup.id);
+      setMembers(ms);
+      const meta = await getMemberMeta(ms.map((m) => m.user_id));
+      setMemberMeta(meta);
+      setLoadingMembers(false);
+    })();
+  }, [showTeacherDashboard, ownedGroup]);
+
+  // Lazy-load results when a student is selected
+  const loadStudentResults = useCallback(async (userId: string, append = false) => {
+    const existing = cache.get(userId);
+    if (!append && existing && !existing.loading) return; // already cached
+
+    const offset = append ? (existing?.results.length ?? 0) : 0;
+
+    setCache(prev => {
+      const next = new Map(prev);
+      const cur = next.get(userId) ?? { results: [], hasMore: false, loading: false };
+      next.set(userId, { ...cur, loading: true });
+      return next;
+    });
+
+    const { results: fetched, hasMore } = await getResultsForUser(userId, offset, PAGE_SIZE);
+
+    setCache(prev => {
+      const next = new Map(prev);
+      const cur = next.get(userId);
+      const base = append ? (cur?.results ?? []) : [];
+      next.set(userId, { results: [...base, ...fetched], hasMore, loading: false });
+      return next;
+    });
+  }, [cache]);
+
+  useEffect(() => {
+    if (!selectedId) return;
+    loadStudentResults(selectedId);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId]);
 
   function toggleAttempt(id: string) {
@@ -142,58 +196,7 @@ export default function TeacherDashboard() {
     );
   }
 
-  useEffect(() => {
-    if (!showTeacherDashboard || !ownedGroup) return;
-    setLoading(true);
-    (async () => {
-      const ms = await getGroupMembers(ownedGroup.id);
-      setMembers(ms);
-      const userIds = ms.map((m) => m.user_id);
-      const rs = await getResultsForUsers(userIds);
-      setResults(rs);
-      setLoading(false);
-    })();
-  }, [showTeacherDashboard, ownedGroup]);
-
-  const resultsByUser = useMemo(() => {
-    const map = new Map<string, ExerciseResult[]>();
-    for (const r of results) {
-      const arr = map.get(r.user_id) ?? [];
-      arr.push(r);
-      map.set(r.user_id, arr);
-    }
-    return map;
-  }, [results]);
-
   const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-
-  function ruErrorsLast7d(userId: string): number {
-    const arr = resultsByUser.get(userId) ?? [];
-    let count = 0;
-    for (const r of arr) {
-      if (!RU_EXERCISES.has(r.exercise_name)) continue;
-      if (new Date(r.created_at).getTime() < weekAgo) continue;
-      const ms = (r.details as { mistakes?: unknown })?.mistakes;
-      if (Array.isArray(ms)) count += ms.length;
-    }
-    return count;
-  }
-
-  function ruTotalScore(userId: string): number {
-    const arr = resultsByUser.get(userId) ?? [];
-    let sum = 0;
-    for (const r of arr) {
-      if (!RU_EXERCISES.has(r.exercise_name)) continue;
-      sum += (Number((r.details as { correct?: number })?.correct) || 0) * 10;
-    }
-    return sum;
-  }
-
-  function lastActivity(userId: string): string | null {
-    const arr = resultsByUser.get(userId) ?? [];
-    if (arr.length === 0) return null;
-    return arr[0].created_at;
-  }
 
   const filteredMembers = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -201,17 +204,31 @@ export default function TeacherDashboard() {
       ? members.filter((m) => studentLabel(m).toLowerCase().includes(q))
       : members;
     return [...list].sort((a, b) => {
-      const la = lastActivity(a.user_id);
-      const lb = lastActivity(b.user_id);
+      const la = memberMeta.get(a.user_id)?.lastLogin;
+      const lb = memberMeta.get(b.user_id)?.lastLogin;
       if (!la && !lb) return studentLabel(a).localeCompare(studentLabel(b));
       if (!la) return 1;
       if (!lb) return -1;
       return new Date(lb).getTime() - new Date(la).getTime();
     });
-  }, [members, search, resultsByUser]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [members, search, memberMeta]);
 
   const selectedMember = members.find((m) => m.user_id === selectedId) ?? null;
-  const selectedResults = selectedId ? resultsByUser.get(selectedId) ?? [] : [];
+  const studentCache = selectedId ? cache.get(selectedId) : undefined;
+  const selectedResults = studentCache?.results ?? [];
+  const selectedLoading = studentCache?.loading ?? false;
+  const selectedHasMoreDB = studentCache?.hasMore ?? false;
+
+  function ruErrorsLast7d(results: ExerciseResult[]): number {
+    let count = 0;
+    for (const r of results) {
+      if (!RU_EXERCISES.has(r.exercise_name)) continue;
+      if (new Date(r.created_at).getTime() < weekAgo) continue;
+      const ms = (r.details as { mistakes?: unknown })?.mistakes;
+      if (Array.isArray(ms)) count += ms.length;
+    }
+    return count;
+  }
 
   const aggregatedMistakes = useMemo(() => {
     const byExercise = new Map<
@@ -268,7 +285,6 @@ export default function TeacherDashboard() {
     }
   }
 
-  // History: filter by exercise + pagination
   const historyExercises = useMemo(() => {
     const seen = new Set<string>();
     for (const r of selectedResults) seen.add(r.exercise_name);
@@ -282,7 +298,7 @@ export default function TeacherDashboard() {
   }, [selectedResults, historyFilter]);
 
   const visibleHistory = filteredHistory.slice(0, historyLimit);
-  const hasMore = filteredHistory.length > historyLimit;
+  const hasMoreLocal = filteredHistory.length > historyLimit;
 
   if (!showTeacherDashboard || !ownedGroup) return null;
 
@@ -324,7 +340,7 @@ export default function TeacherDashboard() {
                 />
               </div>
               <div className="dashboard-students">
-                {loading ? (
+                {loadingMembers ? (
                   <div className="dashboard-empty">Загрузка…</div>
                 ) : filteredMembers.length === 0 ? (
                   <div className="dashboard-empty">
@@ -334,8 +350,7 @@ export default function TeacherDashboard() {
                   </div>
                 ) : (
                   filteredMembers.map((m) => {
-                    const errs = ruErrorsLast7d(m.user_id);
-                    const last = lastActivity(m.user_id);
+                    const meta = memberMeta.get(m.user_id);
                     return (
                       <button
                         key={m.user_id}
@@ -348,18 +363,11 @@ export default function TeacherDashboard() {
                         <div className="dashboard-student-body">
                           <div className="dashboard-student-name">{studentLabel(m)}</div>
                           <div className="dashboard-student-meta">
-                            {last ? relativeTime(last) : 'нет активности'}
+                            {meta?.lastLogin ? relativeTime(meta.lastLogin) : 'нет активности'}
                           </div>
                         </div>
                         <div className="dashboard-student-stats">
-                          <span className="dashboard-student-score">{ruTotalScore(m.user_id)}</span>
-                          <span
-                            className={`dashboard-student-errors ${
-                              errs === 0 ? 'dashboard-student-errors--none' : ''
-                            }`}
-                          >
-                            {errs === 0 ? '✓ 0' : `${errs} ош.`}
-                          </span>
+                          <span className="dashboard-student-score">{meta?.score ?? 0}</span>
                         </div>
                       </button>
                     );
@@ -373,6 +381,10 @@ export default function TeacherDashboard() {
                 <div className="dashboard-empty-detail">
                   <div className="dashboard-empty-detail-icon">👈</div>
                   <div>Выберите ученика слева</div>
+                </div>
+              ) : selectedLoading && selectedResults.length === 0 ? (
+                <div className="dashboard-empty-detail">
+                  <div>Загрузка данных…</div>
                 </div>
               ) : (
                 <>
@@ -395,18 +407,19 @@ export default function TeacherDashboard() {
 
                   <div className="dashboard-detail-stats">
                     <div className="dashboard-stat-card">
-                      <div className="dashboard-stat-value">{selectedResults.length}</div>
+                      <div className="dashboard-stat-value">{selectedResults.length}{selectedHasMoreDB ? '+' : ''}</div>
                       <div className="dashboard-stat-label">Всего попыток</div>
                     </div>
                     <div className="dashboard-stat-card">
                       <div className="dashboard-stat-value">
-                        {ruTotalScore(selectedMember.user_id)}
+                        {memberMeta.get(selectedMember.user_id)?.score ?? 0}
                       </div>
                       <div className="dashboard-stat-label">Очков (рус.)</div>
                     </div>
                     <div className="dashboard-stat-card">
                       <div className="dashboard-stat-value">
-                        {ruErrorsLast7d(selectedMember.user_id)}
+                        {ruErrorsLast7d(selectedResults)}
+                        {selectedHasMoreDB && <span title="Загружены не все попытки" style={{ fontSize: '0.6rem', color: '#9ca3af' }}> ~</span>}
                       </div>
                       <div className="dashboard-stat-label">Ошибок за 7 дней</div>
                     </div>
@@ -482,7 +495,7 @@ export default function TeacherDashboard() {
                     </div>
                   )}
 
-                  {/* История попыток с фильтром + пагинацией */}
+                  {/* История попыток */}
                   <div className="dashboard-section-title">История попыток</div>
                   {selectedResults.length === 0 ? (
                     <div className="dashboard-empty-detail" style={{ padding: '30px 20px' }}>
@@ -490,7 +503,6 @@ export default function TeacherDashboard() {
                     </div>
                   ) : (
                     <>
-                      {/* Фильтр по упражнению */}
                       <div className="history-filter dashboard-history-filter">
                         <button
                           className={`history-filter-pill ${historyFilter === null ? 'history-filter-pill--active' : ''}`}
@@ -555,13 +567,26 @@ export default function TeacherDashboard() {
                         })}
                       </div>
 
-                      {hasMore && (
+                      {/* Show more in local view */}
+                      {hasMoreLocal && (
                         <button
                           type="button"
                           className="dashboard-load-more"
                           onClick={() => setHistoryLimit((l) => l + HISTORY_PAGE_SIZE)}
                         >
-                          Загрузить ещё ({filteredHistory.length - historyLimit})
+                          Показать ещё ({filteredHistory.length - historyLimit})
+                        </button>
+                      )}
+
+                      {/* Load more from DB */}
+                      {!hasMoreLocal && selectedHasMoreDB && (
+                        <button
+                          type="button"
+                          className="dashboard-load-more"
+                          disabled={selectedLoading}
+                          onClick={() => loadStudentResults(selectedId!, true)}
+                        >
+                          {selectedLoading ? 'Загрузка…' : `Загрузить ещё из базы`}
                         </button>
                       )}
                     </>

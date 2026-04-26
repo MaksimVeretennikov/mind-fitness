@@ -11,7 +11,7 @@ function studentName(entry: RankingEntry): string {
 }
 
 function entryScore(entry: RankingEntry): number {
-  return Math.round(entry.total_correct) * 10;
+  return entry.total_score;
 }
 
 export default function GroupRanking() {

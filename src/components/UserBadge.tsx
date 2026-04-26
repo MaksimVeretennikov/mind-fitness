@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useGroup } from '../contexts/GroupContext';
+import { supabase } from '../lib/supabase';
 
 export default function UserBadge() {
   const { user, loading, setShowAuthModal, setShowHistoryPanel, signOut } = useAuth();
@@ -10,7 +11,20 @@ export default function UserBadge() {
   const [nickValue, setNickValue] = useState('');
   const [nickSaving, setNickSaving] = useState(false);
   const [nickError, setNickError] = useState<string | null>(null);
+  const [totalScore, setTotalScore] = useState<number | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!user) { setTotalScore(null); return; }
+    supabase
+      .from('streaks')
+      .select('total_score')
+      .eq('user_id', user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        setTotalScore((data as { total_score?: number } | null)?.total_score ?? 0);
+      });
+  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -77,6 +91,13 @@ export default function UserBadge() {
             <div className="user-badge-group">
               <span className="user-badge-group-icon">{isOwner ? '👩‍🏫' : '🎓'}</span>
               <span className="user-badge-group-name">{activeGroup.name}</span>
+            </div>
+          )}
+          {totalScore !== null && totalScore > 0 && (
+            <div className="user-badge-score">
+              <span className="user-badge-score-icon">⭐</span>
+              <span className="user-badge-score-value">{totalScore}</span>
+              <span className="user-badge-score-label">очков (рус.)</span>
             </div>
           )}
           <div className="user-badge-divider" />
