@@ -119,7 +119,7 @@ export default function Abbreviations({ onBack }: Props) {
           total,
           errors: total - newCorrect,
           mistakes: newMistakes,
-        }, newCorrect * 10);
+        }, newCorrect * 1);
       }
       setFinalCorrect(newCorrect);
       setFinalTotal(total);
