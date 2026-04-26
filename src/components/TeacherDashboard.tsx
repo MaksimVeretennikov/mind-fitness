@@ -26,6 +26,7 @@ const EXERCISE_NAMES: Record<string, string> = {
   abbreviations: 'Аббревиатуры',
   'geography-map': 'Где на карте?',
   'geography-capitals': 'Столицы мира',
+  pleonasms: 'Плеоназмы',
 };
 
 const EXERCISE_ICONS: Record<string, string> = {
@@ -34,10 +35,11 @@ const EXERCISE_ICONS: Record<string, string> = {
   munsterberg: '🔍', philwords: '📝', schulte: '👁️',
   sequence: '🧠', pairs: '🃏', balls: '🎯', reaction: '⚡',
   'geography-map': '🗺️', 'geography-capitals': '🏛️',
+  pleonasms: '🔡',
 };
 
 const RU_EXERCISES = new Set([
-  'adverbs', 'prefixes', 'spelling-nn', 'word-forms', 'stress', 'abbreviations',
+  'adverbs', 'prefixes', 'spelling-nn', 'word-forms', 'stress', 'abbreviations', 'pleonasms',
 ]);
 
 const PAGE_SIZE = 50;

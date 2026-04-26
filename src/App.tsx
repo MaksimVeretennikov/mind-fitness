@@ -19,6 +19,7 @@ import Stress from './exercises/Stress';
 import Abbreviations from './exercises/Abbreviations';
 import GeographyMap from './exercises/GeographyMap';
 import GeographyCapitals from './exercises/GeographyCapitals';
+import Pleonasms from './exercises/Pleonasms';
 import { AuthProvider } from './contexts/AuthContext';
 import { StreakProvider } from './contexts/StreakContext';
 import { GroupProvider } from './contexts/GroupContext';
@@ -52,6 +53,7 @@ function ExerciseComponent({ id, onBack }: { id: ExerciseId; onBack: () => void 
     case 'abbreviations': return <Abbreviations onBack={onBack} />;
     case 'geography-map': return <GeographyMap onBack={onBack} />;
     case 'geography-capitals': return <GeographyCapitals onBack={onBack} />;
+    case 'pleonasms': return <Pleonasms onBack={onBack} />;
   }
 }
 

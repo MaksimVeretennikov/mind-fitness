@@ -26,6 +26,7 @@ const EXERCISE_NAMES: Record<string, string> = {
   abbreviations: 'Аббревиатуры',
   'geography-map': 'Где на карте?',
   'geography-capitals': 'Столицы мира',
+  pleonasms: 'Плеоназмы',
 };
 
 const EXERCISE_ICONS: Record<string, string> = {
@@ -44,6 +45,7 @@ const EXERCISE_ICONS: Record<string, string> = {
   abbreviations: '🔤',
   'geography-map': '🗺️',
   'geography-capitals': '🏛️',
+  pleonasms: '🔡',
 };
 
 function fmtTime(s: number): string {
@@ -159,7 +161,8 @@ function getDisplay(result: ExerciseResult): ExerciseDisplay {
     case 'spelling-nn':
     case 'word-forms':
     case 'stress':
-    case 'abbreviations': {
+    case 'abbreviations':
+    case 'pleonasms': {
       const correct = n('correct'), total = n('total', 1);
       const pct = total > 0 ? correct / total : 0;
       return {
@@ -213,7 +216,7 @@ const QUALITY_CLASS: Record<Quality, string> = {
 
 const RU_EXERCISES = new Set([
   'adverbs', 'prefixes', 'spelling-nn', 'word-forms', 'stress', 'abbreviations',
-  'geography-map', 'geography-capitals',
+  'geography-map', 'geography-capitals', 'pleonasms',
 ]);
 
 interface ChoiceMistake { display: string; chosen: string; correct: string }
@@ -286,11 +289,13 @@ export default function HistoryPanel() {
       supabase
         .from('exercise_results')
         .select('*')
+        .eq('user_id', user.id)
         .gte('created_at', cutoff)
         .order('created_at', { ascending: false }),
       supabase
         .from('exercise_results')
         .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id)
         .lt('created_at', cutoff),
     ]).then(([recent, older]) => {
       setResults((recent.data as ExerciseResult[]) ?? []);
@@ -306,6 +311,7 @@ export default function HistoryPanel() {
     supabase
       .from('exercise_results')
       .select('*')
+      .eq('user_id', user.id)
       .lt('created_at', cutoff)
       .order('created_at', { ascending: false })
       .then(({ data }) => {

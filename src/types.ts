@@ -13,7 +13,8 @@ export type ExerciseId =
   | 'stress'
   | 'abbreviations'
   | 'geography-map'
-  | 'geography-capitals';
+  | 'geography-capitals'
+  | 'pleonasms';
 
 export interface Exercise {
   id: ExerciseId;

@@ -49,6 +49,14 @@ export const RUSSIAN_EXERCISES: Exercise[] = [
     color: 'text-indigo-700',
     gradient: 'from-indigo-500 to-blue-600',
   },
+  {
+    id: 'pleonasms',
+    title: 'Плеоназмы',
+    description: 'Нажмите на лишнее слово в словосочетании. Тренирует лексическую грамотность и готовит к ЕГЭ.',
+    icon: '🔡',
+    color: 'text-indigo-700',
+    gradient: 'from-indigo-500 to-blue-600',
+  },
 ];
 
 export const GEOGRAPHY_EXERCISES: Exercise[] = [
