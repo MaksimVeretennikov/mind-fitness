@@ -105,7 +105,7 @@ export default function TeacherDashboard() {
     (async () => {
       const ms = await getGroupMembers(ownedGroup.id);
       setMembers(ms);
-      const meta = await getMemberMeta(ms.map((m) => m.user_id));
+      const meta = await getMemberMeta(ownedGroup.id);
       setMemberMeta(meta);
       setLoadingMembers(false);
     })();
@@ -382,7 +382,7 @@ export default function TeacherDashboard() {
                   <div className="dashboard-empty-detail-icon">👈</div>
                   <div>Выберите ученика слева</div>
                 </div>
-              ) : selectedLoading && selectedResults.length === 0 ? (
+              ) : !studentCache || (selectedLoading && selectedResults.length === 0) ? (
                 <div className="dashboard-empty-detail">
                   <div>Загрузка данных…</div>
                 </div>

@@ -158,15 +158,13 @@ export interface MemberMeta {
   lastLogin: string | null;
 }
 
-export async function getMemberMeta(userIds: string[]): Promise<Map<string, MemberMeta>> {
-  if (userIds.length === 0) return new Map();
-  const { data } = await supabase
-    .from('streaks')
-    .select('user_id, total_score, updated_at')
-    .in('user_id', userIds);
+/** Fetch member scores + last-login for all members of a group.
+ *  Uses a SECURITY DEFINER RPC to bypass streaks RLS (owner-only table). */
+export async function getMemberMeta(groupId: string): Promise<Map<string, MemberMeta>> {
+  const { data } = await supabase.rpc('get_member_meta', { p_group_id: groupId });
   const map = new Map<string, MemberMeta>();
-  for (const row of (data ?? []) as { user_id: string; total_score: number; updated_at: string }[]) {
-    map.set(row.user_id, { score: row.total_score ?? 0, lastLogin: row.updated_at ?? null });
+  for (const row of (data ?? []) as { user_id: string; total_score: number; last_login: string | null }[]) {
+    map.set(row.user_id, { score: row.total_score ?? 0, lastLogin: row.last_login ?? null });
   }
   return map;
 }
@@ -188,22 +186,11 @@ export async function getResultsForUser(
 }
 
 /**
- * Compute ranking for the group owner (teacher).
- * Reads total_score directly from streaks — O(members) instead of O(all results).
+ * Ranking for the group owner — delegates to the same SECURITY DEFINER RPC
+ * used by students, which now reads total_score directly from streaks.
  */
 export async function getGroupRankingDirect(groupId: string): Promise<RankingEntry[]> {
-  const members = await getGroupMembers(groupId);
-  if (members.length === 0) return [];
-
-  const metaMap = await getMemberMeta(members.map((m) => m.user_id));
-
-  return members
-    .map((m) => ({
-      user_id: m.user_id,
-      display_name: m.nickname?.trim() || m.display_name || null,
-      total_score: metaMap.get(m.user_id)?.score ?? 0,
-    }))
-    .sort((a, b) => b.total_score - a.total_score);
+  return getGroupRanking(groupId);
 }
 
 /** Group ranking via secure RPC — for group members (students). */
