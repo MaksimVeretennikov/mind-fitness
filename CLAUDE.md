@@ -153,6 +153,63 @@ current **day of the week**.
 - `react-simple-maps@3` + `d3-geo` установлены с `--legacy-peer-deps` (peerDeps требуют
   React 18, но с React 19 всё работает).
 
+## Система очков (total_score)
+
+Единое поле `streaks.total_score` хранит накопленные очки по русскому языку.
+
+- **Начисление за упражнения:** `saveResult()` в [auth.ts](src/lib/auth.ts) принимает
+  необязательный `ruScore?: number`. Все 6 русских упражнений (adverbs, prefixes,
+  spelling-nn, word-forms, stress, abbreviations) передают `correct * 10`. Внутри
+  вызывается `incrementTotalScore()` → RPC `increment_total_score(user_id, delta)`.
+- **Бонус за заход:** при первом визите за день `StreakContext` вызывает
+  `incrementTotalScore(userId, loginBonus(count))`. Формула: обычный день = +50,
+  каждый 7-й день = +150/200/250/… (+50 за каждую следующую 7-дневку).
+  `loginBonus(count)` = `count % 7 === 0 ? 50 * (2 + count/7) : 50`.
+- **Отображение:** `UserBadge` загружает `streaks.total_score` для текущего
+  пользователя и показывает ⭐ N очков в дропдауне профиля.
+- **DailyWelcome** показывает плашку «+N очков» при каждом новом дне (включая
+  7-дневный миниюбилей с праздничным текстом).
+
+### RPC-функции (все SECURITY DEFINER, обходят RLS)
+- `increment_total_score(p_user_id, p_delta)` — атомарный UPSERT, вызывается клиентом
+- `get_member_meta(p_group_id)` — возвращает `user_id, total_score, last_login` по членам
+  группы для учителя (обходит RLS таблицы streaks)
+- `get_group_ranking(p_group_id)` — возвращает `user_id, display_name, total_score`
+  для рейтинга; доступен членам группы и владельцу
+
+### Бэкфилл и миграции
+- [20260426_total_score.sql](supabase/migrations/20260426_total_score.sql): добавляет
+  колонку `total_score`, бэкфилл из `exercise_results`, создаёт `increment_total_score`
+  и новую версию `get_group_ranking`.
+- [20260426_member_meta_rpc.sql](supabase/migrations/20260426_member_meta_rpc.sql):
+  создаёт `get_member_meta`.
+- Если пользователь сделал упражнения до миграции и у него нет строки в `streaks`:
+  ```sql
+  INSERT INTO streaks (user_id, count, best, last_visit, updated_at, total_score)
+  SELECT er.user_id, 1, 1, CURRENT_DATE, NOW(),
+         SUM(COALESCE((er.details->>'correct')::int, 0) * 10)
+  FROM exercise_results er
+  WHERE er.exercise_name IN ('adverbs','prefixes','spelling-nn','word-forms','stress','abbreviations')
+    AND er.user_id NOT IN (SELECT user_id FROM streaks)
+  GROUP BY er.user_id HAVING SUM(...) > 0
+  ON CONFLICT (user_id) DO NOTHING;
+  ```
+- Перезагрузка схемы PostgREST после изменения RPC: `NOTIFY pgrst, 'reload schema';`
+
+## Дашборд учителя (ленивая загрузка)
+
+[TeacherDashboard.tsx](src/components/TeacherDashboard.tsx) загружает данные поэтапно:
+1. **При открытии:** `getGroupMembers` + `getMemberMeta` (два лёгких запроса).
+   Сайдбар показывает имя, время последнего логина (из `streaks.updated_at`), очки.
+2. **При клике на ученика:** `getResultsForUser(userId, offset, 50)` — 50 попыток за раз.
+   Результаты кэшируются в Map на время сессии. Кнопка «Загрузить ещё из базы».
+
+В [groupsDB.ts](src/lib/groupsDB.ts):
+- `getMemberMeta(groupId)` → RPC `get_member_meta`
+- `getResultsForUser(userId, offset, limit)` → прямой запрос к `exercise_results`
+- `getGroupRankingDirect(groupId)` → строит рейтинг из `getMemberMeta` (не через RPC
+  рейтинга, чтобы обойти возможные проблемы с кэшем схемы PostgREST)
+
 ## Правило обновления
 После каждой значимой доработки (новая фича, рефакторинг, изменение архитектуры) —
 обнови этот файл. Отражай актуальное состояние проекта, не историю изменений.
