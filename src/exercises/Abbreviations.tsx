@@ -63,6 +63,7 @@ export default function Abbreviations({ onBack }: Props) {
   const [finalCorrect, setFinalCorrect] = useState(0);
   const [finalTotal, setFinalTotal] = useState(0);
   const savedRef = useRef(false);
+  const flipTimestampRef = useRef(0);
   const controls = useAnimation();
 
   const resultLabel = useMemo(
@@ -86,11 +87,13 @@ export default function Abbreviations({ onBack }: Props) {
 
   function handleFlip() {
     if (locked || isFlipped) return;
+    flipTimestampRef.current = Date.now();
     setIsFlipped(true);
   }
 
   async function handleAnswer(isCorrect: boolean) {
-    if (locked || !isFlipped) return;
+    // Ignore taps within 600ms of the flip to prevent ghost-taps on iOS Safari
+    if (locked || !isFlipped || Date.now() - flipTimestampRef.current < 600) return;
     setLocked(true);
 
     const newCorrect = isCorrect ? correct + 1 : correct;

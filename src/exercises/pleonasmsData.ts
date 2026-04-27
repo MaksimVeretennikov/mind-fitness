@@ -1,6 +1,7 @@
 export interface PleonasmItem {
   words: string[];
-  redundant: string;
+  /** One or more redundant words — all are considered correct answers */
+  redundant: string | string[];
 }
 
 export const PLEONASM_ITEMS: PleonasmItem[] = [
@@ -45,8 +46,8 @@ export const PLEONASM_ITEMS: PleonasmItem[] = [
   { words: ['народного', 'фольклора'], redundant: 'народного' },
   { words: ['приоритет', 'первенства'], redundant: 'первенства' },
   { words: ['предварительных', 'анонсах'], redundant: 'предварительных' },
-  { words: ['столичная', 'московская', 'актриса'], redundant: 'московская' },
-  { words: ['пернатые', 'птицы'], redundant: 'пернатые' },
+  { words: ['столичная', 'московская', 'актриса'], redundant: ['столичная', 'московская'] },
+  { words: ['пернатые', 'птицы'], redundant: ['пернатые', 'птицы'] },
   { words: ['неприкосновенным', 'иммунитетом'], redundant: 'неприкосновенным' },
   { words: ['смешивать', 'вместе'], redundant: 'вместе' },
   { words: ['вечернего', 'заката'], redundant: 'вечернего' },
@@ -70,3 +71,26 @@ export const PLEONASM_ITEMS: PleonasmItem[] = [
   { words: ['совместное', 'соглашение'], redundant: 'совместное' },
   { words: ['ответная', 'контратака'], redundant: 'ответная' },
 ];
+
+export function isRedundant(item: PleonasmItem, word: string): boolean {
+  return Array.isArray(item.redundant)
+    ? item.redundant.includes(word)
+    : item.redundant === word;
+}
+
+export function correctLabel(item: PleonasmItem): string {
+  return Array.isArray(item.redundant)
+    ? item.redundant.join(' / ')
+    : item.redundant;
+}
+
+/** For each phrase (words.join(' ')), the set of valid redundant words */
+export const PLEONASM_VALID_MAP: Map<string, Set<string>> = (() => {
+  const m = new Map<string, Set<string>>();
+  for (const item of PLEONASM_ITEMS) {
+    const key = item.words.join(' ');
+    const valid = Array.isArray(item.redundant) ? item.redundant : [item.redundant];
+    m.set(key, new Set(valid));
+  }
+  return m;
+})();

@@ -2,7 +2,7 @@ import { useState, useRef, useMemo } from 'react';
 import { saveResult } from '../lib/auth';
 import { pickResultLabel, toneToColor } from '../lib/resultLabels';
 import MistakesHistory from '../components/MistakesHistory';
-import { PLEONASM_ITEMS, type PleonasmItem } from './pleonasmsData';
+import { PLEONASM_ITEMS, isRedundant, correctLabel, type PleonasmItem } from './pleonasmsData';
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -56,14 +56,14 @@ export default function Pleonasms({ onBack }: Props) {
   function handleWordClick(word: string) {
     if (clickedWord !== null) return;
     const current = items[index];
-    const isCorrect = word === current.redundant;
+    const isCorrect = isRedundant(current, word);
 
     setClickedWord(word);
 
     const newCorrect = isCorrect ? correctCount + 1 : correctCount;
     const newMistakes = isCorrect
       ? mistakes
-      : [...mistakes, { display: current.words.join(' '), chosen: word, correct: current.redundant }];
+      : [...mistakes, { display: current.words.join(' '), chosen: word, correct: correctLabel(current) }];
 
     if (!isCorrect) setMistakes(newMistakes);
 
@@ -220,8 +220,8 @@ export default function Pleonasms({ onBack }: Props) {
           {current.words.map((word, wi) => {
             let cls = 'transition-all duration-200 ';
             if (clickedWord === null) {
-              cls += 'text-gray-800 cursor-pointer hover:text-indigo-600 underline decoration-dotted decoration-gray-400 hover:decoration-indigo-400';
-            } else if (word === current.redundant) {
+              cls += 'text-gray-800 cursor-pointer underline decoration-dotted decoration-gray-400 [@media(hover:hover)]:hover:text-indigo-600 [@media(hover:hover)]:hover:decoration-indigo-400';
+            } else if (isRedundant(current, word)) {
               cls += 'text-emerald-600 font-bold no-underline cursor-default';
             } else if (word === clickedWord) {
               cls += 'text-red-500 line-through no-underline cursor-default';
