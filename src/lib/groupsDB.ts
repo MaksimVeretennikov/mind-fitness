@@ -152,19 +152,24 @@ export interface RankingEntry {
   total_score: number;
 }
 
-/** Per-member scores and last login time (from streaks table — one lightweight query). */
+/** Per-member scores, last login, and display name — all from one SECURITY DEFINER RPC. */
 export interface MemberMeta {
   score: number;
   lastLogin: string | null;
+  displayName: string | null;
 }
 
-/** Fetch member scores + last-login for all members of a group.
- *  Uses a SECURITY DEFINER RPC to bypass streaks RLS (owner-only table). */
+/** Fetch member scores + last-login + display_name for all members of a group.
+ *  SECURITY DEFINER RPC bypasses RLS — works for both owner and students. */
 export async function getMemberMeta(groupId: string): Promise<Map<string, MemberMeta>> {
   const { data } = await supabase.rpc('get_member_meta', { p_group_id: groupId });
   const map = new Map<string, MemberMeta>();
-  for (const row of (data ?? []) as { user_id: string; total_score: number; last_login: string | null }[]) {
-    map.set(row.user_id, { score: row.total_score ?? 0, lastLogin: row.last_login ?? null });
+  for (const row of (data ?? []) as { user_id: string; total_score: number; last_login: string | null; display_name: string | null }[]) {
+    map.set(row.user_id, {
+      score: row.total_score ?? 0,
+      lastLogin: row.last_login ?? null,
+      displayName: row.display_name ?? null,
+    });
   }
   return map;
 }
@@ -186,21 +191,17 @@ export async function getResultsForUser(
 }
 
 /**
- * Ranking for the group owner (teacher).
- * Uses get_member_meta RPC (already proven working) instead of get_group_ranking
- * to avoid PostgREST schema-cache issues after the RPC return-type change.
+ * Ranking built entirely from get_member_meta RPC (SECURITY DEFINER).
+ * Works for both owner and students — avoids the group_members RLS limitation
+ * that would restrict students to seeing only their own row.
  */
 export async function getGroupRankingDirect(groupId: string): Promise<RankingEntry[]> {
-  const members = await getGroupMembers(groupId);
-  if (members.length === 0) return [];
-
   const metaMap = await getMemberMeta(groupId);
-
-  return members
-    .map((m) => ({
-      user_id: m.user_id,
-      display_name: m.nickname?.trim() || m.display_name || null,
-      total_score: metaMap.get(m.user_id)?.score ?? 0,
+  return Array.from(metaMap.entries())
+    .map(([userId, m]) => ({
+      user_id: userId,
+      display_name: m.displayName ?? null,
+      total_score: m.score,
     }))
     .filter((e) => e.total_score > 0)
     .sort((a, b) => b.total_score - a.total_score);
