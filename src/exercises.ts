@@ -81,6 +81,14 @@ export const RUSSIAN_EXERCISES: Exercise[] = [
     color: 'text-indigo-700',
     gradient: 'from-indigo-500 to-blue-600',
   },
+  {
+    id: 'intro-words',
+    title: 'Вводные слова',
+    description: 'Распределите слова по категориям: вводное или не вводное? Тренирует пунктуационную грамотность.',
+    icon: '💬',
+    color: 'text-indigo-700',
+    gradient: 'from-indigo-500 to-blue-600',
+  },
 ];
 
 export const GEOGRAPHY_EXERCISES: Exercise[] = [

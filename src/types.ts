@@ -17,7 +17,8 @@ export type ExerciseId =
   | 'pleonasms'
   | 'verb-suffixes'
   | 'root-spelling'
-  | 'suffix-spelling';
+  | 'suffix-spelling'
+  | 'intro-words';
 
 export interface Exercise {
   id: ExerciseId;
