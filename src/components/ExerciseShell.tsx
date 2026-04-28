@@ -28,14 +28,14 @@ export default function ExerciseShell({ id, onBack, children }: Props) {
             <span className="text-base">←</span>
             <span>Назад</span>
           </button>
-          <div className="flex items-center gap-3">
+          <div className="hidden sm:flex items-center gap-3 min-w-0">
             <div
-              className={`w-9 h-9 rounded-xl bg-gradient-to-br ${ex.gradient} flex items-center justify-center shadow-sm`}
+              className={`w-9 h-9 rounded-xl bg-gradient-to-br ${ex.gradient} flex items-center justify-center shadow-sm flex-shrink-0`}
             >
               <span className="text-lg">{ex.icon}</span>
             </div>
-            <div>
-              <h1 className="text-gray-800 font-semibold text-base leading-none">
+            <div className="min-w-0">
+              <h1 className="text-gray-800 font-semibold text-base leading-none truncate">
                 {ex.title}
               </h1>
             </div>
