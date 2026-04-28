@@ -286,5 +286,4 @@ export const STRESS_ITEMS: StressItem[] = [
   { plain: 'красиво', correct: 'красИво', wrong: 'крАсиво' },
   { plain: 'надолго', correct: 'надОлго', wrong: 'нАдолго' },
   { plain: 'ненадолго', correct: 'ненадОлго', wrong: 'нЕнадолго' },
-  { plain: 'свекла', correct: 'свеклА', wrong: 'свЕкла' },
 ];
