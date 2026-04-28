@@ -20,6 +20,9 @@ import Abbreviations from './exercises/Abbreviations';
 import GeographyMap from './exercises/GeographyMap';
 import GeographyCapitals from './exercises/GeographyCapitals';
 import Pleonasms from './exercises/Pleonasms';
+import VerbSuffixes from './exercises/VerbSuffixes';
+import RootSpelling from './exercises/RootSpelling';
+import SuffixSpelling from './exercises/SuffixSpelling';
 import { AuthProvider } from './contexts/AuthContext';
 import { StreakProvider } from './contexts/StreakContext';
 import { GroupProvider } from './contexts/GroupContext';
@@ -54,6 +57,9 @@ function ExerciseComponent({ id, onBack }: { id: ExerciseId; onBack: () => void 
     case 'geography-map': return <GeographyMap onBack={onBack} />;
     case 'geography-capitals': return <GeographyCapitals onBack={onBack} />;
     case 'pleonasms': return <Pleonasms onBack={onBack} />;
+    case 'verb-suffixes': return <VerbSuffixes onBack={onBack} />;
+    case 'root-spelling': return <RootSpelling onBack={onBack} />;
+    case 'suffix-spelling': return <SuffixSpelling onBack={onBack} />;
   }
 }
 

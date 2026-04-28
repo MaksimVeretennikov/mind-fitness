@@ -158,8 +158,9 @@ current **day of the week**.
 Единое поле `streaks.total_score` хранит накопленные очки по русскому языку.
 
 - **Начисление за упражнения:** `saveResult()` в [auth.ts](src/lib/auth.ts) принимает
-  необязательный `ruScore?: number`. Все 6 русских упражнений (adverbs, prefixes,
-  spelling-nn, word-forms, stress, abbreviations) передают `correct * 10`. Внутри
+  необязательный `ruScore?: number`. Все 9 русских упражнений (adverbs, prefixes,
+  spelling-nn, word-forms, stress, abbreviations, verb-suffixes, root-spelling,
+  suffix-spelling) передают `correct * 10`. Внутри
   вызывается `incrementTotalScore()` → RPC `increment_total_score(user_id, delta)`.
 - **Бонус за заход:** при первом визите за день `StreakContext` вызывает
   `incrementTotalScore(userId, loginBonus(count))`. Формула: обычный день = +50,
@@ -209,6 +210,24 @@ current **day of the week**.
 - `getResultsForUser(userId, offset, limit)` → прямой запрос к `exercise_results`
 - `getGroupRankingDirect(groupId)` → строит рейтинг из `getMemberMeta` (не через RPC
   рейтинга, чтобы обойти возможные проблемы с кэшем схемы PostgREST)
+
+## Текстовые упражнения по вводу (TextInputExercise)
+
+Три новых упражнения используют общий компонент [TextInputExercise.tsx](src/exercises/TextInputExercise.tsx)
+вместо `ChoiceQuiz`. Пользователь видит слово/словосочетание с пропуском (`_`) и вводит
+правильную форму целиком в текстовое поле.
+
+- **Суффиксы глаголов и причастий** (`verb-suffixes`) — 64 слова, [VerbSuffixes.tsx](src/exercises/VerbSuffixes.tsx)
+- **Правописание корней** (`root-spelling`) — 52 слова, [RootSpelling.tsx](src/exercises/RootSpelling.tsx)
+- **Правописание суффиксов** (`suffix-spelling`) — 62 слова, [SuffixSpelling.tsx](src/exercises/SuffixSpelling.tsx)
+
+Интерфейс `TextItem`: `{ display: string; answer: string }` — `display` показывает
+словосочетание с пропуском, `answer` — только то слово, которое нужно ввести.
+
+Сравнение регистронезависимое (`toLowerCase()`). При правильном ответе — зелёная карточка
++ анимация вправо. При ошибке — красная карточка + дрожание + показ правильного ответа +
+анимация вниз. Хранение ошибок, история (`MistakesHistory`) и «Работа над ошибками»
+(`ErrorDrill`) — по той же схеме, что и в `Adverbs`.
 
 ## Правило обновления
 После каждой значимой доработки (новая фича, рефакторинг, изменение архитектуры) —

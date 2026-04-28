@@ -14,7 +14,10 @@ export type ExerciseId =
   | 'abbreviations'
   | 'geography-map'
   | 'geography-capitals'
-  | 'pleonasms';
+  | 'pleonasms'
+  | 'verb-suffixes'
+  | 'root-spelling'
+  | 'suffix-spelling';
 
 export interface Exercise {
   id: ExerciseId;

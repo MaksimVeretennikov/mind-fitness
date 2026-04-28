@@ -57,6 +57,30 @@ export const RUSSIAN_EXERCISES: Exercise[] = [
     color: 'text-indigo-700',
     gradient: 'from-indigo-500 to-blue-600',
   },
+  {
+    id: 'verb-suffixes',
+    title: 'Суффиксы глаголов и причастий',
+    description: 'Впишите слово с пропуском целиком. Тренирует правописание суффиксов глаголов и причастий.',
+    icon: '🖊️',
+    color: 'text-indigo-700',
+    gradient: 'from-indigo-500 to-blue-600',
+  },
+  {
+    id: 'root-spelling',
+    title: 'Правописание корней',
+    description: 'Впишите слово с пропуском целиком. Тренирует правописание словарных слов и корней.',
+    icon: '🔠',
+    color: 'text-indigo-700',
+    gradient: 'from-indigo-500 to-blue-600',
+  },
+  {
+    id: 'suffix-spelling',
+    title: 'Правописание суффиксов',
+    description: 'Впишите слово с пропуском целиком. Тренирует правописание суффиксов существительных, прилагательных и глаголов.',
+    icon: '📖',
+    color: 'text-indigo-700',
+    gradient: 'from-indigo-500 to-blue-600',
+  },
 ];
 
 export const GEOGRAPHY_EXERCISES: Exercise[] = [
