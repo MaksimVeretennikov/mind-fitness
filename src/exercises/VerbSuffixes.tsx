@@ -126,6 +126,7 @@ export default function VerbSuffixes({ onBack }: Props) {
   const [mistakes, setMistakes] = useState<Mistake[]>([]);
   const [clicked, setClicked] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  const [revealCorrect, setRevealCorrect] = useState(false);
   const [locked, setLocked] = useState(false);
   const [finalCorrect, setFinalCorrect] = useState(0);
   const [finalTotal, setFinalTotal] = useState(0);
@@ -154,6 +155,7 @@ export default function VerbSuffixes({ onBack }: Props) {
     setMistakes([]);
     setClicked(null);
     setIsCorrect(null);
+    setRevealCorrect(false);
     setLocked(false);
     savedRef.current = false;
     setPhase('playing');
@@ -184,7 +186,11 @@ export default function VerbSuffixes({ onBack }: Props) {
         },
       ];
       setMistakes(newMistakes);
-      await new Promise<void>(r => setTimeout(r, 900));
+      // Red flash
+      await new Promise<void>(r => setTimeout(r, 600));
+      // Show correct answer
+      setRevealCorrect(true);
+      await new Promise<void>(r => setTimeout(r, 1300));
       await controls.start({
         y: 70, opacity: 0,
         transition: { duration: 0.32, ease: 'easeIn' },
@@ -217,6 +223,7 @@ export default function VerbSuffixes({ onBack }: Props) {
     setIndex(nextIndex);
     setClicked(null);
     setIsCorrect(null);
+    setRevealCorrect(false);
     setLocked(false);
     controls.set({ x: 0, y: 0, opacity: 1, scale: 1 });
     setRenderKey(k => k + 1);
@@ -346,7 +353,7 @@ export default function VerbSuffixes({ onBack }: Props) {
 
   // Determine card background based on state
   const cardBg =
-    isCorrect === true ? 'rgba(134,239,172,0.55)'
+    revealCorrect || isCorrect === true ? 'rgba(134,239,172,0.55)'
     : isCorrect === false ? 'rgba(252,165,165,0.15)'
     : 'rgba(255,255,255,0.85)';
 
@@ -385,7 +392,7 @@ export default function VerbSuffixes({ onBack }: Props) {
               </span>
             ))}
           </p>
-          {isCorrect === true && (
+          {(isCorrect === true || revealCorrect) && (
             <p className="mt-3 text-emerald-600 font-semibold text-lg animate-fade-in">
               {currentWord.answer}
             </p>
@@ -400,8 +407,10 @@ export default function VerbSuffixes({ onBack }: Props) {
           {TABLE.map(([left, right]) => (
             [left, right].map(letter => {
               const isClicked = clicked === letter;
-              const btnCorrect = isClicked && isCorrect === true;
-              const btnWrong = isClicked && isCorrect === false;
+              const isThisCorrect = letter === correctLetter;
+              // After reveal: correct button goes green, wrong clicked stays red
+              const btnCorrect = revealCorrect ? isThisCorrect : (isClicked && isCorrect === true);
+              const btnWrong = revealCorrect ? (isClicked && !isThisCorrect) : (isClicked && isCorrect === false);
 
               let btnClass = 'py-4 rounded-2xl text-2xl font-bold transition-all duration-200 active:scale-95 ';
               if (btnCorrect) {
