@@ -363,10 +363,10 @@ export default function IntroWords({ onBack }: Props) {
         className={`w-full py-4 rounded-2xl text-lg font-semibold transition-all duration-200 active:scale-95 ${
           allPlaced
             ? 'text-white bg-gradient-to-r from-violet-500 to-indigo-600 shadow-md hover:opacity-90'
-            : 'text-gray-400 bg-white/40 border border-white/40 cursor-not-allowed'
+            : 'text-gray-600 bg-white/70 border-2 border-gray-300 cursor-not-allowed'
         }`}
       >
-        {allPlaced ? 'Проверить результат →' : `Осталось: ${cards.length - placed}`}
+        {allPlaced ? 'Проверить результат →' : `Осталось распределить: ${cards.length - placed}`}
       </button>
     </div>
   );
@@ -389,14 +389,16 @@ const DropZone = forwardRef<HTMLDivElement, DropZoneProps>(
   ({ label, hint, variant, isActive, isEmpty, mobileHint, desktopHint, children }, ref) => {
     const isIntro = variant === 'intro';
 
-    const baseBg = isIntro ? 'bg-violet-50/70 border-violet-300' : 'bg-white/60 border-gray-300';
+    const baseBg = isIntro
+      ? 'bg-violet-100/70 border-violet-400'
+      : 'bg-orange-50/80 border-orange-300';
     const activeBg = isIntro
-      ? 'bg-violet-100/90 border-violet-500 shadow-violet-200'
-      : 'bg-white/90 border-gray-500 shadow-gray-200';
-    const labelColor = isIntro ? 'text-violet-700' : 'text-gray-600';
-    const hintColor = isIntro ? 'text-violet-400' : 'text-gray-400';
-    const emptyColor = isIntro ? 'text-violet-300' : 'text-gray-400';
-    const icon = isIntro ? '✦' : '○';
+      ? 'bg-violet-200/90 border-violet-600 shadow-violet-200'
+      : 'bg-orange-100/90 border-orange-500 shadow-orange-200';
+    const labelColor = isIntro ? 'text-violet-800' : 'text-gray-900';
+    const hintColor = isIntro ? 'text-violet-600' : 'text-orange-600';
+    const emptyColor = isIntro ? 'text-violet-500' : 'text-orange-500';
+    const icon = isIntro ? '✦' : '◇';
 
     return (
       <motion.div
@@ -408,24 +410,22 @@ const DropZone = forwardRef<HTMLDivElement, DropZoneProps>(
         }`}
       >
         {/* Zone header */}
-        <div className="mb-2">
-          <div className="flex items-center gap-1.5">
-            <span className={`text-xs font-black tracking-widest uppercase ${labelColor}`}>
-              {icon} {label}
-            </span>
-          </div>
-          <div className={`text-[10px] ${hintColor}`}>{hint}</div>
+        <div className="mb-2 md:mb-3">
+          <span className={`text-xs md:text-sm font-black tracking-widest uppercase ${labelColor}`}>
+            {icon} {label}
+          </span>
+          <div className={`text-[10px] md:text-xs font-medium mt-0.5 ${hintColor}`}>{hint}</div>
         </div>
 
         {/* Placed words / empty hint */}
         <div className="flex-1 flex flex-col justify-center">
           {isEmpty ? (
-            <p className={`text-xs text-center py-2 ${emptyColor}`}>
+            <p className={`text-xs md:text-sm font-medium text-center py-2 ${emptyColor}`}>
               <span className="md:hidden">{mobileHint}</span>
               <span className="hidden md:inline">{desktopHint}</span>
             </p>
           ) : (
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-1.5 md:gap-2">
               {children}
             </div>
           )}
@@ -448,16 +448,16 @@ function PlacedChip({
 }) {
   const cls =
     variant === 'intro'
-      ? 'bg-violet-200/80 text-violet-800 hover:bg-violet-300/80'
-      : 'bg-gray-200/80 text-gray-700 hover:bg-gray-300/80';
+      ? 'bg-violet-200/90 text-violet-900 hover:bg-violet-300/90 border border-violet-300'
+      : 'bg-orange-100/90 text-orange-900 hover:bg-orange-200/90 border border-orange-300';
   return (
     <button
       onClick={onClick}
-      title="Вернуть"
-      className={`${cls} rounded-lg px-2.5 py-1 text-xs font-semibold transition-all active:scale-95 flex flex-col items-center leading-snug`}
+      title="Вернуть в пул"
+      className={`${cls} rounded-lg px-2.5 md:px-3 py-1 md:py-1.5 text-xs md:text-sm font-semibold transition-all active:scale-95 flex flex-col items-center leading-snug`}
     >
       <span>{item.word}</span>
-      {item.note && <span className="text-[9px] italic opacity-70">{item.note}</span>}
+      {item.note && <span className="text-[9px] md:text-[11px] italic opacity-70">{item.note}</span>}
     </button>
   );
 }
