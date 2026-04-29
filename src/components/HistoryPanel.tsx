@@ -30,6 +30,7 @@ const EXERCISE_NAMES: Record<string, string> = {
   'root-spelling': 'Правописание корней',
   'suffix-spelling': 'Правописание суффиксов',
   'verb-suffixes': 'Суффиксы глаголов',
+  'intro-words': 'Вводные слова',
 };
 
 const EXERCISE_ICONS: Record<string, string> = {
@@ -52,6 +53,7 @@ const EXERCISE_ICONS: Record<string, string> = {
   'root-spelling': '🔠',
   'suffix-spelling': '📖',
   'verb-suffixes': '🖊️',
+  'intro-words': '💬',
 };
 
 function fmtTime(s: number): string {
@@ -171,7 +173,8 @@ function getDisplay(result: ExerciseResult): ExerciseDisplay {
     case 'pleonasms':
     case 'root-spelling':
     case 'suffix-spelling':
-    case 'verb-suffixes': {
+    case 'verb-suffixes':
+    case 'intro-words': {
       const correct = n('correct'), total = n('total', 1);
       const pct = total > 0 ? correct / total : 0;
       return {
@@ -226,7 +229,7 @@ const QUALITY_CLASS: Record<Quality, string> = {
 const RU_EXERCISES = new Set([
   'adverbs', 'prefixes', 'spelling-nn', 'word-forms', 'stress', 'abbreviations',
   'geography-map', 'geography-capitals', 'pleonasms',
-  'root-spelling', 'suffix-spelling', 'verb-suffixes',
+  'root-spelling', 'suffix-spelling', 'verb-suffixes', 'intro-words',
 ]);
 
 interface ChoiceMistake { display: string; chosen: string; correct: string }
