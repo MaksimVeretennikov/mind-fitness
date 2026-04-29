@@ -120,7 +120,6 @@ export default function VerbSuffixes({ onBack }: Props) {
   const [mistakes, setMistakes] = useState<Mistake[]>([]);
   const [clicked, setClicked] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
-  const [hadWrong, setHadWrong] = useState(false);
   const [locked, setLocked] = useState(false);
   const [finalCorrect, setFinalCorrect] = useState(0);
   const [finalTotal, setFinalTotal] = useState(0);
@@ -149,7 +148,6 @@ export default function VerbSuffixes({ onBack }: Props) {
     setMistakes([]);
     setClicked(null);
     setIsCorrect(null);
-    setHadWrong(false);
     setLocked(false);
     savedRef.current = false;
     setPhase('playing');
@@ -158,35 +156,30 @@ export default function VerbSuffixes({ onBack }: Props) {
 
   async function handleClick(letter: string) {
     if (locked) return;
+    setLocked(true);
+    setClicked(letter);
     const correct = letter === correctLetter;
+    setIsCorrect(correct);
 
     if (correct) {
-      setClicked(letter);
-      setIsCorrect(true);
-      setLocked(true);
-
-      if (hadWrong) {
-        const newMistakes: Mistake[] = [
-          ...mistakes,
-          { display: currentWord.display, chosen: '?', correct: correctLetter },
-        ];
-        setMistakes(newMistakes);
-        await new Promise<void>(r => setTimeout(r, 600));
-        advanceTo(index + 1, newMistakes);
-      } else {
-        await controls.start({
-          x: 380, opacity: 0, scale: 0.88,
-          transition: { duration: 0.38, ease: 'easeIn' },
-        });
-        advanceTo(index + 1, mistakes);
-      }
+      await controls.start({
+        x: 380, opacity: 0, scale: 0.88,
+        transition: { duration: 0.38, ease: 'easeIn' },
+      });
+      advanceTo(index + 1, mistakes);
     } else {
-      setClicked(letter);
-      setIsCorrect(false);
-      setHadWrong(true);
-      await new Promise<void>(r => setTimeout(r, 700));
-      setClicked(null);
-      setIsCorrect(null);
+      // Red flash — record mistake and auto-advance
+      const newMistakes: Mistake[] = [
+        ...mistakes,
+        { display: currentWord.display, chosen: letter, correct: correctLetter },
+      ];
+      setMistakes(newMistakes);
+      await new Promise<void>(r => setTimeout(r, 900));
+      await controls.start({
+        y: 70, opacity: 0,
+        transition: { duration: 0.32, ease: 'easeIn' },
+      });
+      advanceTo(index + 1, newMistakes);
     }
   }
 
@@ -214,7 +207,6 @@ export default function VerbSuffixes({ onBack }: Props) {
     setIndex(nextIndex);
     setClicked(null);
     setIsCorrect(null);
-    setHadWrong(false);
     setLocked(false);
     controls.set({ x: 0, y: 0, opacity: 1, scale: 1 });
     setRenderKey(k => k + 1);
