@@ -387,16 +387,19 @@ export default function VerbSuffixes({ onBack }: Props) {
               <span key={i}>
                 {part}
                 {i < arr.length - 1 && (
-                  <span style={{ borderBottom: '2.5px solid #4f46e5', display: 'inline-block', width: '1.1em', color: 'transparent' }}>_</span>
+                  <span style={{
+                    borderBottom: `2.5px solid ${revealCorrect ? '#16a34a' : '#4f46e5'}`,
+                    display: 'inline-block',
+                    width: '1.1em',
+                    color: revealCorrect ? '#16a34a' : 'transparent',
+                    textAlign: 'center',
+                  }}>
+                    {revealCorrect ? correctLetter.toLowerCase() : '_'}
+                  </span>
                 )}
               </span>
             ))}
           </p>
-          {(isCorrect === true || revealCorrect) && (
-            <p className="mt-3 text-emerald-600 font-semibold text-lg animate-fade-in">
-              {currentWord.answer}
-            </p>
-          )}
         </div>
 
         {/* Letter table */}
