@@ -391,7 +391,7 @@ export default function VerbSuffixes({ onBack }: Props) {
                     borderBottom: `2.5px solid ${revealCorrect ? '#16a34a' : '#4f46e5'}`,
                     display: 'inline-block',
                     width: '1.1em',
-                    color: revealCorrect ? '#16a34a' : 'transparent',
+                    color: revealCorrect ? '#1f2937' : 'transparent',
                     textAlign: 'center',
                   }}>
                     {revealCorrect ? correctLetter.toLowerCase() : '_'}

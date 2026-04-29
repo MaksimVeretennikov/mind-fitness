@@ -346,7 +346,7 @@ export default function LetterInputExercise({ items, resultKey, title, emoji, su
     : '#4f46e5';
 
   const blankTextColor =
-    revealState === 'correct' ? '#16a34a'
+    revealState === 'correct' ? '#1f2937'
     : revealState === 'wrong' ? '#dc2626'
     : '#4f46e5';
 
