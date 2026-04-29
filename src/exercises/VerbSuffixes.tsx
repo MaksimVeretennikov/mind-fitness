@@ -107,6 +107,12 @@ function getMissingLetter(display: string, answer: string): string {
   return '';
 }
 
+/** Fill the blank word in display with the given letter (lowercase). */
+function fillBlank(display: string, letter: string): string {
+  const blankWord = display.split(' ').find(w => w.includes('_'))!;
+  return blankWord.replace('_', letter.toLowerCase());
+}
+
 interface Props {
   onBack: () => void;
 }
@@ -171,7 +177,11 @@ export default function VerbSuffixes({ onBack }: Props) {
       // Red flash — record mistake and auto-advance
       const newMistakes: Mistake[] = [
         ...mistakes,
-        { display: currentWord.display, chosen: letter, correct: correctLetter },
+        {
+          display: currentWord.display,
+          chosen: fillBlank(currentWord.display, letter),
+          correct: currentWord.answer,
+        },
       ];
       setMistakes(newMistakes);
       await new Promise<void>(r => setTimeout(r, 900));
@@ -293,7 +303,10 @@ export default function VerbSuffixes({ onBack }: Props) {
               {mistakes.map((m, i) => (
                 <div key={i} className="flex items-start justify-between gap-3 text-sm py-1.5 border-b border-gray-100 last:border-0">
                   <span className="text-gray-400 shrink-0 text-xs leading-6">{m.display}</span>
-                  <span className="text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-lg">{m.correct}</span>
+                  <div className="flex items-center gap-2 flex-wrap justify-end">
+                    <span className="text-red-600 font-semibold bg-red-50 px-2 py-0.5 rounded-lg line-through">{m.chosen}</span>
+                    <span className="text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-lg">{m.correct}</span>
+                  </div>
                 </div>
               ))}
             </div>

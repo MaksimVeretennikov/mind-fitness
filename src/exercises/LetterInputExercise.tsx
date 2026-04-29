@@ -61,6 +61,13 @@ function getExpectedLetters(display: string, answer: string): string[] {
   return result;
 }
 
+/** Fill blanks in the blank word with the given letters (in order). */
+function fillBlanks(display: string, letters: string[]): string {
+  const blankWord = display.split(' ').find(w => w.includes('_'))!;
+  let idx = 0;
+  return blankWord.split('').map(ch => (ch === '_' ? (letters[idx++] ?? '_') : ch)).join('');
+}
+
 export default function LetterInputExercise({ items, resultKey, title, emoji, subtitle, onBack }: Props) {
   const [phase, setPhase] = useState<'setup' | 'playing' | 'result'>('setup');
   const [showDrill, setShowDrill] = useState(false);
@@ -134,11 +141,14 @@ export default function LetterInputExercise({ items, resultKey, title, emoji, su
       });
       advanceTo(index + 1, mistakes);
     } else {
-      const chosen = expectedLetters.map((_, i) => vals[i] ?? '').join('');
-      const correct = expectedLetters.join('');
+      const typedLetters = expectedLetters.map((_, i) => vals[i] ?? '');
       const newMistakes: Mistake[] = [
         ...mistakes,
-        { display: currentWord.display, chosen, correct },
+        {
+          display: currentWord.display,
+          chosen: fillBlanks(currentWord.display, typedLetters),
+          correct: currentWord.answer,
+        },
       ];
       setMistakes(newMistakes);
       setRevealState('wrong');
