@@ -1,4 +1,4 @@
-import TextInputExercise, { type TextItem } from './TextInputExercise';
+import LetterInputExercise, { type TextItem } from './LetterInputExercise';
 
 const ITEMS: TextItem[] = [
   { display: 'бел_зна',                  answer: 'белизна' },
@@ -71,12 +71,12 @@ interface Props {
 
 export default function SuffixSpelling({ onBack }: Props) {
   return (
-    <TextInputExercise
+    <LetterInputExercise
       items={ITEMS}
       resultKey="suffix-spelling"
       title="Правописание суффиксов"
       emoji="📖"
-      subtitle="Впишите слово с пропуском целиком"
+      subtitle="Введите пропущенные буквы"
       onBack={onBack}
     />
   );

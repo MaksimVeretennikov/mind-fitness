@@ -30,6 +30,7 @@ const EXERCISE_NAMES: Record<string, string> = {
   'root-spelling': 'Правописание корней',
   'suffix-spelling': 'Правописание суффиксов',
   'verb-suffixes': 'Суффиксы глаголов',
+  'intro-words': 'Вводные слова',
 };
 
 const EXERCISE_ICONS: Record<string, string> = {
@@ -40,11 +41,12 @@ const EXERCISE_ICONS: Record<string, string> = {
   'geography-map': '🗺️', 'geography-capitals': '🏛️',
   pleonasms: '🔡',
   'root-spelling': '🔠', 'suffix-spelling': '📖', 'verb-suffixes': '🖊️',
+  'intro-words': '💬',
 };
 
 const RU_EXERCISES = new Set([
   'adverbs', 'prefixes', 'spelling-nn', 'word-forms', 'stress', 'abbreviations', 'pleonasms',
-  'root-spelling', 'suffix-spelling', 'verb-suffixes',
+  'root-spelling', 'suffix-spelling', 'verb-suffixes', 'intro-words',
 ]);
 
 const PAGE_SIZE = 50;

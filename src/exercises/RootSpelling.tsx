@@ -1,4 +1,4 @@
-import TextInputExercise, { type TextItem } from './TextInputExercise';
+import LetterInputExercise, { type TextItem } from './LetterInputExercise';
 
 const ITEMS: TextItem[] = [
   { display: 'с_стем_тизировать',          answer: 'систематизировать' },
@@ -61,12 +61,12 @@ interface Props {
 
 export default function RootSpelling({ onBack }: Props) {
   return (
-    <TextInputExercise
+    <LetterInputExercise
       items={ITEMS}
       resultKey="root-spelling"
       title="Правописание корней"
       emoji="🔠"
-      subtitle="Впишите слово с пропуском целиком"
+      subtitle="Введите пропущенные буквы"
       onBack={onBack}
     />
   );
