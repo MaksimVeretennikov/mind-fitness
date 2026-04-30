@@ -31,6 +31,7 @@ import UserBadge from './components/UserBadge';
 import StreakBadge from './components/StreakBadge';
 import DailyWelcome from './components/DailyWelcome';
 import AuthModal from './components/AuthModal';
+import ResetPasswordModal from './components/ResetPasswordModal';
 import HistoryPanel from './components/HistoryPanel';
 import GroupModal from './components/GroupModal';
 import TeacherDashboard from './components/TeacherDashboard';
@@ -90,6 +91,7 @@ export default function App() {
           <StreakBadge />
         </div>
         <AuthModal />
+        <ResetPasswordModal />
         <HistoryPanel />
         <GroupModal />
         <TeacherDashboard />

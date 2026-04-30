@@ -16,10 +16,13 @@ interface AuthContextValue {
   setShowAuthModal: (v: boolean) => void;
   showHistoryPanel: boolean;
   setShowHistoryPanel: (v: boolean) => void;
+  resetPasswordMode: boolean;
+  setResetPasswordMode: (v: boolean) => void;
   signIn: (email: string, password: string) => Promise<string | null>;
   signUp: (email: string, password: string, username?: string) => Promise<string | null>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<string | null>;
+  updatePassword: (password: string) => Promise<string | null>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -39,6 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showHistoryPanel, setShowHistoryPanel] = useState(false);
+  const [resetPasswordMode, setResetPasswordMode] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -46,8 +50,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
+      if (event === 'PASSWORD_RECOVERY') {
+        setResetPasswordMode(true);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -77,8 +84,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const resetPassword = useCallback(async (email: string): Promise<string | null> => {
-    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin,
+    });
     if (error) return translateError(error.message);
+    return null;
+  }, []);
+
+  const updatePassword = useCallback(async (password: string): Promise<string | null> => {
+    const { error } = await supabase.auth.updateUser({ password });
+    if (error) return translateError(error.message);
+    setResetPasswordMode(false);
     return null;
   }, []);
 
@@ -90,10 +106,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setShowAuthModal,
       showHistoryPanel,
       setShowHistoryPanel,
+      resetPasswordMode,
+      setResetPasswordMode,
       signIn,
       signUp,
       signOut,
       resetPassword,
+      updatePassword,
     }}>
       {children}
     </AuthContext.Provider>
