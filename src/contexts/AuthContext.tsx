@@ -45,6 +45,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [resetPasswordMode, setResetPasswordMode] = useState(false);
 
   useEffect(() => {
+    // Supabase fires PASSWORD_RECOVERY before onAuthStateChange is subscribed —
+    // catch it directly from the URL hash as a fallback.
+    const hashParams = new URLSearchParams(window.location.hash.slice(1));
+    if (hashParams.get('type') === 'recovery') {
+      setResetPasswordMode(true);
+    }
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       setLoading(false);
