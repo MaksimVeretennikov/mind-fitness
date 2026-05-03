@@ -279,11 +279,11 @@ export default function DogBreeds({ onBack }: Props) {
             className="glass rounded-3xl overflow-hidden shadow-lg w-full max-w-4xl"
           >
             {/* Photo */}
-            <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+            <div className="relative w-full bg-white/20" style={{ paddingBottom: '70%' }}>
               <img
                 src={getBreedPhotoUrl(breed.id)}
                 alt={breed.nameRu}
-                className="absolute inset-0 w-full h-full object-cover"
+                className="absolute inset-0 w-full h-full object-contain"
               />
             </div>
             {/* Name */}
@@ -363,11 +363,11 @@ export default function DogBreeds({ onBack }: Props) {
           >
             {/* Photo */}
             <div className="glass rounded-3xl overflow-hidden shadow-lg">
-              <div className="relative w-full" style={{ paddingBottom: '75%' }}>
+              <div className="relative w-full bg-white/20" style={{ paddingBottom: '80%' }}>
                 <img
                   src={getBreedPhotoUrl(breed.id)}
                   alt="Какая это порода?"
-                  className="absolute inset-0 w-full h-full object-cover"
+                  className="absolute inset-0 w-full h-full object-contain"
                 />
               </div>
               <div className="px-4 py-3 text-center">
