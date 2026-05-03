@@ -108,6 +108,14 @@ export const GEOGRAPHY_EXERCISES: Exercise[] = [
     color: 'text-teal-600',
     gradient: 'from-teal-500 to-emerald-600',
   },
+  {
+    id: 'dog-breeds',
+    title: 'Породы собак',
+    description: 'Учитесь узнавать породы собак по фотографии. Режим обучения и тренировки с выбором ответа.',
+    icon: '🐕',
+    color: 'text-amber-600',
+    gradient: 'from-amber-400 to-orange-500',
+  },
 ];
 
 export const EXERCISES: Exercise[] = [

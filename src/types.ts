@@ -18,7 +18,8 @@ export type ExerciseId =
   | 'verb-suffixes'
   | 'root-spelling'
   | 'suffix-spelling'
-  | 'intro-words';
+  | 'intro-words'
+  | 'dog-breeds';
 
 export interface Exercise {
   id: ExerciseId;

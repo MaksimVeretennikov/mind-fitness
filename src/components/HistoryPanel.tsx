@@ -31,6 +31,7 @@ const EXERCISE_NAMES: Record<string, string> = {
   'suffix-spelling': 'Правописание суффиксов',
   'verb-suffixes': 'Суффиксы глаголов',
   'intro-words': 'Вводные слова',
+  'dog-breeds': 'Породы собак',
 };
 
 const EXERCISE_ICONS: Record<string, string> = {
@@ -54,6 +55,7 @@ const EXERCISE_ICONS: Record<string, string> = {
   'suffix-spelling': '📖',
   'verb-suffixes': '🖊️',
   'intro-words': '💬',
+  'dog-breeds': '🐕',
 };
 
 function fmtTime(s: number): string {
@@ -161,6 +163,14 @@ function getDisplay(result: ExerciseResult): ExerciseDisplay {
       return {
         primary: `${correct} / ${total}`,
         secondary: sc > 0 ? `${sc} очк.` : undefined,
+        quality: pct >= 0.8 ? 'good' : pct >= 0.5 ? 'ok' : 'bad',
+      };
+    }
+    case 'dog-breeds': {
+      const correct = n('correct'), total = n('total', 1);
+      const pct = total > 0 ? correct / total : 0;
+      return {
+        primary: `${correct} из ${total}`,
         quality: pct >= 0.8 ? 'good' : pct >= 0.5 ? 'ok' : 'bad',
       };
     }

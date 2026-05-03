@@ -12,7 +12,7 @@ interface Props {
 export default function ExerciseShell({ id, onBack, children }: Props) {
   const ex = ALL_EXERCISES.find((e) => e.id === id)!;
 
-  const wideIds: ExerciseId[] = ['philwords', 'geography-map', 'geography-capitals', 'schulte', 'munsterberg'];
+  const wideIds: ExerciseId[] = ['philwords', 'geography-map', 'geography-capitals', 'schulte', 'munsterberg', 'dog-breeds'];
   const isWide = wideIds.includes(id);
   const containerCls = isWide ? 'max-w-[1400px]' : 'max-w-6xl';
 
