@@ -380,13 +380,15 @@ export default function DogBreeds({ onBack }: Props) {
               {choices.map(name => {
                 const isSelected = choice.selected === name;
                 const isRevealedCorrect = choice.correct === name;
+                // selected and no wrong-answer reveal → user picked correctly
+                const wasCorrectPick = isSelected && choice.correct === null;
 
                 let cls =
                   'w-full py-4 px-5 rounded-2xl text-sm font-semibold text-left transition-all duration-200 border ';
 
                 if (!choice.selected) {
                   cls += 'glass text-gray-700 hover:bg-white/80 border-white/60 active:scale-95 cursor-pointer';
-                } else if (isRevealedCorrect) {
+                } else if (isRevealedCorrect || wasCorrectPick) {
                   cls += 'bg-emerald-100 text-emerald-700 border-emerald-300 cursor-default';
                 } else if (isSelected) {
                   cls += 'bg-red-100 text-red-600 border-red-300 cursor-default';
@@ -401,8 +403,8 @@ export default function DogBreeds({ onBack }: Props) {
                     disabled={locked}
                     className={cls}
                   >
-                    {isRevealedCorrect && '✓ '}
-                    {isSelected && !isRevealedCorrect && '✗ '}
+                    {(isRevealedCorrect || wasCorrectPick) && '✓ '}
+                    {isSelected && !isRevealedCorrect && !wasCorrectPick && '✗ '}
                     {name}
                   </button>
                 );
