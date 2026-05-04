@@ -13,8 +13,6 @@ export interface NeNiItem {
 /* ─── Words & short phrases ────────────────────────────────────────────────── */
 
 export const NE_NI_WORDS: NeNiItem[] = [
-  // Pair illustrating contrast
-  { type: 'word', display: 'но (не)подходящий пример', marker: '(не)подходящий', answer: 'слитно' },
   { type: 'word', display: 'совершенно (не)подходящий к правилу пример', marker: '(не)подходящий', answer: 'раздельно' },
 
   // слитно — наречия и причастия без зависимых слов и противопоставления
