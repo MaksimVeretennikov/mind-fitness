@@ -10,12 +10,11 @@ import { useAuth } from './AuthContext';
 import {
   getMyOwnedGroup,
   getMyMembership,
-  createGroup as dbCreateGroup,
-  joinGroupByCode as dbJoinGroupByCode,
   leaveGroup as dbLeaveGroup,
   updateMemberNickname as dbUpdateNickname,
   type Group,
 } from '../lib/groupsDB';
+import { joinGroupByClassCodeRpc } from '../lib/access';
 
 interface GroupContextValue {
   ownedGroup: Group | null;
@@ -23,7 +22,6 @@ interface GroupContextValue {
   memberNickname: string | null;
   loading: boolean;
   refresh: () => Promise<void>;
-  createGroup: (name: string, code: string) => Promise<string | null>;
   joinByCode: (code: string) => Promise<string | null>;
   leave: () => Promise<void>;
   updateNickname: (nickname: string) => Promise<string | null>;
@@ -69,32 +67,20 @@ export function GroupProvider({ children }: { children: ReactNode }) {
     refresh();
   }, [refresh]);
 
-  const createGroup = useCallback(
-    async (name: string, code: string): Promise<string | null> => {
-      if (!user) return 'Войдите в аккаунт';
-      const { group, error } = await dbCreateGroup(user.id, name, code);
-      if (error) return error;
-      setOwnedGroup(group ?? null);
-      return null;
-    },
-    [user],
-  );
-
   const joinByCode = useCallback(
     async (code: string): Promise<string | null> => {
       if (!user) return 'Войдите в аккаунт';
       const displayName =
         ((user.user_metadata?.full_name as string | undefined) ||
           (user.user_metadata?.name as string | undefined) ||
-          null) ?? null;
-      const { group, error } = await dbJoinGroupByCode(
-        user.id,
-        code,
-        displayName,
-        user.email ?? null,
-      );
+          (user.email?.split('@')[0]) ||
+          'Ученик');
+      const { error } = await joinGroupByClassCodeRpc(code, displayName);
       if (error) return error;
-      setMemberGroup(group ?? null);
+      // Refresh memberGroup from DB so we pick up the canonical row + student_limit.
+      const membership = await getMyMembership(user.id);
+      setMemberGroup(membership?.group ?? null);
+      setMemberNickname(membership?.member.nickname ?? null);
       return null;
     },
     [user],
@@ -122,7 +108,6 @@ export function GroupProvider({ children }: { children: ReactNode }) {
         memberNickname,
         loading,
         refresh,
-        createGroup,
         joinByCode,
         leave,
         updateNickname,

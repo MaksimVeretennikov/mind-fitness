@@ -28,13 +28,17 @@ import NeNi from './exercises/NeNi';
 import DogBreeds from './exercises/DogBreeds';
 import SmartCount from './exercises/SmartCount';
 import MirrorDrawing from './exercises/MirrorDrawing';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { StreakProvider } from './contexts/StreakContext';
 import { GroupProvider } from './contexts/GroupContext';
+import { AccessProvider, useAccess } from './contexts/AccessContext';
 import UserBadge from './components/UserBadge';
 import StreakBadge from './components/StreakBadge';
 import DailyWelcome from './components/DailyWelcome';
-import AuthModal from './components/AuthModal';
+import AuthScreen from './components/AuthScreen';
+import JoinGroupScreen from './components/JoinGroupScreen';
+import LegalPage from './components/LegalPage';
+import AdminPanel from './components/AdminPanel';
 import ResetPasswordModal from './components/ResetPasswordModal';
 import HistoryPanel from './components/HistoryPanel';
 import GroupModal from './components/GroupModal';
@@ -44,6 +48,7 @@ import TrophyButton from './components/TrophyButton';
 import DynamicBackground from './components/DynamicBackground';
 import DevTimePanel from './components/DevTimePanel';
 import type { DayIndex } from './weeklyPhotos';
+import { useRoute } from './lib/router';
 
 function ExerciseComponent({ id, onBack }: { id: ExerciseId; onBack: () => void }) {
   switch (id) {
@@ -74,57 +79,102 @@ function ExerciseComponent({ id, onBack }: { id: ExerciseId; onBack: () => void 
   }
 }
 
-export default function App() {
+function MainApp() {
   const [current, setCurrent] = useState<ExerciseId | null>(null);
+  return (
+    <>
+      <UserBadge />
+      <div className="top-right-badges">
+        <TrophyButton />
+        <StreakBadge />
+      </div>
+      <ResetPasswordModal />
+      <HistoryPanel />
+      <GroupModal />
+      <TeacherDashboard />
+      <GroupRanking />
+      <DailyWelcome />
+
+      <main>
+        {current ? (
+          <ExerciseShell id={current} onBack={() => setCurrent(null)}>
+            <ExerciseComponent id={current} onBack={() => setCurrent(null)} />
+          </ExerciseShell>
+        ) : (
+          <HomeScreen onSelect={setCurrent} />
+        )}
+      </main>
+
+      <footer className="app-footer">
+        <div>Created by Maksim Veretennikov</div>
+        <div>Copyright &copy; 2026. All rights reserved.</div>
+      </footer>
+    </>
+  );
+}
+
+function Gate() {
+  const route = useRoute();
+  const { user, loading: authLoading, resetPasswordMode } = useAuth();
+  const { accessType, isAdmin, loading: accessLoading } = useAccess();
+
+  // Public legal pages — accessible regardless of auth state.
+  if (route === '/privacy') return <LegalPage doc="privacy" />;
+  if (route === '/terms') return <LegalPage doc="terms" />;
+
+  if (authLoading) {
+    return <div className="auth-screen"><div className="auth-loading">Загрузка…</div></div>;
+  }
+
+  // Password recovery still flows through the modal (handled inside MainApp).
+  if (resetPasswordMode && user) {
+    return <MainApp />;
+  }
+
+  if (!user) return <AuthScreen />;
+
+  // Admin route is only visible to the admin.
+  if (route === '/admin') {
+    if (isAdmin) return <AdminPanel />;
+    // Non-admins fall through to normal gating.
+  }
+
+  if (accessLoading && !accessType) {
+    return <div className="auth-screen"><div className="auth-loading">Загрузка профиля…</div></div>;
+  }
+
+  // New users without a role yet → must enter a code.
+  if (accessType === 'pending') return <JoinGroupScreen />;
+
+  return <MainApp />;
+}
+
+export default function App() {
   const [devHour, setDevHour] = useState<number | undefined>(undefined);
   const [devDay, setDevDay] = useState<DayIndex | undefined>(undefined);
 
   return (
     <>
-    <AuthProvider>
-      <GroupProvider>
-      <StreakProvider>
-        <DynamicBackground hourOverride={devHour} dayOverride={devDay} />
-        {import.meta.env.DEV && (
-          <DevTimePanel
-            currentHour={devHour}
-            currentDay={devDay}
-            onHourChange={setDevHour}
-            onDayChange={setDevDay}
-          />
-        )}
-        <UserBadge />
-        <div className="top-right-badges">
-          <TrophyButton />
-          <StreakBadge />
-        </div>
-        <AuthModal />
-        <ResetPasswordModal />
-        <HistoryPanel />
-        <GroupModal />
-        <TeacherDashboard />
-        <GroupRanking />
-        <DailyWelcome />
-
-        <main>
-          {current ? (
-            <ExerciseShell id={current} onBack={() => setCurrent(null)}>
-              <ExerciseComponent id={current} onBack={() => setCurrent(null)} />
-            </ExerciseShell>
-          ) : (
-            <HomeScreen onSelect={setCurrent} />
-          )}
-        </main>
-
-        <footer className="app-footer">
-          <div>Created by Maksim Veretennikov</div>
-          <div>Copyright &copy; 2026. All rights reserved.</div>
-        </footer>
-      </StreakProvider>
-      </GroupProvider>
-    </AuthProvider>
-    <Analytics />
-    <SpeedInsights />
+      <AuthProvider>
+        <AccessProvider>
+          <GroupProvider>
+            <StreakProvider>
+              <DynamicBackground hourOverride={devHour} dayOverride={devDay} />
+              {import.meta.env.DEV && (
+                <DevTimePanel
+                  currentHour={devHour}
+                  currentDay={devDay}
+                  onHourChange={setDevHour}
+                  onDayChange={setDevDay}
+                />
+              )}
+              <Gate />
+            </StreakProvider>
+          </GroupProvider>
+        </AccessProvider>
+      </AuthProvider>
+      <Analytics />
+      <SpeedInsights />
     </>
   );
 }
