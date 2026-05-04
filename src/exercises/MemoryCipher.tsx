@@ -438,7 +438,7 @@ export default function MemoryCipher() {
 
   // ---------- Solving screen ----------
   return (
-    <div className="flex flex-col gap-4 animate-fade-in pb-2">
+    <div className="flex flex-col gap-2 sm:gap-3 animate-fade-in pb-2">
       {/* HUD */}
       <div className="glass rounded-2xl px-4 sm:px-5 py-3 flex items-center justify-between shadow-sm">
         <div className="text-center min-w-[60px]">
@@ -464,7 +464,11 @@ export default function MemoryCipher() {
       </div>
 
       {/* Grid */}
-      <div className="glass rounded-2xl p-2 sm:p-3 shadow-sm">
+      <div className="glass rounded-2xl p-2 sm:p-3 shadow-sm mx-auto w-full"
+        style={{
+          maxWidth: `min(${cfg.rows === 3 ? 720 : cfg.rows === 4 ? 600 : 540}px, calc((100vh - 380px) * ${cfg.cols} / ${cfg.rows}))`,
+        }}
+      >
         <div
           className="grid gap-1.5 sm:gap-2"
           style={{ gridTemplateColumns: `repeat(${cfg.cols}, minmax(0, 1fr))` }}
@@ -509,12 +513,12 @@ export default function MemoryCipher() {
       </div>
 
       {/* Symbol palette */}
-      <div className="glass rounded-2xl p-2 sm:p-3 shadow-sm sticky bottom-2 z-10">
+      <div className="glass rounded-2xl p-2 shadow-sm sticky bottom-2 z-10">
         <div
           className="grid gap-2 mx-auto"
           style={{
             gridTemplateColumns: `repeat(${game.symbols.length}, minmax(0, 1fr))`,
-            maxWidth: `${game.symbols.length * 84}px`,
+            maxWidth: `${game.symbols.length * 80}px`,
           }}
         >
           {game.symbols.map(sym => (
@@ -522,17 +526,13 @@ export default function MemoryCipher() {
               key={sym}
               onClick={() => handleSymbolClick(sym)}
               disabled={feedbackForIdx !== null}
-              className="h-16 sm:h-20 rounded-xl bg-white/80 hover:bg-fuchsia-50 active:scale-95 transition-all flex items-center justify-center shadow-sm border border-gray-100 disabled:opacity-50"
+              className="h-14 sm:h-16 rounded-xl bg-white/80 hover:bg-fuchsia-50 active:scale-95 transition-all flex items-center justify-center shadow-sm border border-gray-100 disabled:opacity-50"
             >
-              <SymbolIcon id={sym} size={36} color="#7c3aed" />
+              <SymbolIcon id={sym} size={32} color="#7c3aed" />
             </button>
           ))}
         </div>
       </div>
-
-      <p className="text-center text-[11px] sm:text-xs text-gray-400">
-        Подсвеченную фигуру заполняем — выберите её знак внизу
-      </p>
     </div>
   );
 }
