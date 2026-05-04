@@ -199,4 +199,12 @@ export const EXERCISES: Exercise[] = [
     color: 'text-violet-600',
     gradient: 'from-violet-500 to-purple-600',
   },
+  {
+    id: 'memory-cipher',
+    title: 'Тайный шифр',
+    description: 'Запомните, какой знак прячется в каждой фигуре, и заполните таблицу по памяти. Тренирует ассоциативную и зрительную память.',
+    icon: '🔣',
+    color: 'text-fuchsia-600',
+    gradient: 'from-fuchsia-500 to-pink-500',
+  },
 ];

@@ -35,6 +35,7 @@ const EXERCISE_NAMES: Record<string, string> = {
   'dog-breeds': 'Породы собак',
   'smart-count': 'Умный счёт',
   'mirror-drawing': 'Зеркальный рисунок',
+  'memory-cipher': 'Тайный шифр',
 };
 
 const EXERCISE_ICONS: Record<string, string> = {
@@ -62,6 +63,7 @@ const EXERCISE_ICONS: Record<string, string> = {
   'dog-breeds': '🐕',
   'smart-count': '🧮',
   'mirror-drawing': '🪞',
+  'memory-cipher': '🔣',
 };
 
 function fmtTime(s: number): string {
@@ -201,6 +203,20 @@ function getDisplay(result: ExerciseResult): ExerciseDisplay {
         primary: timeSec > 0 ? t : '—',
         secondary: errors === 0 ? '✓ без ошибок' : `${errors} ${pluralErrors(errors)}`,
         quality: errors === 0 ? 'good' : errors <= 3 ? 'ok' : 'bad',
+      };
+    }
+    case 'memory-cipher': {
+      const errors = n('errors');
+      const timeSec = n('timeSec');
+      const total = n('total', 1);
+      const correct = n('correct');
+      const m = Math.floor(timeSec / 60), s = timeSec % 60;
+      const t = m > 0 ? `${m}м ${s}с` : `${s}с`;
+      const pct = total > 0 ? correct / total : 0;
+      return {
+        primary: timeSec > 0 ? t : '—',
+        secondary: errors === 0 ? '✓ без ошибок' : `${errors} ${pluralErrors(errors)}`,
+        quality: pct >= 0.9 && errors <= 1 ? 'good' : pct >= 0.7 ? 'ok' : 'bad',
       };
     }
     case 'adverbs':
