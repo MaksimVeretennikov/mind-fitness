@@ -141,11 +141,12 @@ export default function ChoiceQuiz({
       });
       advanceTo(index + 1, mistakes);
     } else {
-      const displayStr = displayToString
+      const baseDisplay = displayToString
         ? displayToString(current.display)
         : typeof current.display === 'string'
         ? current.display
         : '';
+      const displayStr = current.hint ? `${baseDisplay} ${current.hint}` : baseDisplay;
       const newMistakes = [...mistakes, { display: displayStr, chosen: current.wrong, correct: current.correct }];
       setMistakes(newMistakes);
       setCardBg('rgba(252, 165, 165, 0.55)');
