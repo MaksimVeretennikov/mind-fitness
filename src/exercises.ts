@@ -212,7 +212,7 @@ export const EXERCISES: Exercise[] = [
     title: 'Спрятанное слово',
     description: 'Вычеркните повторяющиеся буквы — оставшиеся сложатся в слово. Тренирует избирательное внимание и зрительный поиск.',
     icon: '✂️',
-    color: 'text-violet-600',
-    gradient: 'from-violet-500 to-purple-600',
+    color: 'text-rose-600',
+    gradient: 'from-amber-400 to-rose-500',
   },
 ];

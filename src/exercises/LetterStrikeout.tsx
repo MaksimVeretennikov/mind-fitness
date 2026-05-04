@@ -154,10 +154,13 @@ export default function LetterStrikeout() {
       setTimeout(() => setShakeIdx(s => (s === idx ? null : s)), 400);
       return;
     }
-    // Strike all copies of this letter — повторяющиеся вычеркиваются сразу.
-    setCells(prev => prev.map(cur =>
-      cur.ch === c.ch && !cur.struck ? { ...cur, struck: true } : cur,
-    ));
+    setCells(prev => {
+      const cur = prev[idx];
+      if (!cur || cur.struck) return prev;
+      const next = prev.slice();
+      next[idx] = { ...cur, struck: true };
+      return next;
+    });
   }, [phase, cells]);
 
   // ---------- Settings ----------
@@ -173,8 +176,8 @@ export default function LetterStrikeout() {
             </div>
           </div>
           <p className="text-gray-500 text-sm leading-relaxed mb-5">
-            Перед вами строка букв. Некоторые встречаются по несколько раз — нажмите на
-            любую такую букву, и все её копии вычеркнутся сразу. Когда уберёте все
+            Перед вами строка букв. Некоторые встречаются по несколько раз —
+            вычеркните каждую такую букву, нажимая на неё. Когда уберёте все
             повторы, оставшиеся буквы сложатся в слово.
           </p>
           <span className="text-gray-600 font-medium text-sm">Сложность</span>
@@ -185,18 +188,18 @@ export default function LetterStrikeout() {
                 onClick={() => setDiff(key)}
                 className={`flex items-center justify-between px-4 py-3 rounded-xl font-semibold transition-all ${
                   diff === key
-                    ? 'bg-violet-500 text-white shadow-md'
-                    : 'bg-white/70 text-gray-600 hover:bg-violet-50'
+                    ? 'bg-rose-500 text-white shadow-md'
+                    : 'bg-white/70 text-gray-600 hover:bg-rose-50'
                 }`}
               >
                 <span>{c.label}</span>
-                <span className={`text-sm font-normal ${diff === key ? 'text-violet-100' : 'text-gray-400'}`}>{c.desc}</span>
+                <span className={`text-sm font-normal ${diff === key ? 'text-rose-100' : 'text-gray-400'}`}>{c.desc}</span>
               </button>
             ))}
           </div>
           <button
             onClick={() => startGame(diff)}
-            className="w-full py-3 rounded-xl bg-gradient-to-r from-violet-500 to-purple-600 text-white font-semibold shadow-md hover:opacity-90 transition-all active:scale-95"
+            className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-400 to-rose-500 text-white font-semibold shadow-md hover:opacity-90 transition-all active:scale-95"
           >
             Начать
           </button>
@@ -217,7 +220,7 @@ export default function LetterStrikeout() {
             {word.split('').map((ch, i) => (
               <span
                 key={i}
-                className="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 text-white font-bold text-xl shadow-md"
+                className="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-amber-400 to-rose-500 text-white font-bold text-xl shadow-md"
                 style={{ animationDelay: `${i * 60}ms` }}
               >
                 {ch}
@@ -247,7 +250,7 @@ export default function LetterStrikeout() {
           </button>
           <button
             onClick={() => startGame(diff)}
-            className="px-6 py-3 rounded-xl bg-gradient-to-r from-violet-500 to-purple-600 text-white font-semibold shadow-md hover:opacity-90 transition-all active:scale-95"
+            className="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-rose-500 text-white font-semibold shadow-md hover:opacity-90 transition-all active:scale-95"
           >
             Ещё раз
           </button>
@@ -281,15 +284,15 @@ export default function LetterStrikeout() {
       {/* Progress */}
       <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
         <div
-          className="h-full bg-gradient-to-r from-violet-500 to-purple-600 rounded-full transition-all duration-300"
+          className="h-full bg-gradient-to-r from-amber-400 to-rose-500 rounded-full transition-all duration-300"
           style={{ width: totalNoise > 0 ? `${(struck / totalNoise) * 100}%` : '0%' }}
         />
       </div>
 
       {/* Hint */}
       <p className="text-center text-xs sm:text-sm text-gray-500">
-        Нажмите на любую <span className="font-semibold text-violet-600">повторяющуюся</span> букву —
-        вычеркнутся все её копии. Оставшиеся сложатся в слово.
+        Вычеркните все <span className="font-semibold text-rose-600">повторяющиеся</span> буквы —
+        и узнаете спрятанное слово.
       </p>
 
       {/* Letter row */}
@@ -298,7 +301,7 @@ export default function LetterStrikeout() {
           {cells.map((c, i) => {
             const struckClass = c.struck
               ? 'text-gray-300 bg-gray-50 cursor-default'
-              : 'text-gray-800 bg-white/80 hover:bg-violet-50 hover:scale-110 cursor-pointer shadow-sm';
+              : 'text-gray-800 bg-white/80 hover:bg-rose-50 hover:scale-110 cursor-pointer shadow-sm';
             const shakeClass = shakeIdx === i ? 'adverb-shake bg-rose-100 text-rose-600' : '';
             return (
               <button
