@@ -19,7 +19,12 @@ interface AuthContextValue {
   resetPasswordMode: boolean;
   setResetPasswordMode: (v: boolean) => void;
   signIn: (email: string, password: string) => Promise<string | null>;
-  signUp: (email: string, password: string, username?: string) => Promise<string | null>;
+  signUp: (
+    email: string,
+    password: string,
+    username: string,
+    consents: { terms: boolean; privacy: boolean; marketing: boolean },
+  ) => Promise<{ error?: string; needsEmailConfirm?: boolean }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<string | null>;
   updatePassword: (password: string) => Promise<string | null>;
@@ -74,15 +79,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return null;
   }, []);
 
-  const signUp = useCallback(async (email: string, password: string, username?: string): Promise<string | null> => {
-    const { error } = await supabase.auth.signUp({
+  const signUp = useCallback(async (
+    email: string,
+    password: string,
+    username: string,
+    consents: { terms: boolean; privacy: boolean; marketing: boolean },
+  ): Promise<{ error?: string; needsEmailConfirm?: boolean }> => {
+    const trimmed = username.trim();
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: username?.trim() || null, name: username?.trim() || null } },
+      options: {
+        data: {
+          full_name: trimmed || null,
+          name: trimmed || null,
+          terms_accepted: !!consents.terms,
+          privacy_accepted: !!consents.privacy,
+          marketing_opt_in: !!consents.marketing,
+        },
+      },
     });
-    if (error) return translateError(error.message);
+    if (error) return { error: translateError(error.message) };
     setShowAuthModal(false);
-    return null;
+    // Supabase returns user without session if email confirmation is required.
+    const needsEmailConfirm = !!data.user && !data.session;
+    return { needsEmailConfirm };
   }, []);
 
   const signOut = useCallback(async () => {

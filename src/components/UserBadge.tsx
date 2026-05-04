@@ -1,10 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useGroup } from '../contexts/GroupContext';
+import { useAccess } from '../contexts/AccessContext';
+import { navigate } from '../lib/router';
 import { supabase } from '../lib/supabase';
 
 export default function UserBadge() {
   const { user, loading, setShowAuthModal, setShowHistoryPanel, signOut } = useAuth();
+  const { isAdmin } = useAccess();
   const { ownedGroup, memberGroup, memberNickname, setShowGroupModal, setShowTeacherDashboard, updateNickname } = useGroup();
   const [open, setOpen] = useState(false);
   const [nickOpen, setNickOpen] = useState(false);
@@ -162,6 +165,15 @@ export default function UserBadge() {
                 </div>
               )}
             </div>
+          )}
+          {isAdmin && (
+            <button
+              className="user-badge-item"
+              onClick={() => { setOpen(false); navigate('/admin'); }}
+            >
+              <span className="user-badge-item-icon">🛠️</span>
+              Админка
+            </button>
           )}
           <button
             className="user-badge-item user-badge-item-signout"
