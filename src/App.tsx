@@ -25,6 +25,8 @@ import RootSpelling from './exercises/RootSpelling';
 import SuffixSpelling from './exercises/SuffixSpelling';
 import IntroWords from './exercises/IntroWords';
 import DogBreeds from './exercises/DogBreeds';
+import SmartCount from './exercises/SmartCount';
+import MirrorDrawing from './exercises/MirrorDrawing';
 import { AuthProvider } from './contexts/AuthContext';
 import { StreakProvider } from './contexts/StreakContext';
 import { GroupProvider } from './contexts/GroupContext';
@@ -65,6 +67,8 @@ function ExerciseComponent({ id, onBack }: { id: ExerciseId; onBack: () => void 
     case 'suffix-spelling': return <SuffixSpelling onBack={onBack} />;
     case 'intro-words': return <IntroWords onBack={onBack} />;
     case 'dog-breeds': return <DogBreeds onBack={onBack} />;
+    case 'smart-count': return <SmartCount />;
+    case 'mirror-drawing': return <MirrorDrawing />;
   }
 }
 

@@ -32,6 +32,8 @@ const EXERCISE_NAMES: Record<string, string> = {
   'verb-suffixes': 'Суффиксы глаголов',
   'intro-words': 'Вводные слова',
   'dog-breeds': 'Породы собак',
+  'smart-count': 'Умный счёт',
+  'mirror-drawing': 'Зеркальный рисунок',
 };
 
 const EXERCISE_ICONS: Record<string, string> = {
@@ -56,6 +58,8 @@ const EXERCISE_ICONS: Record<string, string> = {
   'verb-suffixes': '🖊️',
   'intro-words': '💬',
   'dog-breeds': '🐕',
+  'smart-count': '🧮',
+  'mirror-drawing': '🪞',
 };
 
 function fmtTime(s: number): string {
@@ -170,8 +174,31 @@ function getDisplay(result: ExerciseResult): ExerciseDisplay {
       const correct = n('correct'), total = n('total', 1);
       const pct = total > 0 ? correct / total : 0;
       return {
-        primary: `${correct} из ${total}`,
+        primary: `${correct} / ${total}`,
         quality: pct >= 0.8 ? 'good' : pct >= 0.5 ? 'ok' : 'bad',
+      };
+    }
+    case 'smart-count': {
+      const correct = n('correct'), total = n('total', 15);
+      const timeSec = n('timeSec');
+      const pct = total > 0 ? correct / total : 0;
+      const m = Math.floor(timeSec / 60), s = timeSec % 60;
+      const t = m > 0 ? `${m}м ${s}с` : `${s}с`;
+      return {
+        primary: `${correct} / ${total}`,
+        secondary: timeSec > 0 ? t : undefined,
+        quality: pct >= 0.9 ? 'good' : pct >= 0.7 ? 'ok' : 'bad',
+      };
+    }
+    case 'mirror-drawing': {
+      const errors = n('errors');
+      const timeSec = n('timeSec');
+      const m = Math.floor(timeSec / 60), s = timeSec % 60;
+      const t = m > 0 ? `${m}м ${s}с` : `${s}с`;
+      return {
+        primary: timeSec > 0 ? t : '—',
+        secondary: errors === 0 ? '✓ без ошибок' : `${errors} ${pluralErrors(errors)}`,
+        quality: errors === 0 ? 'good' : errors <= 3 ? 'ok' : 'bad',
       };
     }
     case 'adverbs':

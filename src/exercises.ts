@@ -175,4 +175,20 @@ export const EXERCISES: Exercise[] = [
     color: 'text-red-600',
     gradient: 'from-red-400 to-pink-500',
   },
+  {
+    id: 'smart-count',
+    title: 'Умный счёт',
+    description: 'Запомните, какой символ заменяет плюс, а какой — минус. Решите 15 примеров на время. Тренирует рабочую память и концентрацию.',
+    icon: '🧮',
+    color: 'text-cyan-600',
+    gradient: 'from-cyan-500 to-blue-600',
+  },
+  {
+    id: 'mirror-drawing',
+    title: 'Зеркальный рисунок',
+    description: 'Нарисуйте зеркальное отражение фигуры, нажимая на точки сетки. Тренирует пространственное мышление.',
+    icon: '🪞',
+    color: 'text-violet-600',
+    gradient: 'from-violet-500 to-purple-600',
+  },
 ];

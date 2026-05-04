@@ -31,6 +31,9 @@ const EXERCISE_NAMES: Record<string, string> = {
   'suffix-spelling': 'Правописание суффиксов',
   'verb-suffixes': 'Суффиксы глаголов',
   'intro-words': 'Вводные слова',
+  'dog-breeds': 'Породы собак',
+  'smart-count': 'Умный счёт',
+  'mirror-drawing': 'Зеркальный рисунок',
 };
 
 const EXERCISE_ICONS: Record<string, string> = {
@@ -42,6 +45,8 @@ const EXERCISE_ICONS: Record<string, string> = {
   pleonasms: '🔡',
   'root-spelling': '🔠', 'suffix-spelling': '📖', 'verb-suffixes': '🖊️',
   'intro-words': '💬',
+  'smart-count': '🧮',
+  'mirror-drawing': '🪞',
 };
 
 const RU_EXERCISES = new Set([

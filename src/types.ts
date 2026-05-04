@@ -19,7 +19,9 @@ export type ExerciseId =
   | 'root-spelling'
   | 'suffix-spelling'
   | 'intro-words'
-  | 'dog-breeds';
+  | 'dog-breeds'
+  | 'smart-count'
+  | 'mirror-drawing';
 
 export interface Exercise {
   id: ExerciseId;
