@@ -23,7 +23,8 @@ export type ExerciseId =
   | 'dog-breeds'
   | 'smart-count'
   | 'mirror-drawing'
-  | 'memory-cipher';
+  | 'memory-cipher'
+  | 'letter-strikeout';
 
 export interface Exercise {
   id: ExerciseId;

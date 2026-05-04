@@ -36,6 +36,7 @@ const EXERCISE_NAMES: Record<string, string> = {
   'smart-count': 'Умный счёт',
   'mirror-drawing': 'Зеркальный рисунок',
   'memory-cipher': 'Тайный шифр',
+  'letter-strikeout': 'Спрятанное слово',
 };
 
 const EXERCISE_ICONS: Record<string, string> = {
@@ -64,6 +65,7 @@ const EXERCISE_ICONS: Record<string, string> = {
   'smart-count': '🧮',
   'mirror-drawing': '🪞',
   'memory-cipher': '🔣',
+  'letter-strikeout': '✂️',
 };
 
 function fmtTime(s: number): string {
@@ -203,6 +205,17 @@ function getDisplay(result: ExerciseResult): ExerciseDisplay {
         primary: timeSec > 0 ? t : '—',
         secondary: errors === 0 ? '✓ без ошибок' : `${errors} ${pluralErrors(errors)}`,
         quality: errors === 0 ? 'good' : errors <= 3 ? 'ok' : 'bad',
+      };
+    }
+    case 'letter-strikeout': {
+      const errors = n('errors');
+      const timeSec = n('timeSec');
+      const m = Math.floor(timeSec / 60), s = timeSec % 60;
+      const t = m > 0 ? `${m}м ${s}с` : `${s}с`;
+      return {
+        primary: timeSec > 0 ? t : '—',
+        secondary: errors === 0 ? '✓ без ошибок' : `${errors} ${pluralErrors(errors)}`,
+        quality: errors === 0 ? 'good' : errors <= 2 ? 'ok' : 'bad',
       };
     }
     case 'memory-cipher': {

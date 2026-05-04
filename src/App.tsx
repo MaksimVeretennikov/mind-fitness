@@ -29,6 +29,7 @@ import DogBreeds from './exercises/DogBreeds';
 import SmartCount from './exercises/SmartCount';
 import MirrorDrawing from './exercises/MirrorDrawing';
 import MemoryCipher from './exercises/MemoryCipher';
+import LetterStrikeout from './exercises/LetterStrikeout';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { StreakProvider } from './contexts/StreakContext';
 import { GroupProvider } from './contexts/GroupContext';
@@ -78,6 +79,7 @@ function ExerciseComponent({ id, onBack }: { id: ExerciseId; onBack: () => void 
     case 'smart-count': return <SmartCount />;
     case 'mirror-drawing': return <MirrorDrawing />;
     case 'memory-cipher': return <MemoryCipher />;
+    case 'letter-strikeout': return <LetterStrikeout />;
   }
 }
 
