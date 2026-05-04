@@ -37,6 +37,9 @@ export default function JoinGroupScreen() {
   const [resumed, setResumed] = useState(false);
 
   // Resume after email confirmation: pre-fill role + codes from the stash.
+  // Resume after email confirmation: pre-fill role + codes from the stash and
+  // immediately try to consume them. The user already entered everything at
+  // signup, so we don't make them re-confirm.
   useEffect(() => {
     const pending = readPendingSignup();
     if (!pending) return;
@@ -51,6 +54,25 @@ export default function JoinGroupScreen() {
       setNewClassCode(pending.classCode);
     }
     setResumed(true);
+
+    (async () => {
+      setLoading(true);
+      setError(null);
+      const result = pending.role === 'student'
+        ? await joinGroupByClassCodeRpc(pending.classCode, pending.displayName)
+        : await consumeTeacherCode(pending.teacherCode, pending.groupName, pending.classCode);
+      if (result.error) {
+        // Code became invalid / taken / full between signup and confirm —
+        // surface the error and let the user fix it manually.
+        setError(result.error);
+        setLoading(false);
+        return;
+      }
+      clearPendingSignup();
+      await Promise.all([refreshAccess(), refreshGroup()]);
+      setLoading(false);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const submitStudent = async (e: React.FormEvent) => {
@@ -85,6 +107,24 @@ export default function JoinGroupScreen() {
     setLoading(false);
   };
 
+  // While auto-completing a stashed signup, show a tidy progress card
+  // instead of the role-choice / form. Errors fall through to the form
+  // so the user can edit and retry.
+  if (resumed && loading && !error) {
+    return (
+      <div className="auth-screen">
+        <div className="auth-screen-card auth-screen-card--narrow">
+          <div className="auth-logo"><span>🎓</span></div>
+          <h1 className="auth-screen-title">Завершаем регистрацию…</h1>
+          <p className="auth-screen-subtitle">
+            Активируем ваш аккаунт по введённому коду.
+          </p>
+          <div className="auth-loading-row"><span className="auth-spinner-dark" /></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="auth-screen">
       <div className="auth-screen-card">
@@ -92,7 +132,7 @@ export default function JoinGroupScreen() {
         <h1 className="auth-screen-title">Подключите аккаунт</h1>
         <p className="auth-screen-subtitle">
           {resumed
-            ? 'Завершите регистрацию: код заполнен из вашей заявки — проверьте и подтвердите.'
+            ? 'Не получилось завершить автоматически — проверьте код и попробуйте ещё раз.'
             : 'Чтобы начать заниматься, выберите свою роль и введите код.'}
         </p>
 

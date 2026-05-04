@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useAccess } from '../contexts/AccessContext';
+import { useGroup } from '../contexts/GroupContext';
 import {
   validateClassCode,
   checkTeacherCode,
@@ -15,6 +17,8 @@ type Role = 'student' | 'teacher';
 
 export default function AuthScreen() {
   const { signIn, signUp, resetPassword } = useAuth();
+  const { refresh: refreshAccess } = useAccess();
+  const { refresh: refreshGroup } = useGroup();
 
   const [view, setView] = useState<View>('signin');
   const [signupRole, setSignupRole] = useState<Role | null>(null);
@@ -126,7 +130,11 @@ export default function AuthScreen() {
         if (rpcErr) { setLoading(false); setError(rpcErr); return; }
       }
       clearPendingSignup();
-      // The Gate will pick up the new profile and route into the app.
+      // Force the Gate to re-evaluate with the freshly-promoted profile.
+      // Without this the AccessContext's auto-refresh races the consume RPC,
+      // sometimes seeing access_type='pending' and bouncing the user into
+      // JoinGroupScreen even though they already entered the code.
+      await Promise.all([refreshAccess(), refreshGroup()]);
       setLoading(false);
       return;
     }

@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from 'react';
 import { useAuth } from './AuthContext';
+import { supabase } from '../lib/supabase';
 import { getProfile, type Profile, type AccessType, isAdminEmail } from '../lib/access';
 
 interface AccessContextValue {
@@ -24,20 +25,24 @@ export function AccessProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
+  // Reads the live session directly from Supabase rather than relying on
+  // React state, so refresh() works correctly when called immediately after
+  // signUp (before the AuthContext listener has propagated `user`).
   const refresh = useCallback(async () => {
-    if (!user) {
+    const { data: { user: liveUser } } = await supabase.auth.getUser();
+    if (!liveUser) {
       setProfile(null);
       return;
     }
     setLoading(true);
-    const p = await getProfile(user.id);
+    const p = await getProfile(liveUser.id);
     setProfile(p);
     setLoading(false);
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     refresh();
-  }, [refresh]);
+  }, [refresh, user?.id]);
 
   const isAdmin = isAdminEmail(user?.email);
 

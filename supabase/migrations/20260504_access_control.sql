@@ -290,10 +290,11 @@ BEGIN
   IF NOT is_admin() THEN RAISE EXCEPTION 'forbidden' USING ERRCODE = '42501'; END IF;
   IF p_student_limit IS NULL OR p_student_limit < 1 THEN RAISE EXCEPTION 'invalid_limit'; END IF;
   IF p_code IS NULL OR btrim(p_code) = '' THEN
-    -- Generate compact human-typeable code: TCH-XXXX-XXXX (alnum, no ambiguous chars).
+    -- Generate compact human-typeable code: TCH-XXXXXX-XXXXXX (12 hex chars).
+    -- Uses md5(random()) which is in core Postgres — no pgcrypto needed.
     v_code := 'TCH-' ||
-              upper(substring(translate(encode(gen_random_bytes(8), 'base64'), '+/=OIl01', 'XYZABCDE'), 1, 4)) || '-' ||
-              upper(substring(translate(encode(gen_random_bytes(8), 'base64'), '+/=OIl01', 'XYZABCDE'), 1, 4));
+              upper(substring(md5(random()::text || clock_timestamp()::text) FROM 1 FOR 6)) || '-' ||
+              upper(substring(md5(random()::text || clock_timestamp()::text) FROM 7 FOR 6));
   ELSE
     v_code := upper(btrim(p_code));
   END IF;
