@@ -31,6 +31,7 @@ const EXERCISE_NAMES: Record<string, string> = {
   'suffix-spelling': 'Правописание суффиксов',
   'verb-suffixes': 'Суффиксы глаголов',
   'intro-words': 'Вводные слова',
+  'ne-ni': 'Правописание НЕ / НИ',
   'dog-breeds': 'Породы собак',
   'smart-count': 'Умный счёт',
   'mirror-drawing': 'Зеркальный рисунок',
@@ -57,6 +58,7 @@ const EXERCISE_ICONS: Record<string, string> = {
   'suffix-spelling': '📖',
   'verb-suffixes': '🖊️',
   'intro-words': '💬',
+  'ne-ni': '🪶',
   'dog-breeds': '🐕',
   'smart-count': '🧮',
   'mirror-drawing': '🪞',
@@ -211,7 +213,8 @@ function getDisplay(result: ExerciseResult): ExerciseDisplay {
     case 'root-spelling':
     case 'suffix-spelling':
     case 'verb-suffixes':
-    case 'intro-words': {
+    case 'intro-words':
+    case 'ne-ni': {
       const correct = n('correct'), total = n('total', 1);
       const pct = total > 0 ? correct / total : 0;
       return {
@@ -266,7 +269,7 @@ const QUALITY_CLASS: Record<Quality, string> = {
 const RU_EXERCISES = new Set([
   'adverbs', 'prefixes', 'spelling-nn', 'word-forms', 'stress', 'abbreviations',
   'geography-map', 'geography-capitals', 'pleonasms',
-  'root-spelling', 'suffix-spelling', 'verb-suffixes', 'intro-words',
+  'root-spelling', 'suffix-spelling', 'verb-suffixes', 'intro-words', 'ne-ni',
 ]);
 
 interface ChoiceMistake { display: string; chosen: string; correct: string }

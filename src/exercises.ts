@@ -4,7 +4,7 @@ export const RUSSIAN_EXERCISES: Exercise[] = [
   {
     id: 'adverbs',
     title: 'Правописание наречий',
-    description: 'Выберите правильное написание: слитно или раздельно. Тренирует грамотность и готовит к ЕГЭ по русскому языку.',
+    description: 'Выберите правильное написание: слитно или раздельно. Тренирует грамотность.',
     icon: '📝',
     color: 'text-indigo-700',
     gradient: 'from-indigo-500 to-blue-600',
@@ -12,7 +12,7 @@ export const RUSSIAN_EXERCISES: Exercise[] = [
   {
     id: 'prefixes',
     title: 'Правописание приставок',
-    description: 'Выберите правильную букву на месте пропуска. Тренирует знание приставок и готовит к ЕГЭ.',
+    description: 'Выберите правильную букву на месте пропуска. Тренирует знание приставок.',
     icon: '✍️',
     color: 'text-indigo-700',
     gradient: 'from-indigo-500 to-blue-600',
@@ -20,7 +20,7 @@ export const RUSSIAN_EXERCISES: Exercise[] = [
   {
     id: 'spelling-nn',
     title: 'Правописание Н и НН',
-    description: 'Сколько Н нужно вставить на месте пропуска? Тренирует орфографию и готовит к ЕГЭ.',
+    description: 'Сколько Н нужно вставить на месте пропуска? Тренирует орфографию.',
     icon: '✏️',
     color: 'text-indigo-700',
     gradient: 'from-indigo-500 to-blue-600',
@@ -52,7 +52,7 @@ export const RUSSIAN_EXERCISES: Exercise[] = [
   {
     id: 'pleonasms',
     title: 'Плеоназмы',
-    description: 'Нажмите на лишнее слово в словосочетании. Тренирует лексическую грамотность и готовит к ЕГЭ.',
+    description: 'Нажмите на лишнее слово в словосочетании. Тренирует лексическую грамотность.',
     icon: '🔡',
     color: 'text-indigo-700',
     gradient: 'from-indigo-500 to-blue-600',
@@ -78,6 +78,14 @@ export const RUSSIAN_EXERCISES: Exercise[] = [
     title: 'Суффиксы глаголов и причастий',
     description: 'Впишите слово с пропуском целиком. Тренирует правописание суффиксов глаголов и причастий.',
     icon: '🖊️',
+    color: 'text-indigo-700',
+    gradient: 'from-indigo-500 to-blue-600',
+  },
+  {
+    id: 'ne-ni',
+    title: 'Правописание НЕ / НИ',
+    description: 'Выберите правильное написание: слитно или раздельно. Тренируйте слова и предложения.',
+    icon: '🪶',
     color: 'text-indigo-700',
     gradient: 'from-indigo-500 to-blue-600',
   },

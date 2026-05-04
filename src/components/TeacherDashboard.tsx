@@ -31,6 +31,7 @@ const EXERCISE_NAMES: Record<string, string> = {
   'suffix-spelling': 'Правописание суффиксов',
   'verb-suffixes': 'Суффиксы глаголов',
   'intro-words': 'Вводные слова',
+  'ne-ni': 'Правописание НЕ / НИ',
   'dog-breeds': 'Породы собак',
   'smart-count': 'Умный счёт',
   'mirror-drawing': 'Зеркальный рисунок',
@@ -45,13 +46,14 @@ const EXERCISE_ICONS: Record<string, string> = {
   pleonasms: '🔡',
   'root-spelling': '🔠', 'suffix-spelling': '📖', 'verb-suffixes': '🖊️',
   'intro-words': '💬',
+  'ne-ni': '🪶',
   'smart-count': '🧮',
   'mirror-drawing': '🪞',
 };
 
 const RU_EXERCISES = new Set([
   'adverbs', 'prefixes', 'spelling-nn', 'word-forms', 'stress', 'abbreviations', 'pleonasms',
-  'root-spelling', 'suffix-spelling', 'verb-suffixes', 'intro-words',
+  'root-spelling', 'suffix-spelling', 'verb-suffixes', 'intro-words', 'ne-ni',
 ]);
 
 const PAGE_SIZE = 50;

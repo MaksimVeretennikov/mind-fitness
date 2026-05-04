@@ -19,6 +19,7 @@ export type ExerciseId =
   | 'root-spelling'
   | 'suffix-spelling'
   | 'intro-words'
+  | 'ne-ni'
   | 'dog-breeds'
   | 'smart-count'
   | 'mirror-drawing';

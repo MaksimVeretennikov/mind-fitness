@@ -536,8 +536,8 @@ export default function Adverbs({ onBack }: Props) {
   const progressPct = (index / words.length) * 100;
 
   return (
-    <div className="flex flex-col items-center gap-6 py-6 animate-fade-in">
-      <div className="w-full max-w-md">
+    <div className="flex flex-col items-center gap-6 py-6 animate-fade-in w-full max-w-2xl mx-auto px-3">
+      <div className="w-full">
         <div className="flex justify-between text-sm text-gray-400 mb-2 font-medium">
           <span>{index + 1} / {words.length}</span>
           <span>{Math.round(progressPct)}%</span>
@@ -552,12 +552,12 @@ export default function Adverbs({ onBack }: Props) {
 
       <motion.div
         animate={controls}
-        className={`w-full max-w-md rounded-2xl p-10 shadow-md border border-white/60 flex flex-col items-center gap-4 backdrop-blur-md transition-colors duration-200 ${
+        className={`w-full rounded-2xl p-10 shadow-md border border-white/60 flex flex-col items-center gap-4 backdrop-blur-md transition-colors duration-200 ${
           shaking ? 'adverb-shake' : ''
         }`}
         style={{ backgroundColor: cardBg }}
       >
-        <p className="text-4xl font-bold text-gray-800 text-center leading-tight">
+        <p className="text-3xl md:text-4xl font-bold text-gray-800 text-center leading-tight">
           {currentWord.display}
         </p>
 
@@ -571,18 +571,18 @@ export default function Adverbs({ onBack }: Props) {
         )}
       </motion.div>
 
-      <div className="flex gap-4 w-full max-w-md">
+      <div className="flex gap-4 w-full">
         <button
           onClick={() => handleAnswer('слитно')}
           disabled={locked}
-          className="flex-1 py-4 rounded-2xl text-base font-bold text-white bg-gradient-to-r from-indigo-500 to-blue-600 shadow-sm hover:shadow-md hover:opacity-90 transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex-1 py-5 md:py-7 rounded-2xl text-base md:text-2xl font-bold text-white bg-gradient-to-r from-indigo-500 to-blue-600 shadow-sm hover:shadow-md hover:opacity-90 transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           СЛИТНО
         </button>
         <button
           onClick={() => handleAnswer('раздельно')}
           disabled={locked}
-          className="flex-1 py-4 rounded-2xl text-base font-bold text-white bg-gradient-to-r from-violet-500 to-purple-600 shadow-sm hover:shadow-md hover:opacity-90 transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex-1 py-5 md:py-7 rounded-2xl text-base md:text-2xl font-bold text-white bg-gradient-to-r from-violet-500 to-purple-600 shadow-sm hover:shadow-md hover:opacity-90 transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           РАЗДЕЛЬНО
         </button>
