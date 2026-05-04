@@ -89,6 +89,14 @@ export const RUSSIAN_EXERCISES: Exercise[] = [
     color: 'text-indigo-700',
     gradient: 'from-indigo-500 to-blue-600',
   },
+  {
+    id: 'ne-ni',
+    title: 'Правописание НЕ / НИ',
+    description: 'Выберите правильное написание: слитно или раздельно. Тренируйте слова и предложения.',
+    icon: '🚫',
+    color: 'text-indigo-700',
+    gradient: 'from-indigo-500 to-blue-600',
+  },
 ];
 
 export const GEOGRAPHY_EXERCISES: Exercise[] = [

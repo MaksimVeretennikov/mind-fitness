@@ -229,6 +229,30 @@ current **day of the week**.
 анимация вниз. Хранение ошибок, история (`MistakesHistory`) и «Работа над ошибками»
 (`ErrorDrill`) — по той же схеме, что и в `Adverbs`.
 
+## Упражнение «Правописание НЕ / НИ» (слитно/раздельно)
+
+[NeNi.tsx](src/exercises/NeNi.tsx) — выбор «слитно» / «раздельно» по аналогии с
+[Adverbs.tsx](src/exercises/Adverbs.tsx). Данные — [neNiData.ts](src/data/neNiData.ts):
+два набора (`NE_NI_WORDS` ≈ 41 элемент, `NE_NI_SENTENCES` ≈ 31 предложение). Каждый
+элемент — `{ type: 'word' | 'sentence', display, marker, answer }`, где `marker` —
+подстрока внутри `display`, содержащая «(не)» / «(ни)». Для слов `marker === display`,
+для предложений — отдельный фрагмент.
+
+- **Настройки:** «Что тренируем» (Слова / Предложения) + количество (10/20/30).
+- **Маркер:** `(не)X` / `(ни)X` — в карточке подсвечивается индиго.
+- **Хранение:** `exercise_results`, `exercise_name = 'ne-ni'`, `ruScore = correct * 10`,
+  `details.mode = 'word' | 'sentence'`. Ошибки в формате `{ display, chosen, correct }`,
+  где `chosen`/`correct` — короткие резолвы маркера (например, «непереставая» /
+  «не переставая»).
+- **История ошибок / Все ошибки / Работа над ошибками** — общие компоненты
+  `MistakesHistory` + `ErrorDrill` (`mode="text"`).
+- **Регистрация:** `EXERCISE_NAMES['ne-ni']`, `EXERCISE_ICONS['ne-ni'] = '🚫'`,
+  `RU_EXERCISES.has('ne-ni')` в [HistoryPanel.tsx](src/components/HistoryPanel.tsx) и
+  [TeacherDashboard.tsx](src/components/TeacherDashboard.tsx).
+
+Резолверы маркера в `neNiData.ts`: `correctMarker(item)`, `wrongMarker(item)` — снимают
+скобки и склеивают/разделяют по `answer`.
+
 ## Упражнение «Вводные слова» (сортировка)
 
 [IntroWords.tsx](src/exercises/IntroWords.tsx) — игра на сортировку слов по двум категориям.

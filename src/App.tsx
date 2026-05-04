@@ -24,6 +24,7 @@ import VerbSuffixes from './exercises/VerbSuffixes';
 import RootSpelling from './exercises/RootSpelling';
 import SuffixSpelling from './exercises/SuffixSpelling';
 import IntroWords from './exercises/IntroWords';
+import NeNi from './exercises/NeNi';
 import DogBreeds from './exercises/DogBreeds';
 import SmartCount from './exercises/SmartCount';
 import MirrorDrawing from './exercises/MirrorDrawing';
@@ -66,6 +67,7 @@ function ExerciseComponent({ id, onBack }: { id: ExerciseId; onBack: () => void 
     case 'root-spelling': return <RootSpelling onBack={onBack} />;
     case 'suffix-spelling': return <SuffixSpelling onBack={onBack} />;
     case 'intro-words': return <IntroWords onBack={onBack} />;
+    case 'ne-ni': return <NeNi onBack={onBack} />;
     case 'dog-breeds': return <DogBreeds onBack={onBack} />;
     case 'smart-count': return <SmartCount />;
     case 'mirror-drawing': return <MirrorDrawing />;
