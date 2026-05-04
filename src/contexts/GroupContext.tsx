@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from 'react';
 import { useAuth } from './AuthContext';
+import { supabase } from '../lib/supabase';
 import {
   getMyOwnedGroup,
   getMyMembership,
@@ -46,26 +47,30 @@ export function GroupProvider({ children }: { children: ReactNode }) {
   const [showTeacherDashboard, setShowTeacherDashboard] = useState(false);
   const [showGroupRanking, setShowGroupRanking] = useState(false);
 
+  // Like AccessContext.refresh — reads the live session so post-signUp
+  // refreshes don't race with the AuthContext listener.
   const refresh = useCallback(async () => {
-    if (!user) {
+    const { data: { user: liveUser } } = await supabase.auth.getUser();
+    if (!liveUser) {
       setOwnedGroup(null);
       setMemberGroup(null);
+      setMemberNickname(null);
       return;
     }
     setLoading(true);
     const [owned, membership] = await Promise.all([
-      getMyOwnedGroup(user.id),
-      getMyMembership(user.id),
+      getMyOwnedGroup(liveUser.id),
+      getMyMembership(liveUser.id),
     ]);
     setOwnedGroup(owned);
     setMemberGroup(membership?.group ?? null);
     setMemberNickname(membership?.member.nickname ?? null);
     setLoading(false);
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     refresh();
-  }, [refresh]);
+  }, [refresh, user?.id]);
 
   const joinByCode = useCallback(
     async (code: string): Promise<string | null> => {
