@@ -5,6 +5,16 @@ import { useAccess } from '../contexts/AccessContext';
 import { navigate } from '../lib/router';
 import { supabase } from '../lib/supabase';
 
+const RU_MONTHS = [
+  'января','февраля','марта','апреля','мая','июня',
+  'июля','августа','сентября','октября','ноября','декабря',
+];
+
+function formatAccessDate(iso: string): string {
+  const d = new Date(iso);
+  return `${d.getDate()} ${RU_MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+}
+
 export default function UserBadge() {
   const { user, loading, setShowAuthModal, setShowHistoryPanel, signOut } = useAuth();
   const { isAdmin } = useAccess();
@@ -94,6 +104,18 @@ export default function UserBadge() {
             <div className="user-badge-group">
               <span className="user-badge-group-icon">{isOwner ? '👩‍🏫' : '🎓'}</span>
               <span className="user-badge-group-name">{activeGroup.name}</span>
+            </div>
+          )}
+          {isOwner && ownedGroup && (
+            <div className="user-badge-access">
+              <span className="user-badge-access-icon">🗓️</span>
+              <span className="user-badge-access-text">
+                {ownedGroup.access_until == null ? (
+                  <>Доступ: <strong>бессрочный</strong></>
+                ) : (
+                  <>Доступ до <strong>{formatAccessDate(ownedGroup.access_until)}</strong></>
+                )}
+              </span>
             </div>
           )}
           {totalScore !== null && totalScore > 0 && (

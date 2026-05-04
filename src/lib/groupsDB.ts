@@ -6,6 +6,8 @@ export interface Group {
   name: string;
   code: string;
   created_at: string;
+  /** NULL = бессрочный доступ (legacy). Иначе ISO-дата конца оплаченного периода. */
+  access_until: string | null;
 }
 
 export interface GroupMember {
