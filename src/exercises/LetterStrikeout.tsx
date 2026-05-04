@@ -9,15 +9,17 @@ import {
 interface DiffCfg {
   label: string;
   desc: string;
-  noisePerLetter: number; // how many copies of each noise letter
-  noiseCount: number;     // how many distinct noise letters
+  noiseCount: number; // distinct noise letters; each appears as a pair (×2)
 }
 
 const DIFF: Record<StrikeoutDifficulty, DiffCfg> = {
-  easy:   { label: 'Лёгкая',  desc: '3–4 буквы · мало помех', noisePerLetter: 2, noiseCount: 6 },
-  medium: { label: 'Средняя', desc: '5–6 букв · больше помех', noisePerLetter: 2, noiseCount: 9 },
-  hard:   { label: 'Трудная', desc: '7–8 букв · максимум помех', noisePerLetter: 3, noiseCount: 7 },
+  easy:   { label: 'Лёгкая',  desc: '3–4 буквы · мало пар',  noiseCount: 6 },
+  medium: { label: 'Средняя', desc: '5–6 букв · больше пар', noiseCount: 9 },
+  hard:   { label: 'Трудная', desc: '7–8 букв · много пар',  noiseCount: 11 },
 };
+
+const ERROR_DELAY_MS = 700;
+const MATCH_DELAY_MS = 280;
 
 type Phase = 'settings' | 'playing' | 'result';
 
@@ -41,26 +43,38 @@ function pickWord(diff: StrikeoutDifficulty): string {
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
+// Shuffle, then break adjacent same-character runs by swapping with a later cell.
+function spreadOut(arr: string[]): string[] {
+  const a = [...arr];
+  for (let i = 1; i < a.length; i++) {
+    if (a[i] !== a[i - 1]) continue;
+    for (let j = i + 1; j < a.length; j++) {
+      if (a[j] !== a[i] && a[j] !== a[i - 1]) {
+        [a[i], a[j]] = [a[j], a[i]];
+        break;
+      }
+    }
+  }
+  return a;
+}
+
 function buildSequence(word: string, diff: StrikeoutDifficulty): Cell[] {
   const cfg = DIFF[diff];
   const wordChars = word.split('');
   const wordSet = new Set(wordChars);
 
-  // Pick noise letters that don't collide with the target word.
   const noisePool = shuffle(RU_ALPHABET.filter(l => !wordSet.has(l)));
   const noiseLetters = noisePool.slice(0, cfg.noiseCount);
 
-  // Build noise array: each letter appears `noisePerLetter` times.
+  // Each noise letter appears as a pair.
   const noiseChars: string[] = [];
-  for (const l of noiseLetters) {
-    for (let i = 0; i < cfg.noisePerLetter; i++) noiseChars.push(l);
-  }
-  const shuffledNoise = shuffle(noiseChars);
+  for (const l of noiseLetters) { noiseChars.push(l, l); }
+  const shuffledNoise = spreadOut(shuffle(noiseChars));
 
-  // Distribute noise across the word, preserving word letter order.
   const total = wordChars.length + shuffledNoise.length;
-  // Choose `wordChars.length` distinct slots out of total for word letters.
-  const slotIdx = shuffle(Array.from({ length: total }, (_, i) => i)).slice(0, wordChars.length).sort((a, b) => a - b);
+  const slotIdx = shuffle(Array.from({ length: total }, (_, i) => i))
+    .slice(0, wordChars.length)
+    .sort((a, b) => a - b);
   const targetSlots = new Set(slotIdx);
 
   const seq: Cell[] = new Array(total);
@@ -72,6 +86,29 @@ function buildSequence(word: string, diff: StrikeoutDifficulty): Cell[] {
     } else {
       seq[i] = { ch: shuffledNoise[ni++], isTarget: false, struck: false };
     }
+  }
+  // Final passes: avoid any adjacent duplicates introduced by interleaving.
+  for (let pass = 0; pass < 4; pass++) {
+    let changed = false;
+    for (let i = 1; i < seq.length; i++) {
+      if (seq[i].ch !== seq[i - 1].ch) continue;
+      const safe = (j: number) =>
+        j !== i &&
+        seq[j].ch !== seq[i].ch &&
+        (j - 1 < 0 || seq[j - 1].ch !== seq[i].ch) &&
+        (j + 1 >= seq.length || seq[j + 1].ch !== seq[i].ch);
+      let swapped = false;
+      for (let j = i + 2; j < seq.length; j++) {
+        if (safe(j)) { [seq[i], seq[j]] = [seq[j], seq[i]]; swapped = true; break; }
+      }
+      if (!swapped) {
+        for (let j = i - 2; j >= 0; j--) {
+          if (safe(j)) { [seq[i], seq[j]] = [seq[j], seq[i]]; swapped = true; break; }
+        }
+      }
+      if (swapped) changed = true;
+    }
+    if (!changed) break;
   }
   return seq;
 }
@@ -88,19 +125,26 @@ export default function LetterStrikeout() {
   const [word, setWord] = useState('');
   const [cells, setCells] = useState<Cell[]>([]);
   const [errors, setErrors] = useState(0);
-  const [shakeIdx, setShakeIdx] = useState<number | null>(null);
+  const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
+  const [errorPair, setErrorPair] = useState<[number, number] | null>(null);
+  const [matchPair, setMatchPair] = useState<[number, number] | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const startRef = useRef(0);
   const savedRef = useRef(false);
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const cfg = DIFF[diff];
 
   const startGame = useCallback((d: StrikeoutDifficulty) => {
+    timersRef.current.forEach(clearTimeout);
+    timersRef.current = [];
     const w = pickWord(d);
     setWord(w);
     setCells(buildSequence(w, d));
     setErrors(0);
-    setShakeIdx(null);
+    setSelectedIdx(null);
+    setErrorPair(null);
+    setMatchPair(null);
     setElapsed(0);
     savedRef.current = false;
     setDiff(d);
@@ -116,6 +160,9 @@ export default function LetterStrikeout() {
     }, 500);
     return () => clearInterval(t);
   }, [phase]);
+
+  // cleanup timers
+  useEffect(() => () => { timersRef.current.forEach(clearTimeout); }, []);
 
   const noiseRemaining = useMemo(
     () => cells.filter(c => !c.isTarget && !c.struck).length,
@@ -140,28 +187,57 @@ export default function LetterStrikeout() {
           timeSec: secs,
         });
       }
-      setTimeout(() => setPhase('result'), 600);
+      const t = setTimeout(() => setPhase('result'), 600);
+      timersRef.current.push(t);
     }
   }, [noiseRemaining, phase, cells.length, diff, word, errors]);
 
   const handleClick = useCallback((idx: number) => {
     if (phase !== 'playing') return;
+    if (errorPair || matchPair) return; // wait for animation
     const c = cells[idx];
     if (!c || c.struck) return;
-    if (c.isTarget) {
-      setErrors(e => e + 1);
-      setShakeIdx(idx);
-      setTimeout(() => setShakeIdx(s => (s === idx ? null : s)), 400);
+
+    // First click — select.
+    if (selectedIdx === null) {
+      setSelectedIdx(idx);
       return;
     }
-    setCells(prev => {
-      const cur = prev[idx];
-      if (!cur || cur.struck) return prev;
-      const next = prev.slice();
-      next[idx] = { ...cur, struck: true };
-      return next;
-    });
-  }, [phase, cells]);
+
+    // Same cell clicked again — deselect.
+    if (selectedIdx === idx) {
+      setSelectedIdx(null);
+      return;
+    }
+
+    const a = cells[selectedIdx];
+    const b = c;
+
+    // Pair match: same character AND both are noise (target letters are unique).
+    if (a.ch === b.ch && !a.isTarget && !b.isTarget) {
+      const pair: [number, number] = [selectedIdx, idx];
+      setMatchPair(pair);
+      setSelectedIdx(null);
+      const t = setTimeout(() => {
+        setCells(prev => prev.map((cur, i) =>
+          (i === pair[0] || i === pair[1]) ? { ...cur, struck: true } : cur,
+        ));
+        setMatchPair(null);
+      }, MATCH_DELAY_MS);
+      timersRef.current.push(t);
+      return;
+    }
+
+    // Mismatch — flash both, count an error, then clear selection.
+    const pair: [number, number] = [selectedIdx, idx];
+    setErrorPair(pair);
+    setErrors(e => e + 1);
+    const t = setTimeout(() => {
+      setErrorPair(null);
+      setSelectedIdx(null);
+    }, ERROR_DELAY_MS);
+    timersRef.current.push(t);
+  }, [phase, cells, selectedIdx, errorPair, matchPair]);
 
   // ---------- Settings ----------
   if (phase === 'settings') {
@@ -172,13 +248,13 @@ export default function LetterStrikeout() {
             <div className="text-3xl">✂️</div>
             <div>
               <h2 className="text-xl font-bold text-gray-800">Спрятанное слово</h2>
-              <p className="text-xs text-gray-500">Вычеркните повторяющиеся буквы</p>
+              <p className="text-xs text-gray-500">Найдите пары повторяющихся букв</p>
             </div>
           </div>
           <p className="text-gray-500 text-sm leading-relaxed mb-5">
-            Перед вами строка букв. Некоторые встречаются по несколько раз —
-            вычеркните каждую такую букву, нажимая на неё. Когда уберёте все
-            повторы, оставшиеся буквы сложатся в слово.
+            Перед вами строка букв. Каждая лишняя буква встречается ровно дважды.
+            Нажмите на одну, затем на её пару — обе вычеркнутся. Когда уберёте все
+            пары, оставшиеся буквы сложатся в слово.
           </p>
           <span className="text-gray-600 font-medium text-sm">Сложность</span>
           <div className="flex flex-col gap-3 mt-2 mb-6">
@@ -291,24 +367,30 @@ export default function LetterStrikeout() {
 
       {/* Hint */}
       <p className="text-center text-xs sm:text-sm text-gray-500">
-        Вычеркните все <span className="font-semibold text-rose-600">повторяющиеся</span> буквы —
-        и узнаете спрятанное слово.
+        Нажмите букву, затем найдите её <span className="font-semibold text-rose-600">пару</span>.
+        Пары вычеркнутся. Уникальные буквы сложатся в слово.
       </p>
 
       {/* Letter row */}
-      <div className="glass rounded-2xl p-3 sm:p-5 shadow-sm">
-        <div className="flex flex-wrap gap-1.5 sm:gap-2 justify-center">
+      <div className="glass rounded-2xl p-4 sm:p-6 shadow-sm">
+        <div className="flex flex-wrap gap-3 sm:gap-4 justify-center">
           {cells.map((c, i) => {
-            const struckClass = c.struck
-              ? 'text-gray-300 bg-gray-50 cursor-default'
-              : 'text-gray-800 bg-white/80 hover:bg-rose-50 hover:scale-110 cursor-pointer shadow-sm';
-            const shakeClass = shakeIdx === i ? 'adverb-shake bg-rose-100 text-rose-600' : '';
+            const isSelected = selectedIdx === i;
+            const isErrorPair = errorPair && (errorPair[0] === i || errorPair[1] === i);
+            const isMatchPair = matchPair && (matchPair[0] === i || matchPair[1] === i);
+
+            let cls = 'text-gray-800 bg-white/80 hover:bg-amber-50 hover:scale-110 cursor-pointer shadow-sm';
+            if (c.struck) cls = 'text-gray-300 bg-gray-50 cursor-default';
+            else if (isMatchPair) cls = 'text-emerald-600 bg-emerald-100 ring-2 ring-emerald-400 scale-110';
+            else if (isErrorPair) cls = 'text-rose-600 bg-rose-100 ring-2 ring-rose-400 adverb-shake';
+            else if (isSelected) cls = 'text-amber-700 bg-amber-100 ring-2 ring-amber-400 scale-110 shadow-md';
+
             return (
               <button
                 key={i}
                 onClick={() => handleClick(i)}
                 disabled={c.struck}
-                className={`relative w-9 h-11 sm:w-11 sm:h-14 md:w-12 md:h-14 rounded-lg flex items-center justify-center font-bold text-lg sm:text-2xl transition-all active:scale-95 ${struckClass} ${shakeClass}`}
+                className={`relative w-10 h-12 sm:w-12 sm:h-14 md:w-14 md:h-16 rounded-xl flex items-center justify-center font-bold text-lg sm:text-2xl transition-all active:scale-95 ${cls}`}
               >
                 <span className={c.struck ? 'line-through' : ''}>{c.ch}</span>
               </button>
