@@ -91,3 +91,44 @@ export async function setMarketingOptIn(value: boolean): Promise<string | null> 
   const { error } = await supabase.rpc('update_marketing_opt_in', { p_value: value });
   return error ? translateRpcError(error.code, error.message) : null;
 }
+
+/** Pre-flight check: is this teacher code valid and unused? Callable anonymously. */
+export async function checkTeacherCode(code: string): Promise<boolean> {
+  const { data, error } = await supabase.rpc('check_teacher_code', { p_code: code });
+  if (error) return false;
+  return data === true;
+}
+
+/** Pre-flight check: does this class code map to an existing group? Callable anonymously. */
+export async function checkClassCodeExists(code: string): Promise<boolean> {
+  const { data, error } = await supabase.rpc('class_code_exists', { p_code: code });
+  if (error) return false;
+  return data === true;
+}
+
+// ─── Pending signup intent stash ───────────────────────────────────────────
+// When email confirmation is enabled, signUp returns no session and we cannot
+// immediately consume the code. We persist the user's intent locally so that
+// JoinGroupScreen (which runs after first sign-in) can pre-fill and finish.
+
+export type PendingSignup =
+  | { role: 'student'; classCode: string; displayName: string }
+  | { role: 'teacher'; teacherCode: string; groupName: string; classCode: string };
+
+const STASH_KEY = 'mind-fitness-pending-signup';
+
+export function stashPendingSignup(p: PendingSignup): void {
+  try { localStorage.setItem(STASH_KEY, JSON.stringify(p)); } catch { /* ignore */ }
+}
+export function readPendingSignup(): PendingSignup | null {
+  try {
+    const raw = localStorage.getItem(STASH_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as PendingSignup;
+    if (parsed && (parsed.role === 'student' || parsed.role === 'teacher')) return parsed;
+    return null;
+  } catch { return null; }
+}
+export function clearPendingSignup(): void {
+  try { localStorage.removeItem(STASH_KEY); } catch { /* ignore */ }
+}

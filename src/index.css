@@ -1879,9 +1879,9 @@
   display: flex;
   gap: 10px;
   align-items: flex-start;
-  font-size: 0.85rem;
+  font-size: 0.84rem;
   color: #1f2937;
-  line-height: 1.4;
+  line-height: 1.45;
   cursor: pointer;
 }
 .auth-consent input[type="checkbox"] {
@@ -1891,6 +1891,17 @@
   accent-color: #7c3aed;
   cursor: pointer;
   flex-shrink: 0;
+}
+.auth-consent span { display: inline; }
+.auth-consent .auth-link {
+  white-space: nowrap;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.auth-required {
+  color: #dc2626;
+  margin-left: 2px;
+  font-weight: 700;
 }
 
 .auth-info {

@@ -250,7 +250,33 @@ END $$;
 GRANT EXECUTE ON FUNCTION update_marketing_opt_in(BOOLEAN) TO authenticated;
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- 9. Admin RPCs (gated by is_admin())
+-- 9. Public validation RPCs (used at the registration screen before signUp)
+-- ─────────────────────────────────────────────────────────────────────────────
+-- These do NOT consume anything; they only report whether a code is usable.
+-- Granted to anon so the AuthScreen can pre-validate before creating an
+-- account. Class codes and teacher codes are gates, not secrets.
+
+CREATE OR REPLACE FUNCTION check_teacher_code(p_code TEXT) RETURNS BOOLEAN
+LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
+  SELECT EXISTS(
+    SELECT 1 FROM teacher_codes
+    WHERE upper(code) = upper(btrim(p_code)) AND used_by IS NULL
+  )
+$$;
+
+GRANT EXECUTE ON FUNCTION check_teacher_code(TEXT) TO anon, authenticated;
+
+CREATE OR REPLACE FUNCTION class_code_exists(p_code TEXT) RETURNS BOOLEAN
+LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
+  SELECT EXISTS(
+    SELECT 1 FROM groups WHERE upper(code) = upper(btrim(p_code))
+  )
+$$;
+
+GRANT EXECUTE ON FUNCTION class_code_exists(TEXT) TO anon, authenticated;
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- 10. Admin RPCs (gated by is_admin())
 -- ─────────────────────────────────────────────────────────────────────────────
 CREATE OR REPLACE FUNCTION admin_create_teacher_code(
   p_student_limit INT,
@@ -352,7 +378,7 @@ END $$;
 GRANT EXECUTE ON FUNCTION admin_update_group_limit(UUID, INT) TO authenticated;
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- 10. Backfill existing users → profiles
+-- 11. Backfill existing users → profiles
 -- ─────────────────────────────────────────────────────────────────────────────
 INSERT INTO profiles (user_id, access_type, terms_accepted_at, privacy_accepted_at, created_at, updated_at)
 SELECT
@@ -367,7 +393,7 @@ FROM auth.users u
 ON CONFLICT (user_id) DO NOTHING;
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- 11. Backfill student_limit for legacy groups (≥30, with slack above current size)
+-- 12. Backfill student_limit for legacy groups (≥30, with slack above current size)
 -- ─────────────────────────────────────────────────────────────────────────────
 UPDATE groups g
 SET student_limit = GREATEST(

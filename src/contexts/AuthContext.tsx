@@ -109,6 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
     setShowHistoryPanel(false);
+    try { localStorage.removeItem('mind-fitness-pending-signup'); } catch { /* ignore */ }
   }, []);
 
   const resetPassword = useCallback(async (email: string): Promise<string | null> => {

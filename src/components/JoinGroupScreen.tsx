@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useAccess } from '../contexts/AccessContext';
 import { useGroup } from '../contexts/GroupContext';
@@ -6,6 +6,8 @@ import {
   consumeTeacherCode,
   joinGroupByClassCodeRpc,
   validateClassCode,
+  readPendingSignup,
+  clearPendingSignup,
 } from '../lib/access';
 
 type Role = null | 'student' | 'teacher';
@@ -32,6 +34,24 @@ export default function JoinGroupScreen() {
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [resumed, setResumed] = useState(false);
+
+  // Resume after email confirmation: pre-fill role + codes from the stash.
+  useEffect(() => {
+    const pending = readPendingSignup();
+    if (!pending) return;
+    if (pending.role === 'student') {
+      setRole('student');
+      setClassCode(pending.classCode);
+      if (pending.displayName) setDisplayName(pending.displayName);
+    } else {
+      setRole('teacher');
+      setTeacherCode(pending.teacherCode);
+      setGroupName(pending.groupName);
+      setNewClassCode(pending.classCode);
+    }
+    setResumed(true);
+  }, []);
 
   const submitStudent = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,6 +61,7 @@ export default function JoinGroupScreen() {
     setLoading(true);
     const { error: err } = await joinGroupByClassCodeRpc(classCode.trim(), displayName.trim());
     if (err) { setLoading(false); setError(err); return; }
+    clearPendingSignup();
     await Promise.all([refreshAccess(), refreshGroup()]);
     setLoading(false);
   };
@@ -59,6 +80,7 @@ export default function JoinGroupScreen() {
       newClassCode.trim(),
     );
     if (err) { setLoading(false); setError(err); return; }
+    clearPendingSignup();
     await Promise.all([refreshAccess(), refreshGroup()]);
     setLoading(false);
   };
@@ -69,7 +91,9 @@ export default function JoinGroupScreen() {
         <div className="auth-logo"><span>🎓</span></div>
         <h1 className="auth-screen-title">Подключите аккаунт</h1>
         <p className="auth-screen-subtitle">
-          Чтобы начать заниматься, выберите свою роль и введите код.
+          {resumed
+            ? 'Завершите регистрацию: код заполнен из вашей заявки — проверьте и подтвердите.'
+            : 'Чтобы начать заниматься, выберите свою роль и введите код.'}
         </p>
 
         {role === null && (
