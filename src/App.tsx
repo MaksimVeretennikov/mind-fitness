@@ -28,6 +28,7 @@ import NeNi from './exercises/NeNi';
 import DogBreeds from './exercises/DogBreeds';
 import SmartCount from './exercises/SmartCount';
 import MirrorDrawing from './exercises/MirrorDrawing';
+import MemoryCipher from './exercises/MemoryCipher';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { StreakProvider } from './contexts/StreakContext';
 import { GroupProvider } from './contexts/GroupContext';
@@ -76,6 +77,7 @@ function ExerciseComponent({ id, onBack }: { id: ExerciseId; onBack: () => void 
     case 'dog-breeds': return <DogBreeds onBack={onBack} />;
     case 'smart-count': return <SmartCount />;
     case 'mirror-drawing': return <MirrorDrawing />;
+    case 'memory-cipher': return <MemoryCipher />;
   }
 }
 

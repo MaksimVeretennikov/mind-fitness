@@ -35,6 +35,7 @@ const EXERCISE_NAMES: Record<string, string> = {
   'dog-breeds': 'Породы собак',
   'smart-count': 'Умный счёт',
   'mirror-drawing': 'Зеркальный рисунок',
+  'memory-cipher': 'Тайный шифр',
 };
 
 const EXERCISE_ICONS: Record<string, string> = {
@@ -49,6 +50,7 @@ const EXERCISE_ICONS: Record<string, string> = {
   'ne-ni': '🪶',
   'smart-count': '🧮',
   'mirror-drawing': '🪞',
+  'memory-cipher': '🔣',
 };
 
 const RU_EXERCISES = new Set([

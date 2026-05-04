@@ -22,7 +22,8 @@ export type ExerciseId =
   | 'ne-ni'
   | 'dog-breeds'
   | 'smart-count'
-  | 'mirror-drawing';
+  | 'mirror-drawing'
+  | 'memory-cipher';
 
 export interface Exercise {
   id: ExerciseId;
