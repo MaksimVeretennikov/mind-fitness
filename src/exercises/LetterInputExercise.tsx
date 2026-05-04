@@ -26,6 +26,7 @@ interface Props {
 }
 
 type Segment = { type: 'text'; val: string } | { type: 'blank'; idx: number };
+type Word = { segments: Segment[] };
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -36,20 +37,25 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-function parseDisplay(display: string): Segment[] {
-  const segs: Segment[] = [];
+/** Split display into words (by ASCII space) — each word's segments stay on one line. */
+function parseDisplay(display: string): Word[] {
+  const words: Word[] = [];
   let blankIdx = 0;
-  let textAcc = '';
-  for (const ch of display) {
-    if (ch === '_') {
-      if (textAcc) { segs.push({ type: 'text', val: textAcc }); textAcc = ''; }
-      segs.push({ type: 'blank', idx: blankIdx++ });
-    } else {
-      textAcc += ch;
+  for (const raw of display.split(' ')) {
+    const segs: Segment[] = [];
+    let textAcc = '';
+    for (const ch of raw) {
+      if (ch === '_') {
+        if (textAcc) { segs.push({ type: 'text', val: textAcc }); textAcc = ''; }
+        segs.push({ type: 'blank', idx: blankIdx++ });
+      } else {
+        textAcc += ch;
+      }
     }
+    if (textAcc) segs.push({ type: 'text', val: textAcc });
+    if (segs.length > 0) words.push({ segments: segs });
   }
-  if (textAcc) segs.push({ type: 'text', val: textAcc });
-  return segs;
+  return words;
 }
 
 function getExpectedLetters(display: string, answer: string): string[] {
@@ -96,7 +102,7 @@ export default function LetterInputExercise({ items, resultKey, title, emoji, su
     () => currentWord ? getExpectedLetters(currentWord.display, currentWord.answer) : [],
     [currentWord],
   );
-  const segments = useMemo(
+  const wordsParsed = useMemo(
     () => currentWord ? parseDisplay(currentWord.display) : [],
     [currentWord],
   );
@@ -375,52 +381,56 @@ export default function LetterInputExercise({ items, resultKey, title, emoji, su
         className={`w-full max-w-md rounded-2xl p-8 shadow-md border border-white/60 flex flex-col items-center gap-6 backdrop-blur-md transition-colors duration-200 ${shaking ? 'adverb-shake' : ''}`}
         style={{ backgroundColor: cardBg }}
       >
-        {/* Word display with inline blank inputs */}
+        {/* Word display with inline blank inputs — words wrap, but a single word stays on one line */}
         <div
           className="text-2xl md:text-3xl font-bold text-gray-800 text-center leading-relaxed flex flex-wrap items-baseline justify-center"
-          style={{ gap: '0' }}
+          style={{ columnGap: '0.4em', rowGap: '0.1em' }}
         >
-          {segments.map((seg, i) => {
-            if (seg.type === 'text') {
-              return <span key={i}>{seg.val}</span>;
-            }
-            const blankIdx = seg.idx;
-            const val = revealState === 'correct' && locked
-              ? expectedLetters[blankIdx]
-              : (inputs[blankIdx] ?? '');
-            return (
-              <input
-                key={i}
-                ref={el => { inputRefs.current[blankIdx] = el; }}
-                type="text"
-                inputMode="text"
-                value={val}
-                onChange={e => !locked && handleLetterChange(blankIdx, e.target.value, inputs)}
-                onKeyDown={e => !locked && handleLetterKeyDown(blankIdx, e, inputs)}
-                maxLength={2}
-                autoComplete="off"
-                autoCorrect="off"
-                autoCapitalize="none"
-                spellCheck={false}
-                disabled={locked}
-                style={{
-                  width: '1.4em',
-                  border: 'none',
-                  borderBottom: `2.5px solid ${blankBorderColor}`,
-                  borderRadius: 0,
-                  textAlign: 'center',
-                  background: 'transparent',
-                  outline: 'none',
-                  fontWeight: 'bold',
-                  fontSize: 'inherit',
-                  lineHeight: 'inherit',
-                  color: blankTextColor,
-                  padding: '0 1px',
-                  marginBottom: '2px',
-                }}
-              />
-            );
-          })}
+          {wordsParsed.map((word, wi) => (
+            <span key={wi} style={{ display: 'inline-flex', alignItems: 'baseline', whiteSpace: 'nowrap' }}>
+              {word.segments.map((seg, i) => {
+                if (seg.type === 'text') {
+                  return <span key={i}>{seg.val}</span>;
+                }
+                const blankIdx = seg.idx;
+                const val = revealState === 'correct' && locked
+                  ? expectedLetters[blankIdx]
+                  : (inputs[blankIdx] ?? '');
+                return (
+                  <input
+                    key={i}
+                    ref={el => { inputRefs.current[blankIdx] = el; }}
+                    type="text"
+                    inputMode="text"
+                    value={val}
+                    onChange={e => !locked && handleLetterChange(blankIdx, e.target.value, inputs)}
+                    onKeyDown={e => !locked && handleLetterKeyDown(blankIdx, e, inputs)}
+                    maxLength={2}
+                    autoComplete="off"
+                    autoCorrect="off"
+                    autoCapitalize="none"
+                    spellCheck={false}
+                    disabled={locked}
+                    style={{
+                      width: '1.4em',
+                      border: 'none',
+                      borderBottom: `2.5px solid ${blankBorderColor}`,
+                      borderRadius: 0,
+                      textAlign: 'center',
+                      background: 'transparent',
+                      outline: 'none',
+                      fontWeight: 'bold',
+                      fontSize: 'inherit',
+                      lineHeight: 'inherit',
+                      color: blankTextColor,
+                      padding: '0 1px',
+                      marginBottom: '2px',
+                    }}
+                  />
+                );
+              })}
+            </span>
+          ))}
         </div>
 
         {!locked && (

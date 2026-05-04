@@ -119,8 +119,44 @@ function fmtTime(s: number) {
   return m > 0 ? `${m}м ${sec}с` : `${sec}с`;
 }
 
+/**
+ * Split `total` items into roughly equal rows, capped at `maxPerRow` per row.
+ * Returns the size of each row.
+ *  - 15 items, max 14 → [8, 7] (instead of 14 + 1)
+ *  - 30 items, max 16 → [15, 15] (instead of 16 + 14)
+ *  -  9 items, max  9 → [9]
+ */
+function balanceRows(total: number, maxPerRow: number): number[] {
+  if (total <= 0) return [];
+  if (total <= maxPerRow) return [total];
+  const rows = Math.ceil(total / maxPerRow);
+  const base = Math.floor(total / rows);
+  const extra = total - base * rows;
+  return Array.from({ length: rows }, (_, i) => base + (i < extra ? 1 : 0));
+}
+
+function useMaxPerRow(): number {
+  const compute = () => {
+    if (typeof window === 'undefined') return 14;
+    const w = window.innerWidth;
+    // cell ≈ 2.5rem mobile, 3rem sm, 3.5rem md; gap 0.75–1rem
+    if (w >= 1024) return 14; // desktop
+    if (w >= 640) return 11;  // tablet
+    if (w >= 420) return 8;   // wide phone
+    return 7;                 // narrow phone
+  };
+  const [n, setN] = useState(compute);
+  useEffect(() => {
+    const onResize = () => setN(compute());
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+  return n;
+}
+
 export default function LetterStrikeout() {
   const [phase, setPhase] = useState<Phase>('settings');
+  const viewportMaxPerRow = useMaxPerRow();
   const [diff, setDiff] = useState<StrikeoutDifficulty>('easy');
   const [word, setWord] = useState('');
   const [cells, setCells] = useState<Cell[]>([]);
@@ -371,29 +407,38 @@ export default function LetterStrikeout() {
         Пары вычеркнутся. Уникальные буквы сложатся в слово.
       </p>
 
-      {/* Letter row */}
+      {/* Letter rows — balanced so the last row isn't a near-empty stub */}
       <div className="glass rounded-2xl p-4 sm:p-6 shadow-sm">
-        <div className="flex flex-wrap gap-3 sm:gap-4 justify-center">
-          {cells.map((c, i) => {
-            const isSelected = selectedIdx === i;
-            const isErrorPair = errorPair && (errorPair[0] === i || errorPair[1] === i);
-            const isMatchPair = matchPair && (matchPair[0] === i || matchPair[1] === i);
-
-            let cls = 'text-gray-800 bg-white/80 hover:bg-amber-50 hover:scale-110 cursor-pointer shadow-sm';
-            if (c.struck) cls = 'text-gray-300 bg-gray-50 cursor-default';
-            else if (isMatchPair) cls = 'text-emerald-600 bg-emerald-100 ring-2 ring-emerald-400 scale-110';
-            else if (isErrorPair) cls = 'text-rose-600 bg-rose-100 ring-2 ring-rose-400 adverb-shake';
-            else if (isSelected) cls = 'text-amber-700 bg-amber-100 ring-2 ring-amber-400 scale-110 shadow-md';
-
+        <div className="flex flex-col gap-3 sm:gap-4 items-center">
+          {balanceRows(cells.length, viewportMaxPerRow).map((rowSize, rowIdx, rowSizes) => {
+            const offset = rowSizes.slice(0, rowIdx).reduce((s, n) => s + n, 0);
+            const rowCells = cells.slice(offset, offset + rowSize);
             return (
-              <button
-                key={i}
-                onClick={() => handleClick(i)}
-                disabled={c.struck}
-                className={`relative w-10 h-12 sm:w-12 sm:h-14 md:w-14 md:h-16 rounded-xl flex items-center justify-center font-bold text-lg sm:text-2xl transition-all active:scale-95 ${cls}`}
-              >
-                <span className={c.struck ? 'line-through' : ''}>{c.ch}</span>
-              </button>
+              <div key={rowIdx} className="flex gap-3 sm:gap-4 justify-center">
+                {rowCells.map((c, j) => {
+                  const i = offset + j;
+                  const isSelected = selectedIdx === i;
+                  const isErrorPair = errorPair && (errorPair[0] === i || errorPair[1] === i);
+                  const isMatchPair = matchPair && (matchPair[0] === i || matchPair[1] === i);
+
+                  let cls = 'text-gray-800 bg-white/80 hover:bg-amber-50 hover:scale-110 cursor-pointer shadow-sm';
+                  if (c.struck) cls = 'text-gray-300 bg-gray-50 cursor-default';
+                  else if (isMatchPair) cls = 'text-emerald-600 bg-emerald-100 ring-2 ring-emerald-400 scale-110';
+                  else if (isErrorPair) cls = 'text-rose-600 bg-rose-100 ring-2 ring-rose-400 adverb-shake';
+                  else if (isSelected) cls = 'text-amber-700 bg-amber-100 ring-2 ring-amber-400 scale-110 shadow-md';
+
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => handleClick(i)}
+                      disabled={c.struck}
+                      className={`relative w-10 h-12 sm:w-12 sm:h-14 md:w-14 md:h-16 rounded-xl flex items-center justify-center font-bold text-lg sm:text-2xl transition-all active:scale-95 ${cls}`}
+                    >
+                      <span className={c.struck ? 'line-through' : ''}>{c.ch}</span>
+                    </button>
+                  );
+                })}
+              </div>
             );
           })}
         </div>

@@ -909,7 +909,7 @@
 }
 .history-mistake-row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 10px;
   padding: 6px 2px;
@@ -920,8 +920,9 @@
 .history-mistake-row:last-child { border-bottom: none; }
 .history-mistake-display {
   color: #6b7280;
-  flex: 1 1 200px;
+  flex: 0 1 auto;
   min-width: 0;
+  max-width: 100%;
   word-break: break-word;
   line-height: 1.35;
 }
@@ -929,8 +930,13 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: flex-end;
+  margin-left: auto;
+}
+.history-mistake-chosen,
+.history-mistake-correct {
+  white-space: nowrap;
 }
 .history-mistake-chosen {
   color: #b91c1c;
