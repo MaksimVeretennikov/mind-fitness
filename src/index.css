@@ -378,6 +378,20 @@
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
+.user-badge-access {
+  display: flex; align-items: center; gap: 8px;
+  margin: 0 10px 8px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  background: rgba(16, 185, 129, 0.08);
+  font-size: 0.76rem;
+  color: #047857;
+  font-weight: 500;
+}
+.user-badge-access-icon { font-size: 0.9rem; }
+.user-badge-access-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.user-badge-access-text strong { font-weight: 700; }
+
 .user-badge-divider {
   height: 1px;
   background: rgba(0,0,0,0.07);
