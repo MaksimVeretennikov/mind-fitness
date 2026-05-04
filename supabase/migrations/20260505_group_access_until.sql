@@ -72,7 +72,8 @@ END $$;
 
 GRANT EXECUTE ON FUNCTION consume_teacher_code(TEXT,TEXT,TEXT) TO authenticated;
 
--- Admin listing с access_until.
+-- Admin listing с access_until. Return type изменился → нужно дропнуть старую.
+DROP FUNCTION IF EXISTS admin_list_groups();
 CREATE OR REPLACE FUNCTION admin_list_groups()
 RETURNS TABLE(
   id UUID,
