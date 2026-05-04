@@ -46,7 +46,7 @@ const EXERCISE_ICONS: Record<string, string> = {
   pleonasms: '🔡',
   'root-spelling': '🔠', 'suffix-spelling': '📖', 'verb-suffixes': '🖊️',
   'intro-words': '💬',
-  'ne-ni': '🚫',
+  'ne-ni': '🪶',
   'smart-count': '🧮',
   'mirror-drawing': '🪞',
 };

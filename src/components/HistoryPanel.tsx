@@ -58,7 +58,7 @@ const EXERCISE_ICONS: Record<string, string> = {
   'suffix-spelling': '📖',
   'verb-suffixes': '🖊️',
   'intro-words': '💬',
-  'ne-ni': '🚫',
+  'ne-ni': '🪶',
   'dog-breeds': '🐕',
   'smart-count': '🧮',
   'mirror-drawing': '🪞',

@@ -30,19 +30,8 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-/** Render `display`, highlighting the marker substring inside parentheses. */
-function HighlightedDisplay({ item }: { item: NeNiItem }) {
-  const idx = item.display.indexOf(item.marker);
-  if (idx === -1) return <>{item.display}</>;
-  const before = item.display.slice(0, idx);
-  const after = item.display.slice(idx + item.marker.length);
-  return (
-    <>
-      {before}
-      <span className="text-indigo-600">{item.marker}</span>
-      {after}
-    </>
-  );
+function DisplayText({ item }: { item: NeNiItem }) {
+  return <>{item.display}</>;
 }
 
 interface Props {
@@ -182,7 +171,7 @@ export default function NeNi({ onBack }: Props) {
     return (
       <div className="flex flex-col items-center gap-4 md:gap-6 py-4 md:py-8 animate-fade-in w-full max-w-sm md:max-w-xl mx-auto px-2">
         <div className="glass rounded-3xl px-8 md:px-10 py-6 md:py-7 text-center shadow-sm w-full">
-          <div className="text-5xl md:text-6xl mb-4 animate-float">🚫</div>
+          <div className="text-5xl md:text-6xl mb-4 animate-float">🪶</div>
           <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">Правописание НЕ / НИ</h1>
           <p className="text-gray-500 md:text-lg">
             Слитно или раздельно? Выберите режим и количество
@@ -276,14 +265,14 @@ export default function NeNi({ onBack }: Props) {
             <h3 className="font-semibold text-gray-700 mb-4 text-sm uppercase tracking-wide">
               Ошибки ({mistakes.length})
             </h3>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1.5">
               {mistakes.map((m, i) => (
                 <div
                   key={i}
-                  className="flex flex-col gap-1.5 text-sm py-2 border-b border-gray-100 last:border-0"
+                  className="flex items-start justify-between gap-3 text-sm py-1.5 border-b border-gray-100 last:border-0 flex-wrap"
                 >
-                  <span className="text-gray-600 leading-snug">{m.display}</span>
-                  <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-gray-500 flex-1 min-w-0 break-words leading-snug">{m.display}</span>
+                  <div className="flex items-center gap-2 flex-wrap justify-end shrink-0">
                     <span className="text-red-600 font-semibold bg-red-50 px-2 py-0.5 rounded-lg line-through">
                       {m.chosen}
                     </span>
@@ -363,7 +352,7 @@ export default function NeNi({ onBack }: Props) {
             isSentence ? 'text-xl md:text-2xl leading-relaxed' : 'text-3xl md:text-4xl leading-tight'
           }`}
         >
-          <HighlightedDisplay item={currentItem} />
+          <DisplayText item={currentItem} />
         </p>
 
         {revealText && (
@@ -376,18 +365,18 @@ export default function NeNi({ onBack }: Props) {
         )}
       </motion.div>
 
-      <div className="flex gap-4 w-full max-w-md">
+      <div className="flex gap-4 w-full">
         <button
           onClick={() => handleAnswer('слитно')}
           disabled={locked}
-          className="flex-1 py-4 rounded-2xl text-base font-bold text-white bg-gradient-to-r from-indigo-500 to-blue-600 shadow-sm hover:shadow-md hover:opacity-90 transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex-1 py-5 md:py-7 rounded-2xl text-base md:text-2xl font-bold text-white bg-gradient-to-r from-indigo-500 to-blue-600 shadow-sm hover:shadow-md hover:opacity-90 transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           СЛИТНО
         </button>
         <button
           onClick={() => handleAnswer('раздельно')}
           disabled={locked}
-          className="flex-1 py-4 rounded-2xl text-base font-bold text-white bg-gradient-to-r from-violet-500 to-purple-600 shadow-sm hover:shadow-md hover:opacity-90 transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex-1 py-5 md:py-7 rounded-2xl text-base md:text-2xl font-bold text-white bg-gradient-to-r from-violet-500 to-purple-600 shadow-sm hover:shadow-md hover:opacity-90 transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           РАЗДЕЛЬНО
         </button>

@@ -93,7 +93,7 @@ export const RUSSIAN_EXERCISES: Exercise[] = [
     id: 'ne-ni',
     title: 'Правописание НЕ / НИ',
     description: 'Выберите правильное написание: слитно или раздельно. Тренируйте слова и предложения.',
-    icon: '🚫',
+    icon: '🪶',
     color: 'text-indigo-700',
     gradient: 'from-indigo-500 to-blue-600',
   },
