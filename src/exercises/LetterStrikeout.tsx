@@ -154,13 +154,10 @@ export default function LetterStrikeout() {
       setTimeout(() => setShakeIdx(s => (s === idx ? null : s)), 400);
       return;
     }
-    setCells(prev => {
-      const cur = prev[idx];
-      if (!cur || cur.struck) return prev;
-      const next = prev.slice();
-      next[idx] = { ...cur, struck: true };
-      return next;
-    });
+    // Strike all copies of this letter — повторяющиеся вычеркиваются сразу.
+    setCells(prev => prev.map(cur =>
+      cur.ch === c.ch && !cur.struck ? { ...cur, struck: true } : cur,
+    ));
   }, [phase, cells]);
 
   // ---------- Settings ----------
@@ -176,9 +173,9 @@ export default function LetterStrikeout() {
             </div>
           </div>
           <p className="text-gray-500 text-sm leading-relaxed mb-5">
-            Перед вами строка букв. Некоторые встречаются по несколько раз — нажимайте
-            на каждую такую букву, чтобы вычеркнуть её. Когда уберёте все повторы,
-            оставшиеся буквы сложатся в слово.
+            Перед вами строка букв. Некоторые встречаются по несколько раз — нажмите на
+            любую такую букву, и все её копии вычеркнутся сразу. Когда уберёте все
+            повторы, оставшиеся буквы сложатся в слово.
           </p>
           <span className="text-gray-600 font-medium text-sm">Сложность</span>
           <div className="flex flex-col gap-3 mt-2 mb-6">
@@ -291,8 +288,8 @@ export default function LetterStrikeout() {
 
       {/* Hint */}
       <p className="text-center text-xs sm:text-sm text-gray-500">
-        Нажмите на каждую <span className="font-semibold text-violet-600">повторяющуюся</span> букву —
-        и узнаете спрятанное слово.
+        Нажмите на любую <span className="font-semibold text-violet-600">повторяющуюся</span> букву —
+        вычеркнутся все её копии. Оставшиеся сложатся в слово.
       </p>
 
       {/* Letter row */}
