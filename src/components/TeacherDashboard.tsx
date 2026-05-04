@@ -36,6 +36,7 @@ const EXERCISE_NAMES: Record<string, string> = {
   'smart-count': 'Умный счёт',
   'mirror-drawing': 'Зеркальный рисунок',
   'memory-cipher': 'Тайный шифр',
+  'letter-strikeout': 'Спрятанное слово',
 };
 
 const EXERCISE_ICONS: Record<string, string> = {
@@ -51,6 +52,7 @@ const EXERCISE_ICONS: Record<string, string> = {
   'smart-count': '🧮',
   'mirror-drawing': '🪞',
   'memory-cipher': '🔣',
+  'letter-strikeout': '✂️',
 };
 
 const RU_EXERCISES = new Set([
