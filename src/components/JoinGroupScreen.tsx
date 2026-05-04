@@ -153,7 +153,7 @@ export default function JoinGroupScreen() {
                 type="text"
                 value={teacherCode}
                 onChange={e => setTeacherCode(e.target.value)}
-                placeholder="TCH-XXXX-XXXX"
+                placeholder="Введите код, который вам выдали"
                 className="auth-input"
                 autoFocus
               />

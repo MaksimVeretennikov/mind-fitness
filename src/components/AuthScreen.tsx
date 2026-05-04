@@ -253,7 +253,7 @@ export default function AuthScreen() {
             <Field label="Пароль" value={password} onChange={setPassword}
               type="password" placeholder="Минимум 6 символов" autoComplete="new-password" />
             <Field label="Код учителя" value={teacherCode} onChange={setTeacherCode}
-              placeholder="TCH-XXXX-XXXX" />
+              placeholder="Введите код, который вам выдали" />
             <Field label="Название группы" value={groupName} onChange={setGroupName}
               placeholder="Например, 7А — русский" />
             <Field label="Код класса для учеников" value={classCode} onChange={setClassCode}
