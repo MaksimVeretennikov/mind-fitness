@@ -437,6 +437,8 @@ export default function MemoryCipher() {
   }
 
   // ---------- Solving screen ----------
+  const capPx = cfg.rows === 3 ? 840 : cfg.rows === 4 ? 720 : 620;
+  const gridMaxWidth = `min(${capPx}px, calc((100vh - 320px) * ${cfg.cols} / ${cfg.rows}))`;
   return (
     <div className="flex flex-col gap-2 sm:gap-3 animate-fade-in pb-2">
       {/* HUD */}
@@ -464,11 +466,7 @@ export default function MemoryCipher() {
       </div>
 
       {/* Grid */}
-      <div className="glass rounded-2xl p-2 sm:p-3 shadow-sm mx-auto w-full"
-        style={{
-          maxWidth: `min(${cfg.rows === 3 ? 720 : cfg.rows === 4 ? 600 : 540}px, calc((100vh - 380px) * ${cfg.cols} / ${cfg.rows}))`,
-        }}
-      >
+      <div className="glass rounded-2xl p-2 sm:p-3 shadow-sm mx-auto w-full" style={{ maxWidth: gridMaxWidth }}>
         <div
           className="grid gap-1.5 sm:gap-2"
           style={{ gridTemplateColumns: `repeat(${cfg.cols}, minmax(0, 1fr))` }}
@@ -512,14 +510,11 @@ export default function MemoryCipher() {
         </div>
       </div>
 
-      {/* Symbol palette */}
-      <div className="glass rounded-2xl p-2 shadow-sm sticky bottom-2 z-10">
+      {/* Symbol palette — same width as grid */}
+      <div className="glass rounded-2xl p-2 shadow-sm sticky bottom-2 z-10 mx-auto w-full" style={{ maxWidth: gridMaxWidth }}>
         <div
-          className="grid gap-2 mx-auto"
-          style={{
-            gridTemplateColumns: `repeat(${game.symbols.length}, minmax(0, 1fr))`,
-            maxWidth: `${game.symbols.length * 80}px`,
-          }}
+          className="grid gap-2"
+          style={{ gridTemplateColumns: `repeat(${game.symbols.length}, minmax(0, 1fr))` }}
         >
           {game.symbols.map(sym => (
             <button

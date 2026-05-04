@@ -20,7 +20,7 @@ interface Props {
 }
 
 export default function DevTimePanel({ currentHour, currentDay, onHourChange, onDayChange }: Props) {
-  const [hidden, setHidden] = useState(false);
+  const [hidden, setHidden] = useState(true);
 
   if (hidden) {
     return (
