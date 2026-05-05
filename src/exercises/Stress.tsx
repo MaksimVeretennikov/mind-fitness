@@ -313,14 +313,14 @@ export default function Stress({ onBack }: Props) {
               {mistakes.map((m, i) => (
                 <div
                   key={i}
-                  className="flex items-center justify-between gap-3 text-sm py-1.5 border-b border-gray-100 last:border-0"
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-3 text-sm py-1.5 border-b border-gray-100 last:border-0"
                 >
-                  <span className="text-gray-500 shrink-0">{m.display}</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-red-600 font-semibold bg-red-50 px-2 py-0.5 rounded-lg line-through">
+                  <span className="text-gray-500 break-words">{m.display}</span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-red-600 font-semibold bg-red-50 px-2 py-0.5 rounded-lg line-through break-all">
                       <StressedWord word={m.chosen} />
                     </span>
-                    <span className="text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-lg">
+                    <span className="text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-lg break-all">
                       <StressedWord word={m.correct} />
                     </span>
                   </div>

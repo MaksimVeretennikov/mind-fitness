@@ -944,13 +944,17 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   justify-content: flex-end;
   margin-left: auto;
+  max-width: 100%;
+  min-width: 0;
 }
 .history-mistake-chosen,
 .history-mistake-correct {
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  max-width: 100%;
 }
 .history-mistake-chosen {
   color: #b91c1c;
@@ -1914,7 +1918,6 @@
 }
 .auth-consent span { display: inline; }
 .auth-consent .auth-link {
-  white-space: nowrap;
   text-decoration: underline;
   text-underline-offset: 2px;
 }
@@ -2176,6 +2179,50 @@
   color: #4f46e5;
 }
 .admin-table .muted { color: #9ca3af; font-size: 0.82rem; }
+
+/* Mobile: turn admin table rows into stacked cards (no horizontal scroll). */
+@media (max-width: 760px) {
+  .admin-page { padding: 60px 12px 40px; }
+  .admin-card { padding: 16px; }
+  .admin-tabs { width: 100%; overflow-x: auto; }
+  .admin-tab { white-space: nowrap; padding: 8px 12px; font-size: 0.85rem; }
+
+  .admin-table-wrap { overflow-x: visible; }
+  .admin-table,
+  .admin-table thead,
+  .admin-table tbody,
+  .admin-table tr,
+  .admin-table th,
+  .admin-table td { display: block; width: 100%; box-sizing: border-box; }
+  .admin-table thead { display: none; }
+  .admin-table tr {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    padding: 8px 4px;
+    background: #fafafa;
+  }
+  .admin-table td {
+    border: none;
+    padding: 6px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+  }
+  .admin-table td:empty { display: none; }
+  .admin-table td::before {
+    content: attr(data-label);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #6b7280;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .admin-table td > * { text-align: right; }
+}
 .badge {
   display: inline-block;
   padding: 2px 8px;

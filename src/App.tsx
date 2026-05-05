@@ -117,10 +117,30 @@ function MainApp() {
   );
 }
 
+function ExpiredScreen({ until }: { until: string }) {
+  const { signOut } = useAuth();
+  const d = new Date(until);
+  const fmt = `${d.toLocaleDateString('ru-RU')} ${d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}`;
+  return (
+    <div className="auth-screen">
+      <div className="auth-screen-card">
+        <div className="auth-logo"><span>⏳</span></div>
+        <h1 className="auth-screen-title">Срок доступа истёк</h1>
+        <p className="auth-screen-subtitle">
+          Ваш индивидуальный доступ закончился {fmt}. Чтобы продлить — свяжитесь с администратором.
+        </p>
+        <button type="button" className="auth-submit" onClick={signOut}>
+          Выйти
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function Gate() {
   const route = useRoute();
   const { user, loading: authLoading, resetPasswordMode } = useAuth();
-  const { accessType, isAdmin, loading: accessLoading } = useAccess();
+  const { accessType, isAdmin, loading: accessLoading, profile } = useAccess();
 
   // Public legal pages — accessible regardless of auth state.
   if (route === '/privacy') return <LegalPage doc="privacy" />;
@@ -149,6 +169,16 @@ function Gate() {
 
   // New users without a role yet → must enter a code.
   if (accessType === 'pending') return <JoinGroupScreen />;
+
+  // Individual access: enforce access_until expiry.
+  if (
+    accessType === 'individual' &&
+    profile?.access_until &&
+    new Date(profile.access_until).getTime() <= Date.now() &&
+    !isAdmin
+  ) {
+    return <ExpiredScreen until={profile.access_until} />;
+  }
 
   return <MainApp />;
 }

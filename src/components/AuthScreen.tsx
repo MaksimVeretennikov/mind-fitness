@@ -6,14 +6,16 @@ import {
   validateClassCode,
   checkTeacherCode,
   checkClassCodeExists,
+  checkIndividualCode,
   consumeTeacherCode,
+  consumeIndividualCode,
   joinGroupByClassCodeRpc,
   stashPendingSignup,
   clearPendingSignup,
 } from '../lib/access';
 
 type View = 'signin' | 'signup' | 'forgot';
-type Role = 'student' | 'teacher';
+type Role = 'student' | 'teacher' | 'individual';
 
 export default function AuthScreen() {
   const { signIn, signUp, resetPassword } = useAuth();
@@ -35,6 +37,7 @@ export default function AuthScreen() {
   const [classCode, setClassCode] = useState('');         // student joins here / teacher creates here
   const [teacherCode, setTeacherCode] = useState('');     // teacher only
   const [groupName, setGroupName] = useState('');         // teacher only
+  const [individualCode, setIndividualCode] = useState(''); // individual only
 
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
@@ -82,11 +85,13 @@ export default function AuthScreen() {
 
     if (signupRole === 'student') {
       if (!classCode.trim()) { setError('Введите код класса от учителя'); return; }
-    } else {
+    } else if (signupRole === 'teacher') {
       if (!teacherCode.trim()) { setError('Введите код учителя'); return; }
       if (!groupName.trim()) { setError('Укажите название группы'); return; }
       const fmt = validateClassCode(classCode);
       if (fmt) { setError(fmt); return; }
+    } else {
+      if (!individualCode.trim()) { setError('Введите индивидуальный код'); return; }
     }
 
     setLoading(true);
@@ -95,18 +100,23 @@ export default function AuthScreen() {
     if (signupRole === 'student') {
       const ok = await checkClassCodeExists(classCode.trim());
       if (!ok) { setLoading(false); setError('Группа с таким кодом не найдена. Уточните у учителя.'); return; }
-    } else {
+    } else if (signupRole === 'teacher') {
       const ok = await checkTeacherCode(teacherCode.trim());
       if (!ok) { setLoading(false); setError('Код учителя неверный или уже использован.'); return; }
       const taken = await checkClassCodeExists(classCode.trim());
       if (taken) { setLoading(false); setError('Такой код класса уже занят — выберите другой.'); return; }
+    } else {
+      const ok = await checkIndividualCode(individualCode.trim());
+      if (!ok) { setLoading(false); setError('Индивидуальный код неверный или уже использован.'); return; }
     }
 
     // 2. Stash intent so JoinGroupScreen can finish if email confirmation is on.
     stashPendingSignup(
       signupRole === 'student'
         ? { role: 'student', classCode: classCode.trim(), displayName: username.trim() }
-        : { role: 'teacher', teacherCode: teacherCode.trim(), groupName: groupName.trim(), classCode: classCode.trim() },
+        : signupRole === 'teacher'
+          ? { role: 'teacher', teacherCode: teacherCode.trim(), groupName: groupName.trim(), classCode: classCode.trim() }
+          : { role: 'individual', individualCode: individualCode.trim() },
     );
 
     // 3. Create the account.
@@ -123,10 +133,13 @@ export default function AuthScreen() {
       if (signupRole === 'student') {
         const { error: rpcErr } = await joinGroupByClassCodeRpc(classCode.trim(), username.trim());
         if (rpcErr) { setLoading(false); setError(rpcErr); return; }
-      } else {
+      } else if (signupRole === 'teacher') {
         const { error: rpcErr } = await consumeTeacherCode(
           teacherCode.trim(), groupName.trim(), classCode.trim(),
         );
+        if (rpcErr) { setLoading(false); setError(rpcErr); return; }
+      } else {
+        const { error: rpcErr } = await consumeIndividualCode(individualCode.trim());
         if (rpcErr) { setLoading(false); setError(rpcErr); return; }
       }
       clearPendingSignup();
@@ -156,7 +169,9 @@ export default function AuthScreen() {
             ? 'Кого регистрируем?'
             : signupRole === 'student'
               ? 'Регистрация ученика — нужен код класса'
-              : 'Регистрация учителя — нужен код учителя')}
+              : signupRole === 'teacher'
+                ? 'Регистрация учителя — нужен код учителя'
+                : 'Индивидуальный доступ — нужен индивидуальный код')}
           {view === 'forgot' && 'Восстановление доступа к аккаунту'}
         </p>
 
@@ -221,6 +236,11 @@ export default function AuthScreen() {
                 <div className="role-name">Я учитель</div>
                 <div className="role-desc">Создать свою группу — нужен код учителя</div>
               </button>
+              <button type="button" className="role-card" onClick={() => { setSignupRole('individual'); reset(); }}>
+                <div className="role-emoji">⭐</div>
+                <div className="role-name">Индивидуальный доступ</div>
+                <div className="role-desc">Личный доступ по индивидуальному коду — без группы</div>
+              </button>
             </div>
             {info && <div className="auth-info"><span>✉️</span> {info}</div>}
           </>
@@ -275,6 +295,32 @@ export default function AuthScreen() {
             {error && <div className="auth-error"><span>⚠️</span> {error}</div>}
             <button type="submit" disabled={loading} className="auth-submit">
               {loading ? <span className="auth-spinner" /> : 'Создать аккаунт и группу'}
+            </button>
+            <button type="button" className="auth-link auth-link-center"
+              onClick={() => { setSignupRole(null); reset(); }}>← Сменить роль</button>
+          </form>
+        )}
+
+        {/* ─── Sign up: individual form ─── */}
+        {view === 'signup' && signupRole === 'individual' && (
+          <form onSubmit={handleSignUp} className="auth-form" noValidate>
+            <Field label="Имя" value={username} onChange={setUsername}
+              placeholder="Как вас зовут?" autoComplete="name" autoFocus />
+            <Field label="Email" value={email} onChange={setEmail}
+              type="email" placeholder="you@example.com" autoComplete="email" />
+            <Field label="Пароль" value={password} onChange={setPassword}
+              type="password" placeholder="Минимум 6 символов" autoComplete="new-password" />
+            <Field label="Индивидуальный код" value={individualCode} onChange={setIndividualCode}
+              placeholder="Введите код, который вам выдали"
+              hint="Доступ активируется на календарный месяц с момента регистрации." />
+            <Consents
+              terms={acceptTerms} onTerms={setAcceptTerms}
+              privacy={acceptPrivacy} onPrivacy={setAcceptPrivacy}
+              marketing={acceptMarketing} onMarketing={setAcceptMarketing}
+            />
+            {error && <div className="auth-error"><span>⚠️</span> {error}</div>}
+            <button type="submit" disabled={loading} className="auth-submit">
+              {loading ? <span className="auth-spinner" /> : 'Создать индивидуальный аккаунт'}
             </button>
             <button type="button" className="auth-link auth-link-center"
               onClick={() => { setSignupRole(null); reset(); }}>← Сменить роль</button>
@@ -337,7 +383,7 @@ function Consents({
         <input type="checkbox" checked={privacy} onChange={e => onPrivacy(e.target.checked)} />
         <span>
           Даю{' '}
-          <a className="auth-link" href="#/privacy" target="_blank" rel="noreferrer">согласие на обработку ПДн</a>
+          <a className="auth-link" href="#/privacy" target="_blank" rel="noreferrer">согласие на обработку персональных данных</a>
           <span className="auth-required">*</span>
         </span>
       </label>

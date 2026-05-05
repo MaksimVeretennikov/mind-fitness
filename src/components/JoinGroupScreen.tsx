@@ -4,13 +4,14 @@ import { useAccess } from '../contexts/AccessContext';
 import { useGroup } from '../contexts/GroupContext';
 import {
   consumeTeacherCode,
+  consumeIndividualCode,
   joinGroupByClassCodeRpc,
   validateClassCode,
   readPendingSignup,
   clearPendingSignup,
 } from '../lib/access';
 
-type Role = null | 'student' | 'teacher';
+type Role = null | 'student' | 'teacher' | 'individual';
 
 export default function JoinGroupScreen() {
   const { user, signOut } = useAuth();
@@ -32,6 +33,9 @@ export default function JoinGroupScreen() {
   const [groupName, setGroupName] = useState('');
   const [newClassCode, setNewClassCode] = useState('');
 
+  // Individual fields
+  const [individualCode, setIndividualCode] = useState('');
+
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [resumed, setResumed] = useState(false);
@@ -47,11 +51,14 @@ export default function JoinGroupScreen() {
       setRole('student');
       setClassCode(pending.classCode);
       if (pending.displayName) setDisplayName(pending.displayName);
-    } else {
+    } else if (pending.role === 'teacher') {
       setRole('teacher');
       setTeacherCode(pending.teacherCode);
       setGroupName(pending.groupName);
       setNewClassCode(pending.classCode);
+    } else {
+      setRole('individual');
+      setIndividualCode(pending.individualCode);
     }
     setResumed(true);
 
@@ -60,7 +67,9 @@ export default function JoinGroupScreen() {
       setError(null);
       const result = pending.role === 'student'
         ? await joinGroupByClassCodeRpc(pending.classCode, pending.displayName)
-        : await consumeTeacherCode(pending.teacherCode, pending.groupName, pending.classCode);
+        : pending.role === 'teacher'
+          ? await consumeTeacherCode(pending.teacherCode, pending.groupName, pending.classCode)
+          : await consumeIndividualCode(pending.individualCode);
       if (result.error) {
         // Code became invalid / taken / full between signup and confirm —
         // surface the error and let the user fix it manually.
@@ -82,6 +91,18 @@ export default function JoinGroupScreen() {
     if (!displayName.trim()) { setError('Укажите ваше имя'); return; }
     setLoading(true);
     const { error: err } = await joinGroupByClassCodeRpc(classCode.trim(), displayName.trim());
+    if (err) { setLoading(false); setError(err); return; }
+    clearPendingSignup();
+    await Promise.all([refreshAccess(), refreshGroup()]);
+    setLoading(false);
+  };
+
+  const submitIndividual = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    if (!individualCode.trim()) { setError('Введите индивидуальный код'); return; }
+    setLoading(true);
+    const { error: err } = await consumeIndividualCode(individualCode.trim());
     if (err) { setLoading(false); setError(err); return; }
     clearPendingSignup();
     await Promise.all([refreshAccess(), refreshGroup()]);
@@ -148,7 +169,37 @@ export default function JoinGroupScreen() {
               <div className="role-name">Я учитель</div>
               <div className="role-desc">Создать свою группу — нужен код учителя</div>
             </button>
+            <button className="role-card" onClick={() => { setRole('individual'); setError(null); }}>
+              <div className="role-emoji">⭐</div>
+              <div className="role-name">Индивидуальный доступ</div>
+              <div className="role-desc">Личный доступ по индивидуальному коду — без группы</div>
+            </button>
           </div>
+        )}
+
+        {role === 'individual' && (
+          <form className="auth-form" onSubmit={submitIndividual} noValidate>
+            <div className="auth-field">
+              <label className="auth-label">Индивидуальный код</label>
+              <input
+                type="text"
+                value={individualCode}
+                onChange={e => setIndividualCode(e.target.value)}
+                placeholder="Введите код, который вам выдали"
+                className="auth-input"
+                autoFocus
+              />
+              <div className="auth-hint">Доступ активируется на календарный месяц.</div>
+            </div>
+            {error && <div className="auth-error"><span>⚠️</span> {error}</div>}
+            <button type="submit" disabled={loading} className="auth-submit">
+              {loading ? <span className="auth-spinner" /> : 'Активировать доступ'}
+            </button>
+            <button type="button" className="auth-link auth-link-center"
+              onClick={() => { setRole(null); setError(null); }}>
+              ← Назад
+            </button>
+          </form>
         )}
 
         {role === 'student' && (

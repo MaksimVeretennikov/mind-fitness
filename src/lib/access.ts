@@ -1,6 +1,6 @@
 import { supabase } from './supabase';
 
-export type AccessType = 'pending' | 'student' | 'teacher' | 'legacy_individual';
+export type AccessType = 'pending' | 'student' | 'teacher' | 'legacy_individual' | 'individual';
 
 export interface Profile {
   user_id: string;
@@ -8,6 +8,7 @@ export interface Profile {
   marketing_opt_in: boolean;
   terms_accepted_at: string | null;
   privacy_accepted_at: string | null;
+  access_until: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -56,6 +57,7 @@ function translateRpcError(code: string | undefined, message: string): string {
   if (m.includes('cannot_join_own_group')) return 'Это ваша группа — вы её владелец';
   if (m.includes('already_in_other_group')) return 'Вы уже состоите в другой группе';
   if (m.includes('group_full')) return 'В этой группе закончились свободные места — обратитесь к учителю';
+  if (m.includes('invalid_individual_code')) return 'Индивидуальный код неверный или уже использован';
   if (m.includes('unauthorized')) return 'Сессия истекла, войдите заново';
   if (m.includes('forbidden')) return 'Доступ запрещён';
   return 'Не удалось выполнить операцию';
@@ -106,6 +108,21 @@ export async function checkClassCodeExists(code: string): Promise<boolean> {
   return data === true;
 }
 
+/** Pre-flight check: is this individual code valid and unused? */
+export async function checkIndividualCode(code: string): Promise<boolean> {
+  const { data, error } = await supabase.rpc('check_individual_code', { p_code: code });
+  if (error) return false;
+  return data === true;
+}
+
+export async function consumeIndividualCode(
+  code: string,
+): Promise<{ accessUntil?: string; error?: string }> {
+  const { data, error } = await supabase.rpc('consume_individual_code', { p_code: code });
+  if (error) return { error: translateRpcError(error.code, error.message) };
+  return { accessUntil: data as string };
+}
+
 // ─── Pending signup intent stash ───────────────────────────────────────────
 // When email confirmation is enabled, signUp returns no session and we cannot
 // immediately consume the code. We persist the user's intent locally so that
@@ -113,7 +130,8 @@ export async function checkClassCodeExists(code: string): Promise<boolean> {
 
 export type PendingSignup =
   | { role: 'student'; classCode: string; displayName: string }
-  | { role: 'teacher'; teacherCode: string; groupName: string; classCode: string };
+  | { role: 'teacher'; teacherCode: string; groupName: string; classCode: string }
+  | { role: 'individual'; individualCode: string };
 
 const STASH_KEY = 'mind-fitness-pending-signup';
 
@@ -125,7 +143,7 @@ export function readPendingSignup(): PendingSignup | null {
     const raw = localStorage.getItem(STASH_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as PendingSignup;
-    if (parsed && (parsed.role === 'student' || parsed.role === 'teacher')) return parsed;
+    if (parsed && (parsed.role === 'student' || parsed.role === 'teacher' || parsed.role === 'individual')) return parsed;
     return null;
   } catch { return null; }
 }

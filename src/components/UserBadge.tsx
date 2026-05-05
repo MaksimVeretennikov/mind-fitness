@@ -17,7 +17,7 @@ function formatAccessDate(iso: string): string {
 
 export default function UserBadge() {
   const { user, loading, setShowAuthModal, setShowHistoryPanel, signOut } = useAuth();
-  const { isAdmin } = useAccess();
+  const { isAdmin, profile } = useAccess();
   const { ownedGroup, memberGroup, memberNickname, setShowGroupModal, setShowTeacherDashboard, updateNickname } = useGroup();
   const [open, setOpen] = useState(false);
   const [nickOpen, setNickOpen] = useState(false);
@@ -118,6 +118,14 @@ export default function UserBadge() {
               </span>
             </div>
           )}
+          {profile?.access_type === 'individual' && profile.access_until && (
+            <div className="user-badge-access">
+              <span className="user-badge-access-icon">🗓️</span>
+              <span className="user-badge-access-text">
+                Доступ до <strong>{formatAccessDate(profile.access_until)}</strong>
+              </span>
+            </div>
+          )}
           {totalScore !== null && totalScore > 0 && (
             <div className="user-badge-score">
               <span className="user-badge-score-icon">⭐</span>
@@ -141,7 +149,7 @@ export default function UserBadge() {
               <span className="user-badge-item-icon">👩‍🏫</span>
               Моя группа
             </button>
-          ) : (
+          ) : profile?.access_type === 'individual' ? null : (
             <button
               className="user-badge-item"
               onClick={() => { setOpen(false); setShowGroupModal(true); }}
