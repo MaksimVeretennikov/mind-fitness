@@ -324,7 +324,7 @@ export default function LetterStrikeout() {
   if (phase === 'result') {
     return (
       <div className="flex flex-col items-center gap-5 py-6 animate-scale-in">
-        <div className="glass rounded-3xl p-8 text-center shadow-lg max-w-sm w-full">
+        <div className="glass rounded-3xl p-8 text-center shadow-lg max-w-sm sm:max-w-md w-full">
           <div className="text-5xl mb-3">🎉</div>
           <h2 className="text-2xl font-bold text-gray-800 mb-1">Слово найдено!</h2>
           <p className="text-gray-400 text-sm mb-4">{cfg.label}</p>
