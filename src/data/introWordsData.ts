@@ -139,6 +139,6 @@ export const INTRO_WORDS: IntroWordItem[] = [
   { word: 'зачастую', isIntro: false },
   { word: 'будто', isIntro: false },
   { word: 'на самом деле', isIntro: false },
-  { word: 'в конце концов', isIntro: false },
+  { word: 'в конце концов', isIntro: false, note: '=в итоге' },
   { word: 'значит', isIntro: false, note: '=это, вот, обозначает' },
 ];

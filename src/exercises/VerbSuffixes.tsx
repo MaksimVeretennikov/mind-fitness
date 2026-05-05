@@ -149,7 +149,6 @@ const ITEMS: TextItem[] = [
   { display: 'гранич_ть',                        answer: 'граничить' },
   { display: 'дра_ть палубу',                    answer: 'драить' },
   { display: 'забрезж_ть',                       answer: 'забрезжить' },
-  { display: 'глож_ть',                          answer: 'гложить' },
   { display: 'сил_ть',                           answer: 'силить' },
   { display: 'кле_ть',                           answer: 'клеить' },
   { display: 'лаз_ть',                           answer: 'лазить' },
