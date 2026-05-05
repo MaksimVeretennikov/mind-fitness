@@ -2066,6 +2066,196 @@
   .legal-card { padding: 24px 18px; }
 }
 
+/* ─── Pricing page ─────────────────────────────────────────────────────── */
+.pricing-header {
+  text-align: center;
+  color: #f8fafc;
+  margin-bottom: 28px;
+}
+.pricing-header h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0 0 8px;
+  color: #ffffff;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+.pricing-header p {
+  font-size: 1rem;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.25);
+}
+.pricing-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+.pricing-card {
+  position: relative;
+  border-radius: 20px;
+  padding: 28px 26px;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+}
+.pricing-card-light {
+  background: rgba(255, 255, 255, 0.97);
+  color: #1f2937;
+}
+.pricing-card-purple {
+  background: linear-gradient(160deg, #6d28d9 0%, #4c1d95 100%);
+  color: #f5f3ff;
+}
+.pricing-badge {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: #f97316;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 5px 10px;
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.4);
+}
+.pricing-tier {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  opacity: 0.7;
+  margin-bottom: 6px;
+}
+.pricing-card-purple .pricing-tier { opacity: 0.85; }
+.pricing-subtier {
+  font-size: 0.88rem;
+  opacity: 0.85;
+  margin-bottom: 4px;
+}
+.pricing-price {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+.pricing-price span {
+  font-size: 0.95rem;
+  font-weight: 500;
+  opacity: 0.7;
+}
+.pricing-desc {
+  font-size: 0.92rem;
+  margin: 0 0 16px;
+  opacity: 0.9;
+}
+.pricing-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 0.92rem;
+}
+.pricing-list li {
+  padding: 6px 0 6px 22px;
+  position: relative;
+}
+.pricing-list li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  font-weight: 700;
+  color: #6d28d9;
+}
+.pricing-card-purple .pricing-list li::before { color: #fbbf24; }
+.pricing-access {
+  border-radius: 20px;
+  padding: 24px 28px;
+  background: rgba(255, 255, 255, 0.97);
+  color: #1f2937;
+  line-height: 1.6;
+}
+.pricing-access h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: #111827;
+}
+.pricing-access p {
+  margin: 0;
+  font-size: 0.95rem;
+}
+@media (max-width: 720px) {
+  .pricing-grid { grid-template-columns: 1fr; }
+  .pricing-header h1 { font-size: 1.6rem; }
+  .pricing-card { padding: 24px 20px; }
+}
+
+/* ─── Contacts page ────────────────────────────────────────────────────── */
+.contacts-card {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 32px 32px 28px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.97);
+  color: #1f2937;
+  line-height: 1.6;
+}
+.contacts-card h1 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 0 0 18px;
+  color: #111827;
+  text-align: center;
+}
+.contacts-list {
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+.contacts-list > div {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 12px;
+  align-items: baseline;
+}
+.contacts-list dt {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #6b7280;
+  letter-spacing: 0.02em;
+}
+.contacts-list dd {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #1f2937;
+}
+.contacts-list a {
+  color: #6d28d9;
+  text-decoration: none;
+}
+.contacts-list a:hover { text-decoration: underline; }
+@media (max-width: 480px) {
+  .contacts-card { padding: 24px 20px; }
+  .contacts-list > div {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+}
+
+/* ─── Auxiliary auth links (Стоимость · Контакты) ─────────────────────── */
+.auth-aux-links {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 6px;
+  font-size: 0.8rem;
+}
+.auth-aux-links a {
+  color: rgba(107, 114, 128, 0.85);
+  text-decoration: none;
+}
+.auth-aux-links a:hover { text-decoration: underline; }
+.auth-aux-links .sep { color: rgba(107, 114, 128, 0.6); }
+
 /* ─── Admin panel ──────────────────────────────────────────────────────── */
 .admin-page {
   position: relative;

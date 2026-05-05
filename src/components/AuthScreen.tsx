@@ -204,6 +204,7 @@ export default function AuthScreen() {
             </button>
             <button type="button" className="auth-link auth-link-center"
               onClick={() => switchView('forgot')}>Забыли пароль?</button>
+            <AuxLinks />
           </form>
         )}
 
@@ -268,6 +269,7 @@ export default function AuthScreen() {
             </button>
             <button type="button" className="auth-link auth-link-center"
               onClick={() => { setSignupRole(null); reset(); }}>← Сменить роль</button>
+            <AuxLinks />
           </form>
         )}
 
@@ -298,6 +300,7 @@ export default function AuthScreen() {
             </button>
             <button type="button" className="auth-link auth-link-center"
               onClick={() => { setSignupRole(null); reset(); }}>← Сменить роль</button>
+            <AuxLinks />
           </form>
         )}
 
@@ -324,6 +327,7 @@ export default function AuthScreen() {
             </button>
             <button type="button" className="auth-link auth-link-center"
               onClick={() => { setSignupRole(null); reset(); }}>← Сменить роль</button>
+            <AuxLinks />
           </form>
         )}
       </div>
@@ -332,6 +336,16 @@ export default function AuthScreen() {
 }
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
+
+function AuxLinks() {
+  return (
+    <div className="auth-aux-links">
+      <a href="#/pricing">Стоимость</a>
+      <span className="sep">·</span>
+      <a href="#/contacts">Контакты</a>
+    </div>
+  );
+}
 
 function Field({
   label, value, onChange, type = 'text', placeholder, autoComplete, autoFocus, hint,

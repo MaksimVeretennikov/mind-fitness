@@ -40,6 +40,8 @@ import DailyWelcome from './components/DailyWelcome';
 import AuthScreen from './components/AuthScreen';
 import JoinGroupScreen from './components/JoinGroupScreen';
 import LegalPage from './components/LegalPage';
+import PricingPage from './components/PricingPage';
+import ContactsPage from './components/ContactsPage';
 import AdminPanel from './components/AdminPanel';
 import ResetPasswordModal from './components/ResetPasswordModal';
 import HistoryPanel from './components/HistoryPanel';
@@ -145,6 +147,8 @@ function Gate() {
   // Public legal pages — accessible regardless of auth state.
   if (route === '/privacy') return <LegalPage doc="privacy" />;
   if (route === '/terms') return <LegalPage doc="terms" />;
+  if (route === '/pricing') return <PricingPage />;
+  if (route === '/contacts') return <ContactsPage />;
 
   if (authLoading) {
     return <div className="auth-screen"><div className="auth-loading">Загрузка…</div></div>;
