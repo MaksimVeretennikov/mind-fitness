@@ -404,10 +404,18 @@
 }
 .geo-play--map .geo-map-wrap {
   flex: 1 1 auto;
-  min-height: calc(100vh - 180px);
+  height: calc(100vh - 300px);
+  max-height: calc(100vh - 300px);
   display: flex;
   align-items: stretch;
   justify-content: center;
+}
+@media (max-width: 900px) {
+  .geo-play--map .geo-map-wrap {
+    height: auto;
+    max-height: none;
+    min-height: 60vh;
+  }
 }
 .geo-play--map .geo-map-wrap > svg,
 .geo-play--map .geo-map-wrap .rsm-svg {

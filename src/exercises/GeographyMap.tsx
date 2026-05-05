@@ -36,7 +36,7 @@ interface Props { onBack: () => void }
 
 const QUESTION_TIME = 15;
 const REGION_VIEW: Record<Region | 'all', { center: [number, number]; zoom: number }> = {
-  all:      { center: [10, 20],   zoom: 1 },
+  all:      { center: [10, 16],   zoom: 1.85 },
   europe:   { center: [15, 52],   zoom: 3.8 },
   asia:     { center: [95, 30],   zoom: 2 },
   africa:   { center: [20, 0],    zoom: 2.2 },
@@ -138,6 +138,9 @@ export default function GeographyMap({ onBack }: Props) {
     setSessionStart(Date.now());
     savedRef.current = false;
     setPhase('playing');
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    }
   }, [mapPool, count]);
 
   const replayWeak = useCallback(() => {
@@ -483,7 +486,7 @@ export default function GeographyMap({ onBack }: Props) {
   const hoverStroke = isDark ? 'rgba(109, 40, 217, 0.9)' : 'rgba(109, 40, 217, 0.7)';
 
   return (
-    <div className="geo-play geo-play--map animate-fade-in" style={{ minHeight: 'calc(100vh - 100px)' }}>
+    <div className="geo-play geo-play--map animate-fade-in">
       <div className="geo-topbar">
         <span className="geo-hud-item geo-topbar-q">
           <span className="geo-topbar-idx">{qIndex + 1}/{questions.length}</span>
@@ -565,7 +568,7 @@ export default function GeographyMap({ onBack }: Props) {
                       onMouseEnter={() => !locked && iso && setHoverCode(iso)}
                       onMouseLeave={() => setHoverCode(null)}
                       style={{
-                        default: { fill, stroke, strokeWidth, outline: 'none', transition: 'fill 0.2s' },
+                        default: { fill, stroke, strokeWidth, outline: 'none' },
                         hover:   { fill, stroke, strokeWidth, outline: 'none', cursor: locked ? 'default' : 'pointer' },
                         pressed: { fill, stroke, strokeWidth, outline: 'none' },
                       }}

@@ -37,11 +37,26 @@ interface TrainingQuestion {
 }
 
 function buildQuestions(selectedBreeds: DogBreed[]): TrainingQuestion[] {
-  const pool = selectedBreeds.length >= 10 ? selectedBreeds : DOG_BREEDS;
-  return selectedBreeds.map(breed => ({
-    breed,
-    choices: shuffle([breed, ...pickDistractors(breed, pool, 3)]).map(b => b.nameRu),
-  }));
+  // Always pick distractors from the full catalog so questions still get 3
+  // good options even when the session is small (e.g. 10 breeds).
+  const pool = DOG_BREEDS;
+  // Sliding window of breeds used as distractors recently; size 6 ≈ keeps
+  // the last two questions' distractors out of rotation.
+  const recent: string[] = [];
+  const RECENT_LIMIT = 6;
+
+  return selectedBreeds.map(breed => {
+    const recentSet = new Set(recent);
+    const distractors = pickDistractors(breed, pool, 3, recentSet);
+    distractors.forEach(d => {
+      recent.push(d.id);
+      if (recent.length > RECENT_LIMIT) recent.shift();
+    });
+    return {
+      breed,
+      choices: shuffle([breed, ...distractors]).map(b => b.nameRu),
+    };
+  });
 }
 
 export default function DogBreeds({ onBack }: Props) {
@@ -279,9 +294,9 @@ export default function DogBreeds({ onBack }: Props) {
             className="glass rounded-3xl overflow-hidden shadow-lg w-full max-w-4xl"
           >
             {/* Photo */}
-            <div className="relative w-full bg-white/20" style={{ paddingBottom: '70%' }}>
+            <div className="relative w-full bg-white/20" style={{ height: 'min(60vh, 520px)' }}>
               <img
-                src={getBreedPhotoUrl(breed.id)}
+                src={getBreedPhotoUrl(breed)}
                 alt={breed.nameRu}
                 className="absolute inset-0 w-full h-full object-contain"
               />
@@ -362,10 +377,13 @@ export default function DogBreeds({ onBack }: Props) {
             className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-5"
           >
             {/* Photo */}
-            <div className="glass rounded-3xl overflow-hidden shadow-lg">
-              <div className="relative w-full bg-white/20" style={{ paddingBottom: '80%' }}>
+            <div className="glass rounded-3xl overflow-hidden shadow-lg flex flex-col">
+              <div
+                className="relative w-full bg-white/20"
+                style={{ height: 'min(56vh, 460px)' }}
+              >
                 <img
-                  src={getBreedPhotoUrl(breed.id)}
+                  src={getBreedPhotoUrl(breed)}
                   alt="Какая это порода?"
                   className="absolute inset-0 w-full h-full object-contain"
                 />
@@ -461,7 +479,7 @@ export default function DogBreeds({ onBack }: Props) {
             {mistakes.map((m, i) => (
               <div key={i} className="flex items-center gap-3 bg-white/60 rounded-xl p-3 border border-white/60">
                 <img
-                  src={getBreedPhotoUrl(m.breed.id)}
+                  src={getBreedPhotoUrl(m.breed)}
                   alt={m.breed.nameRu}
                   className="w-14 h-14 rounded-lg object-cover shrink-0"
                 />
